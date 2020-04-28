@@ -3,19 +3,32 @@ import { newKit } from '@celo/contractkit'
 
 import "../imports/startup/server"
 
-let timer = 0;
+const kit = newKit(Meteor.settings.public.fornoAddress);
+const web3 = kit.web3;
+let timer: Number;
+timer = 0;
+
+function updateBlock(number:Number) {
+    Meteor.clearInterval(timer);
+    Meteor.call('blocks.getBlocks', number, (error, result) => {
+        if (error){
+        }
+
+        if (result){
+            
+        }
+        timer = Meteor.setInterval(() => {
+            web3.eth.getBlockNumber()
+                .then((number) => {
+                updateBlock(number)
+            })}, 10000)
+    })
+}
 
 Meteor.startup(() => {
-    let kit = newKit(Meteor.settings.public.fornoAddress);
-    let web3 = kit.web3;
+
     web3.eth.getBlockNumber()
         .then((number) => {
-            Meteor.call('blocks.getBlocks', number, (error, result) => {
-                if (error){
-                }
-
-                if (result){
-                }
-            })
+            updateBlock(number)
         })
 });
