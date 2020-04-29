@@ -49,23 +49,22 @@ Meteor.methods({
 
                 // get transactions
                 if (block.transactions.length > 0){
+                    // console.log("block: "+i);
+                    // console.log(block.transactions);
+                    // let addresses = {};
                     for(let j = 0; j < block.transactions.length; j++) {
                         let tx = await web3.eth.getTransaction(block.transactions[j])
+                        // console.log(tx);
+                        // insert tx
                         try{
-                            Transactions.insert(tx, async (error, result) => {
-                                if (parseInt(tx.value) > 0) {
-                                    try {
-                                        let balance = await web3.eth.getBalance(tx.to)
-                                        if (parseInt(balance) > 0){
-                                            // update or insert address if balance larger than 0
-                                            Accounts.upsert({address:tx.to}, {$set:{address:tx.to, balance:parseInt(balance)}})
-                                        }
-                                    }
-                                    catch(e){
-                                        console.log(e);
-                                    }
+                            Transactions.insert(tx);
+                            if (parseInt(tx.value) > 0) {
+                                let balance = await web3.eth.getBalance(tx.to)
+                                if (parseInt(balance) > 0){
+                                    // update or insert address if balance larger than 0
+                                    Accounts.upsert({address:tx.to}, {$set:{address:tx.to, balance:parseInt(balance)}})
                                 }
-                            });
+                            }    
                         }
                         catch(e){
                             console.log(e)

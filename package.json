@@ -10,6 +10,10 @@
   "dependencies": {
     "@babel/runtime": "^7.8.4",
     "@celo/contractkit": "^0.4.1",
+    "apollo-client": "^2.6.8",
+    "express": "^4.17.1",
+    "graphql": "^15.0.0",
+    "graphql-server-express": "^1.4.1",
     "meteor-node-stubs": "^1.0.0",
     "react": "^16.13.0",
     "react-dom": "^16.13.0",
