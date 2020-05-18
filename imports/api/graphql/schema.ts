@@ -5,13 +5,13 @@ const typeDefs = gql`
     scalar BigInt
 
     type Chain {
-        id: ID!
+        _id: String!
         averageBlockTime: Float
         txCount: Int
     }
 
     type Block {
-        id: ID!
+        _id: String!
         extraData: String!
         gasUsed: Int!
         hash: String!
@@ -36,7 +36,7 @@ const typeDefs = gql`
     }
 
     type Transaction {
-        id: ID!
+        _id: String!
         blockHash: String!
         blockNumber: Int!
         from: String!
@@ -57,8 +57,8 @@ const typeDefs = gql`
     }
 
     type Account {
-        id: ID!
-        addresss: String!
+        _id: String!
+        address: String!
         balance: BigInt
     }
 
@@ -67,6 +67,9 @@ const typeDefs = gql`
         blocks: [Block]
         transactions: [Transaction]
         accounts: [Account]
+        block(number: Int): Block
+        transaction(hash: String!): Transaction
+        account(address: String!): Account
     }
 
 `;

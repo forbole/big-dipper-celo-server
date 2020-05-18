@@ -16,12 +16,7 @@ Transactions.rawCollection().createIndex({hash: 1}, {unique:true});
 
 
 import typeDefs from '../../api/graphql/schema';
-
-const resolvers = {
-    // Query: {
-    //     books: () => books,
-    // },
-};
+import resolvers from '../../api/graphql/resolvers';
 
 // The ApolloServer constructor requires two parameters: your schema
 // definition and your set of resolvers.
