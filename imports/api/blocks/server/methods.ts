@@ -26,6 +26,7 @@ Meteor.methods({
         for (let i = latestBlockHeight+1; i <= targetHeight; i++){
             let blockTime = 0;
             try{
+                console.log("Processing block: "+i)
                 // get block
                 let block:{[k: string]: any} = await web3.eth.getBlock(i);
 
@@ -55,6 +56,7 @@ Meteor.methods({
                     for(let j = 0; j < block.transactions.length; j++) {
                         let tx = await web3.eth.getTransaction(block.transactions[j])
                         // console.log(tx);
+                        console.log("Processing transaction: "+tx.hash);
                         // insert tx
                         try{
                             Transactions.insert(tx);
