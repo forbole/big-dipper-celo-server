@@ -68,7 +68,10 @@ const typeDefs = gql`
             pageSize: Int
             skip: Int
         ): BlockList! 
-        transactions: [Transaction]
+        transactions(
+            pageSize: Int
+            skip: Int
+        ): TransactionList!
         accounts: [Account]
         block(number: Int): Block
         transaction(hash: String!): Transaction
@@ -82,6 +85,12 @@ const typeDefs = gql`
         blocks: [Block]
     }
 
+    type TransactionList {
+        cursor: Int!
+        totalCounts: Int!
+        hasMore: Boolean!
+        transactions: [Transaction]
+    }
 `;
 
 export default typeDefs;
