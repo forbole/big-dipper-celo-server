@@ -64,12 +64,22 @@ const typeDefs = gql`
 
     type Query {
         chain: Chain
-        blocks: [Block]
+        blocks(
+            pageSize: Int
+            after: Int
+        ): BlockList! 
         transactions: [Transaction]
         accounts: [Account]
         block(number: Int): Block
         transaction(hash: String!): Transaction
         account(address: String!): Account
+    }
+
+    type BlockList {
+        cursor: Int!
+        totalCounts: Int!
+        hasMore: Boolean!
+        blocks: [Block]
     }
 
 `;
