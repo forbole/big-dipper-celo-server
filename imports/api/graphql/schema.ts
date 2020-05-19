@@ -66,7 +66,7 @@ const typeDefs = gql`
         chain: Chain
         blocks(
             pageSize: Int
-            after: Int
+            skip: Int
         ): BlockList! 
         transactions: [Transaction]
         accounts: [Account]

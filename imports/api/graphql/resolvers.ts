@@ -14,10 +14,10 @@ export default {
         account(_, args, context, info){
             return Accounts.findOne({address:args.address})
         },
-        blocks: async (_, { pageSize = 20, after }, { dataSources }) => {
+        blocks: async (_, { pageSize = 20, skip }, { dataSources }) => {
             
             const totalCounts = Blocks.find().count()
-            const blocks = Blocks.find({}, { sort: { number: -1 }, limit: pageSize, skip: (totalCounts - after) }).fetch()
+            const blocks = Blocks.find({}, { sort: { number: -1 }, limit: pageSize, skip: (totalCounts - skip) }).fetch()
             return {
                 blocks,
                 totalCounts: totalCounts,
