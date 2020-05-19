@@ -13,6 +13,9 @@ import { WebApp } from 'meteor/webapp'
 Blocks.rawCollection().createIndex({number: -1},{unique:true});
 Accounts.rawCollection().createIndex({address: 1},{unique:true});
 Transactions.rawCollection().createIndex({hash: 1}, {unique:true});
+Transactions.rawCollection().createIndex({ blockNumber: -1 });
+Transactions.rawCollection().createIndex({ to: 1 });
+Transactions.rawCollection().createIndex({ from: 1 });
 
 
 import typeDefs from '../../api/graphql/schema';
