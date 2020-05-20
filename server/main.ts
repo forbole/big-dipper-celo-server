@@ -29,6 +29,6 @@ Meteor.startup(() => {
 
     web3.eth.getBlockNumber()
         .then((number) => {
-            // updateBlock(number)
+            updateBlock(number)
         })
 });

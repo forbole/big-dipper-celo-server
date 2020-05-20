@@ -8,10 +8,12 @@ export default {
         chain() {
             return Chain.findOne()
         },
-        transactions: async (_, { pageSize = 20, skip }, { dataSources }) => {
+        transactions: async (_, { pageSize = 20, page }, { dataSources }) => {
             const totalCounts = Transactions.find().count()
-            const transactions = Transactions.find({}, { sort: { blockNumber: -1 }, limit: pageSize, skip: (totalCounts - skip) }).fetch()
+            const transactions = Transactions.find({}, { sort: { blockNumber: -1 }, limit: pageSize, page: (page-1)*pageSize }).fetch()
             return {
+                pageSize: pageSize,
+                page: page,
                 transactions,
                 totalCounts: totalCounts,
                 cursor: transactions.length ? transactions[transactions.length - 1].blockNumber : null,
@@ -24,14 +26,16 @@ export default {
         account(_, args, context, info){
             return Accounts.findOne({address:args.address})
         },
-        blocks: async (_, { pageSize = 20, skip }, { dataSources }) => {
+        blocks: async (_, { pageSize = 20, page }, { dataSources }) => {
             const totalCounts = Blocks.find().count()
-            const blocks = Blocks.find({}, { sort: { number: -1 }, limit: pageSize, skip: (totalCounts - skip) }).fetch()
+            const blocks = Blocks.find({}, { sort: { number: -1 }, limit: pageSize, page: (page-1)*pageSize }).fetch()
             return {
+                pageSize: pageSize,
+                page: page,
                 blocks,
                 totalCounts: totalCounts,
                 cursor: blocks.length ? blocks[blocks.length-1].number : null,
-                hasMore: blocks[blocks.length - 1].number != 1
+                hasMore: blocks.length ? blocks[blocks.length - 1].number != 1 : false
             };
         },
         block(_, args, context, info){

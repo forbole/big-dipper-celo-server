@@ -66,11 +66,11 @@ const typeDefs = gql`
         chain: Chain
         blocks(
             pageSize: Int
-            skip: Int
+            page: Int
         ): BlockList! 
         transactions(
             pageSize: Int
-            skip: Int
+            page: Int
         ): TransactionList!
         accounts: [Account]
         block(number: Int): Block
@@ -80,6 +80,8 @@ const typeDefs = gql`
 
     type BlockList {
         cursor: Int!
+        pageSize: Int!
+        page: Int!
         totalCounts: Int!
         hasMore: Boolean!
         blocks: [Block]
@@ -87,6 +89,8 @@ const typeDefs = gql`
 
     type TransactionList {
         cursor: Int!
+        pageSize: Int!
+        page: Int!
         totalCounts: Int!
         hasMore: Boolean!
         transactions: [Transaction]
