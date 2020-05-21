@@ -8,12 +8,15 @@ const typeDefs = gql`
         _id: String!
         averageBlockTime: Float
         txCount: Int
+        latestHeight: Int
+        chainId: Int
     }
 
     type Subscription {
         blockAdded: Block
         transactionAdded: Transaction
         accountAdded: Account
+        chainUpdated: Chain
     }
 
     type Block {

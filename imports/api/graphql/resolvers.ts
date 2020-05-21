@@ -7,6 +7,9 @@ import PUB from './subscriptions';
 
 export default {
     Subscription: {
+        chainUpdated: {
+            subscribe: () => PUB.pubsub.asyncIterator([PUB.CHAIN_UPDATED]),
+        },
         blockAdded: {
             // Additional event labels can be passed to asyncIterator creation
             subscribe: () => PUB.pubsub.asyncIterator([PUB.BLOCK_ADDED]),
