@@ -70,6 +70,7 @@ const typeDefs = gql`
 
     type Query {
         chain: Chain
+        accountCount: Int!
         blocks(
             pageSize: Int
             page: Int

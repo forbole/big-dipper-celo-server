@@ -24,6 +24,9 @@ export default {
         chain() {
             return Chain.findOne()
         },
+        accountCount(_, args, context, info){
+            return Accounts.find().count()
+        },
         transactions: async (_, { pageSize = 20, page }, { dataSources }) => {
             const totalCounts = Transactions.find().count()
             const transactions = Transactions.find({}, { sort: { blockNumber: -1 }, limit: pageSize, page: (page-1)*pageSize }).fetch()
