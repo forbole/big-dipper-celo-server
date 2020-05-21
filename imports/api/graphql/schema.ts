@@ -10,6 +10,12 @@ const typeDefs = gql`
         txCount: Int
     }
 
+    type Subscription {
+        blockAdded: Block
+        transactionAdded: Transaction
+        accountAdded: Account
+    }
+
     type Block {
         _id: String!
         extraData: String!

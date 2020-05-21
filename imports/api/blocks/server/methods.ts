@@ -5,6 +5,8 @@ import { Chain } from '../../chain/chain';
 import { Accounts } from '../../accounts/accounts';
 import { Transactions } from '../../transactions/transactions';
 
+import PUB from '../../graphql/subscriptions';
+
 let kit = newKit(Meteor.settings.public.fornoAddress);
 let web3 = kit.web3;
 
@@ -59,12 +61,16 @@ Meteor.methods({
                         console.log("Processing transaction: "+tx.hash);
                         // insert tx
                         try{
-                            Transactions.insert(tx);
+                            Transactions.insert(tx, (error, result) => {
+                                PUB.pubsub.publish(PUB.TRANSACTION_ADDED, { transactionAdded: tx });
+                            });
                             if (parseInt(tx.value) > 0) {
                                 let balance = await web3.eth.getBalance(tx.to)
                                 if (parseInt(balance) > 0){
                                     // update or insert address if balance larger than 0
-                                    Accounts.upsert({address:tx.to}, {$set:{address:tx.to, balance:parseInt(balance)}})
+                                    Accounts.upsert({address:tx.to}, {$set:{address:tx.to, balance:parseInt(balance)}}, (error, result) => {
+                                        PUB.pubsub.publish(PUB.ACCOUNT_ADDED, { accountAdded: {address:tx.to, balance:balance} });
+                                    })
                                 }
                             }    
                         }
@@ -77,7 +83,9 @@ Meteor.methods({
 
                 // console.log(chainState)
                 Chain.upsert({chainId:chainId}, {$set:chainState});
-                Blocks.insert(block);
+                Blocks.insert(block, (error, result) => {
+                    PUB.pubsub.publish(PUB.BLOCK_ADDED, { blockAdded: block });
+                });
 
                 lastBlock = block;
             }

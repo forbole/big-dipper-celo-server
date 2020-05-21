@@ -3,7 +3,23 @@ import { Transactions } from '../transactions/transactions';
 import { Accounts } from '../accounts/accounts';
 import { Blocks } from '../blocks/blocks';
 
+import PUB from './subscriptions';
+
 export default {
+    Subscription: {
+        blockAdded: {
+            // Additional event labels can be passed to asyncIterator creation
+            subscribe: () => PUB.pubsub.asyncIterator([PUB.BLOCK_ADDED]),
+        },
+        transactionAdded: {
+            // Additional event labels can be passed to asyncIterator creation
+            subscribe: () => PUB.pubsub.asyncIterator([PUB.TRANSACTION_ADDED]),
+        },
+        accountAdded: {
+            // Additional event labels can be passed to asyncIterator creation
+            subscribe: () => PUB.pubsub.asyncIterator([PUB.ACCOUNT_ADDED]),
+        },
+    },
     Query: {
         chain() {
             return Chain.findOne()
