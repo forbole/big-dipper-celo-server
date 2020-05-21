@@ -48,7 +48,7 @@ const typeDefs = gql`
         _id: String!
         blockHash: String!
         blockNumber: Int!
-        from: String!
+        from: Account
         gas: Int!
         gasPrice: String!
         feeCurrency: String
@@ -57,7 +57,7 @@ const typeDefs = gql`
         hash: String!
         input: String!
         nonce: Int
-        to: String!
+        to: Account
         transactionIndex: Int!
         value: String!
         v: String!

@@ -48,7 +48,6 @@ function updateChainState(number:Number) {
 }
 
 Meteor.startup(() => {
-
     web3.eth.getBlockNumber()
         .then((number) => {
             updateChainState(number)

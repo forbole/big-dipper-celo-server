@@ -68,5 +68,13 @@ export default {
         transactions(parent){
             return Transactions.find({hash: {$in:parent.transactions}}).fetch()
         }
+    },
+    Transaction: {
+        to(parent){
+            return Accounts.findOne({address:parent.tx})
+        },
+        from(parent){
+            return Accounts.findOne({address:parent.from})
+        }
     }
 }
