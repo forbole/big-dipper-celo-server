@@ -31,7 +31,7 @@ Meteor.methods({
                 console.log("Processing block: "+i)
                 // get block
                 let block:{[k: string]: any} = await web3.eth.getBlock(i);
-
+                
                 if (lastBlock){
                     blockTime = block.timestamp - lastBlock.timestamp
                 }

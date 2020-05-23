@@ -30,7 +30,7 @@ export default {
         accountCount(_, args, context, info){
             return Accounts.find().count()
         },
-        transactions: async (_, { pageSize = 20, page }, { dataSources }) => {
+        transactions: async (_, { pageSize = 20, page = 1 }, { dataSources }) => {
             const totalCounts = Transactions.find().count()
             const transactions = Transactions.find({}, { sort: { blockNumber: -1 }, limit: pageSize, page: (page-1)*pageSize }).fetch()
             return {
@@ -48,7 +48,7 @@ export default {
         account(_, args, context, info){
             return Accounts.findOne({address:args.address})
         },
-        blocks: async (_, { pageSize = 20, page }, { dataSources }) => {
+        blocks: async (_, { pageSize = 20, page = 1 }, { dataSources }) => {
             const totalCounts = Blocks.find().count()
             const blocks = Blocks.find({}, { sort: { number: -1 }, limit: pageSize, page: (page-1)*pageSize }).fetch()
             return {

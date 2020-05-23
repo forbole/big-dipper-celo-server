@@ -22,6 +22,7 @@ const typeDefs = gql`
     type Block {
         _id: String!
         extraData: String!
+        gasLimit: Int
         gasUsed: Int!
         hash: String!
         logsBloom: String!
