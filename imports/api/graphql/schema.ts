@@ -72,7 +72,7 @@ const typeDefs = gql`
         balance: BigInt
     }
 
-    type ValidatorGroups {
+    type ValidatorGroup {
         _id: String!
         address: String!
         affiliates: [String]
@@ -112,6 +112,8 @@ const typeDefs = gql`
         block(number: Int): Block
         transaction(hash: String!): Transaction
         account(address: String!): Account
+        validatorGroup(address:String!): ValidatorGroup
+        validator(address:String!): Validator
     }
 
     type BlockList {

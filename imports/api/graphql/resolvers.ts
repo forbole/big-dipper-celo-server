@@ -2,6 +2,8 @@ import { Chain } from '../chain/chain';
 import { Transactions } from '../transactions/transactions';
 import { Accounts } from '../accounts/accounts';
 import { Blocks } from '../blocks/blocks';
+import { ValidatorGroups } from '../validator-groups/validator-groups';
+import { Validators } from '../validators/validators';
 
 import PUB from './subscriptions';
 
@@ -62,6 +64,12 @@ export default {
         },
         block(_, args, context, info){
             return Blocks.findOne({number: args.number})
+        },
+        validatorGroup(_, args, context, info) {
+            return ValidatorGroups.findOne({address:args.address})
+        },
+        validator(_, args, context, info) {
+            return Validators.findOne({address:args.address})
         }
     },
     Block: {
@@ -75,6 +83,16 @@ export default {
         },
         from(parent){
             return Accounts.findOne({address:parent.from})
+        }
+    },
+    ValidatorGroup: {
+        members(parent){
+            return Validators.find({address: {$in:parent.members}}).fetch()
+        }
+    },
+    Validator: {
+        validatorGroup(parent){
+            return ValidatorGroups.findOne({address:parent.validatorGroup})
         }
     }
 }
