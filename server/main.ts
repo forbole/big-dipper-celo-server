@@ -5,10 +5,26 @@ import "../imports/startup/server"
 
 const kit = newKit(Meteor.settings.public.fornoAddress);
 const web3 = kit.web3;
-let timer, timerChain, timerValidators: Number;
+let timer, timerChain, timerValidators, timerCoin: Number;
 timer = 0;
 timerChain = 0;
 timerValidators = 0;
+timerCoin = 0;
+
+function updateTokenPrice(){
+    Meteor.clearInterval(timerCoin);
+    Meteor.call('chain.updateCoin', (error, result) => {
+        if (error) {
+            console.log(error);
+        }
+
+        if (result) {
+            // console.log("Updated block height to: "+number)
+        }
+
+        timerValidators = Meteor.setInterval(updateTokenPrice, 30000)
+    });
+}
 
 function updateValidators(){
     Meteor.clearInterval(timerValidators);
@@ -72,5 +88,6 @@ Meteor.startup(() => {
             updateChainState(number)
             updateValidators()
             updateBlock(number)
+            updateTokenPrice()
         })
 });

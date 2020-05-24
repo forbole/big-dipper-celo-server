@@ -10,6 +10,7 @@ const typeDefs = gql`
         txCount: Int
         latestHeight: Int
         chainId: Int
+        tokenPrice: tokenPrice
     }
 
     type Subscription {
@@ -17,6 +18,14 @@ const typeDefs = gql`
         transactionAdded: Transaction
         accountAdded: Account
         chainUpdated: Chain
+    }
+
+    type tokenPrice {
+        usd: Float!
+        usd_market_cap: Float!
+        usd_24h_vol: Float!
+        usd_24h_change: Float!
+        last_updated_at: Int!
     }
 
     type Block {
