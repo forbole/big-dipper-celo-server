@@ -1,23 +1,11 @@
-// register server side methods
-import "../../api/blocks/server/methods"
-import "../../api/transactions/server/methods"
-import "../../api/chain/server/methods"
 
-// create indexes
-import { Blocks } from '../../api/blocks/blocks';
-import { Accounts } from '../../api/accounts/accounts';
-import { Transactions } from '../../api/transactions/transactions';
+// Import server side methods
+import './register-apis';
+// Create collection indexes
+import './create-indexes';
 
 import { ApolloServer } from 'apollo-server-express'
 import { WebApp } from 'meteor/webapp'
-
-Blocks.rawCollection().createIndex({number: -1},{unique:true});
-Accounts.rawCollection().createIndex({address: 1},{unique:true});
-Transactions.rawCollection().createIndex({hash: 1}, {unique:true});
-Transactions.rawCollection().createIndex({ blockNumber: -1 });
-Transactions.rawCollection().createIndex({ to: 1 });
-Transactions.rawCollection().createIndex({ from: 1 });
-
 
 import typeDefs from '../../api/graphql/schema';
 import resolvers from '../../api/graphql/resolvers';
