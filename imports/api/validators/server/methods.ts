@@ -14,14 +14,10 @@ Meteor.methods({
         let valGroups = await valContract.getRegisteredValidatorGroups();
         for (let i in valGroups){
             let data: {[k: string]: any} = {};
-            data.name = valGroups[i].name;
-            data.address = valGroups[i].address;
-            data.members = valGroups[i].members;
+            data = valGroups[i];
             data.commission = valGroups[i].commission.toNumber();
             data.nextCommission = valGroups[i].nextCommission.toNumber();
             data.nextCommissionBlock = valGroups[i].nextCommissionBlock.toNumber();
-            data.membersUpdated = valGroups[i].membersUpdated;
-            data.affiliates = valGroups[i].affiliates;
             data.slashingMultiplier = valGroups[i].slashingMultiplier.toNumber();
             data.lastSlashed = valGroups[i].lastSlashed.toNumber();
             
