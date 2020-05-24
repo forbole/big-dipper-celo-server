@@ -72,6 +72,31 @@ const typeDefs = gql`
         balance: BigInt
     }
 
+    type ValidatorGroups {
+        _id: String!
+        address: String!
+        affiliates: [String]
+        commission: Float!
+        lastSlashed: Int!
+        members: [Validator]
+        membersUpdated: Int!
+        name: String!
+        nextCommission: Float!
+        nextCommissionBlock: Int!
+        slashingMultiplier: Float!
+    }
+
+    type Validator{
+        _id: String!
+        affiliation: String!
+        blsPublicKey: String!
+        ecdsaPublicKey: String!
+        name: String!
+        score: Float!
+        signer: String!
+        validatorGroup: ValidatorGroup!
+    }
+
     type Query {
         chain: Chain
         accountCount: Int!
