@@ -22,7 +22,7 @@ function updateTokenPrice(){
             // console.log("Updated block height to: "+number)
         }
 
-        timerValidators = Meteor.setInterval(updateTokenPrice, 30000)
+        timerCoin = Meteor.setInterval(updateTokenPrice, 30000)
     });
 }
 
