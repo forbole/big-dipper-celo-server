@@ -13,7 +13,7 @@ let web3 = kit.web3;
 Meteor.methods({
     'blocks.getBlocks': async function(targetHeight){
         console.log(targetHeight)
-        this.unblock();
+        // this.unblock();
         let latestBlockHeight = 0;
         let latestBlock = Blocks.findOne({},{sort:{number:-1}, limit:1})
         if (latestBlock){
@@ -32,7 +32,11 @@ Meteor.methods({
                 // get block
                 let block:{[k: string]: any} = await web3.eth.getBlock(i);
                 
+                if (!block) return "get null block";
+
+                // console.log(block);
                 if (lastBlock){
+                    // console.log(block);
                     blockTime = block.timestamp - lastBlock.timestamp
                 }
                 
@@ -56,26 +60,36 @@ Meteor.methods({
                     // console.log(block.transactions);
                     // let addresses = {};
                     for(let j = 0; j < block.transactions.length; j++) {
-                        let tx = await web3.eth.getTransaction(block.transactions[j])
+                        let tx:{[k: string]: any} = await web3.eth.getTransaction(block.transactions[j])
                         // console.log(tx);
-                        console.log("Processing transaction: "+tx.hash);
-                        // insert tx
-                        try{
+                        if (tx) {
+                            console.log("Processing transaction: "+tx.hash);
+                            // insert tx
+                            try{
+                                tx.pending = false;
+                                Transactions.insert(tx, (error, result) => {
+                                    PUB.pubsub.publish(PUB.TRANSACTION_ADDED, { transactionAdded: tx });
+                                });
+                                if (parseInt(tx.value) > 0) {
+                                    let balance = await web3.eth.getBalance(tx.to)
+                                    if (parseInt(balance) > 0){
+                                        // update or insert address if balance larger than 0
+                                        Accounts.upsert({address:tx.to}, {$set:{address:tx.to, balance:parseInt(balance)}}, (error, result) => {
+                                            PUB.pubsub.publish(PUB.ACCOUNT_ADDED, { accountAdded: {address:tx.to, balance:balance} });
+                                        })
+                                    }
+                                }    
+                            }
+                            catch(e){
+                                console.log(e)
+                            }
+                        }
+                        else {
+                            console.log("Add pending transaction: "+block.transactions[j]);
+                            tx = {hash:block.transactions[j], pending:true, blockNumber:block.number, blockHash:block.hash}
                             Transactions.insert(tx, (error, result) => {
                                 PUB.pubsub.publish(PUB.TRANSACTION_ADDED, { transactionAdded: tx });
-                            });
-                            if (parseInt(tx.value) > 0) {
-                                let balance = await web3.eth.getBalance(tx.to)
-                                if (parseInt(balance) > 0){
-                                    // update or insert address if balance larger than 0
-                                    Accounts.upsert({address:tx.to}, {$set:{address:tx.to, balance:parseInt(balance)}}, (error, result) => {
-                                        PUB.pubsub.publish(PUB.ACCOUNT_ADDED, { accountAdded: {address:tx.to, balance:balance} });
-                                    })
-                                }
-                            }    
-                        }
-                        catch(e){
-                            console.log(e)
+                            })
                         }
                     }
                     chainState.txCount += block.transactions.length
