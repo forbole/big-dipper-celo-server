@@ -18,17 +18,19 @@ Meteor.methods({
                 // insert tx
                 try{
                     tx.pending = false;
-                    Transactions.upsert({hash: tx.hash},{$set:tx}, (error, result) => {
+                    Transactions.update({hash: tx.hash},{$set:tx}, (error, result) => {
                         PUB.pubsub.publish(PUB.TRANSACTION_ADDED, { transactionAdded: tx });
                     });
                     if (parseInt(tx.value) > 0) {
                         let balance = await web3.eth.getBalance(tx.to)
-                        if (parseInt(balance) > 0){
-                            // update or insert address if balance larger than 0
-                            Accounts.upsert({address:tx.to}, {$set:{address:tx.to, balance:parseInt(balance)}}, (error, result) => {
-                                PUB.pubsub.publish(PUB.ACCOUNT_ADDED, { accountAdded: {address:tx.to, balance:balance} });
-                            })
-                        }
+                        Meteor.call('accounts.update', tx.to, (error, result) => {
+                            if (error){
+                                console.log(error)
+                            }
+                            if (result){
+                                console.log(result)
+                            }
+                        })
                     }    
                 }
                 catch(e){
