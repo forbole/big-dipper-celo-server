@@ -55,9 +55,6 @@ Meteor.methods({
 
                 // get transactions
                 if (block.transactions.length > 0){
-                    // console.log("block: "+i);
-                    // console.log(block.transactions);
-                    // let addresses = {};
                     for(let j = 0; j < block.transactions.length; j++) {
                         let tx:{[k: string]: any} = await web3.eth.getTransaction(block.transactions[j])
                         // console.log(tx);
