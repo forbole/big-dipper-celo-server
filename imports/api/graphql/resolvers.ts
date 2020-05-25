@@ -75,6 +75,9 @@ export default {
     Block: {
         transactions(parent){
             return Transactions.find({hash: {$in:parent.transactions}}).fetch()
+        },
+        miner(parent){
+            return Validators.findOne({signer:parent.miner})
         }
     },
     Transaction: {

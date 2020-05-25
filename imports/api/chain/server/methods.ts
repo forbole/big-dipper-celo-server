@@ -16,6 +16,7 @@ Meteor.methods({
             let chainState = Chain.findOne({chainId:chainId});
             PUB.pubsub.publish(PUB.CHAIN_UPDATED, { chainUpdated: chainState });
         });
+        return height
     },
     'chain.updateCoin': async function(){
         // this.unblock();

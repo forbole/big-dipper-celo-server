@@ -51,7 +51,7 @@ function updateBlock(number:Number) {
         }
 
         if (result){
-            console.log("Updated block height to: "+number)
+            console.log("Updated block height to: "+result)
         }
 
         timer = Meteor.setInterval(() => {
@@ -71,7 +71,7 @@ function updateChainState(number:Number) {
         }
 
         if (result){
-            console.log("Updated chain height to: "+number)
+            console.log("Updated chain height to: "+result)
         }
 
         timerChain = Meteor.setInterval(() => {

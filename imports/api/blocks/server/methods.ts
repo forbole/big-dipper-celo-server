@@ -32,7 +32,7 @@ Meteor.methods({
                 // get block
                 let block:{[k: string]: any} = await web3.eth.getBlock(i);
                 
-                if (!block) return "get null block";
+                if (!block) return i;
 
                 // console.log(block);
                 if (lastBlock){
@@ -108,6 +108,6 @@ Meteor.methods({
             }
         }
 
-        return true
+        return targetHeight
     },
 })

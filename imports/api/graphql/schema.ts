@@ -35,7 +35,7 @@ const typeDefs = gql`
         gasUsed: Int!
         hash: String!
         logsBloom: String!
-        miner: String!
+        miner: Validator
         number: Int!
         parentHash: String!
         randomness: Randomness!
