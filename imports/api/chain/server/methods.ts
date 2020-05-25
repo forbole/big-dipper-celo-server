@@ -10,7 +10,7 @@ let web3 = kit.web3;
 
 Meteor.methods({
     'chain.updateChain': async function(height){
-        this.unblock();
+        // this.unblock();
         let chainId = await web3.eth.net.getId();
         Chain.upsert({chainId:chainId}, {$set:{latestHeight:height}},(error, result) => {
             let chainState = Chain.findOne({chainId:chainId});
@@ -18,7 +18,7 @@ Meteor.methods({
         });
     },
     'chain.updateCoin': async function(){
-        this.unblock();
+        // this.unblock();
         let url = "https://api.coingecko.com/api/v3/simple/price?ids=celo-gold&vs_currencies=usd&include_market_cap=true&include_24hr_vol=true&include_24hr_change=true&include_last_updated_at=true"
         let response = HTTP.get(url);
         try{

@@ -9,7 +9,7 @@ let kit = newKit(Meteor.settings.public.fornoAddress);
 
 Meteor.methods({
     'validators.update': async function(){
-        this.unblock();
+        // this.unblock();
         let valContract = await kit.contracts.getValidators();
         let valGroups = await valContract.getRegisteredValidatorGroups();
         for (let i in valGroups){
