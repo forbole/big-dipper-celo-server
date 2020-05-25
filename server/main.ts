@@ -5,11 +5,22 @@ import "../imports/startup/server"
 
 const kit = newKit(Meteor.settings.public.fornoAddress);
 const web3 = kit.web3;
-let timer, timerChain, timerValidators, timerCoin: Number;
-timer = 0;
-timerChain = 0;
-timerValidators = 0;
-timerCoin = 0;
+let timer, timerChain, timerValidators, timerCoin, timerTransactions: Number = 0;
+
+function updatePendingTransactions(){
+    Meteor.clearInterval(timerTransactions);
+    Meteor.call('transactions.updatePending', (error, result) => {
+        if (error) {
+            console.log(error);
+        }
+
+        if (result) {
+            // console.log("Updated block height to: "+number)
+        }
+
+        timerTransactions = Meteor.setInterval(updatePendingTransactions, 15000)
+    });
+}
 
 function updateTokenPrice(){
     Meteor.clearInterval(timerCoin);
@@ -83,11 +94,13 @@ function updateChainState(number:Number) {
 }
 
 Meteor.startup(() => {
+    // make sure the chain has block
     web3.eth.getBlockNumber()
         .then((number) => {
             updateChainState(number)
             updateValidators()
             updateBlock(number)
             updateTokenPrice()
+            updatePendingTransactions()
         })
 });
