@@ -30,7 +30,14 @@ Meteor.methods({
         try{
             if (response.statusCode == 200){
                 let chainId = await web3.eth.net.getId();
-                Chain.upsert({ chainId: chainId }, { $set: {tokenPrice: response.data['celo-gold']} }, (error, result) => {
+                let data = 
+                Chain.upsert({ chainId: chainId }, { $set: {tokenPrice: {
+                    usd:response.data['celo-gold'].usd,
+                    usdMarketCap:response.data['celo-gold'].usd_market_cap,
+                    usd24hVol:response.data['celo-gold'].usd_24h_vol,
+                    usd24hChange:response.data['celo-gold'].usd_24h_change,
+                    lastUpdatedAt:response.data['celo-gold'].last_updated_at
+                }} }, (error, result) => {
                     let chainState = Chain.findOne({ chainId: chainId });
                     PUB.pubsub.publish(PUB.CHAIN_UPDATED, { chainUpdated: chainState });
                 });

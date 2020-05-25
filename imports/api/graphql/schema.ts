@@ -11,6 +11,7 @@ const typeDefs = gql`
         latestHeight: Int
         chainId: Int
         tokenPrice: tokenPrice
+        walletCount: Int
     }
 
     type Subscription {
@@ -22,10 +23,10 @@ const typeDefs = gql`
 
     type tokenPrice {
         usd: Float!
-        usd_market_cap: Float!
-        usd_24h_vol: Float!
-        usd_24h_change: Float!
-        last_updated_at: Int!
+        usdMarketCap: Float!
+        usd24hVol: Float!
+        usd24hChange: Float!
+        lastUpdatedAt: Int!
     }
 
     type Block {
