@@ -1,6 +1,7 @@
 import { Meteor } from 'meteor/meteor';
 import { HTTP } from 'meteor/http';
 import { Chain } from '../../chain/chain';
+import { Accounts } from '../../accounts/accounts';
 import { newKit } from '@celo/contractkit';
 
 import PUB from '../../graphql/subscriptions';
@@ -12,7 +13,11 @@ Meteor.methods({
     'chain.updateChain': async function(height){
         // this.unblock();
         let chainId = await web3.eth.net.getId();
-        Chain.upsert({chainId:chainId}, {$set:{latestHeight:height}},(error, result) => {
+        Chain.upsert({chainId:chainId}, {
+            $set:{
+                latestHeight:height, 
+                walletCount:Accounts.find().count()
+            }},(error, result) => {
             let chainState = Chain.findOne({chainId:chainId});
             PUB.pubsub.publish(PUB.CHAIN_UPDATED, { chainUpdated: chainState });
         });

@@ -86,6 +86,12 @@ export default {
         },
         from(parent){
             return Accounts.findOne({address:parent.from})
+        },
+        timestamp(parent){
+            let block = Blocks.findOne({number:parent.blockNumber})
+            if (block){
+                return block.timestamp
+            }
         }
     },
     ValidatorGroup: {

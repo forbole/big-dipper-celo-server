@@ -74,6 +74,7 @@ const typeDefs = gql`
         r: String!
         s: String!
         pending: Boolean
+        timestamp: Int!
     }
 
     type Account {
