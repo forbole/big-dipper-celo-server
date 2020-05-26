@@ -15,7 +15,6 @@ Meteor.methods({
         let chainId = await web3.eth.net.getId();
         Chain.upsert({chainId:chainId}, {
             $set:{
-                latestHeight:height, 
                 walletCount:Accounts.find().count()
             }},(error, result) => {
             let chainState = Chain.findOne({chainId:chainId});

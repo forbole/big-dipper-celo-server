@@ -22,18 +22,22 @@ Meteor.methods({
             data.lastSlashed = valGroups[i].lastSlashed.toNumber();
             
             for (let j in valGroups[i].members){
-                let val = await valContract.getValidator(valGroups[i].members[j]);
-                let valData: { [k: string]: any } = {};
-                valData = val;
-                valData.score = val.score.toNumber();
-                valData.validatorGroup = valGroups[i].address;
                 try{
-                    Validators.upsert({ address: valData.address}, {$set:valData})
+                    let val = await valContract.getValidator(valGroups[i].members[j]);
+                    let valData: { [k: string]: any } = {};
+                    valData = val;
+                    valData.score = val.score.toNumber();
+                    valData.validatorGroup = valGroups[i].address;
+                    try{
+                        Validators.upsert({ address: valData.address}, {$set:valData})
+                    }
+                    catch(e){
+                        console.log(e);
+                    }
                 }
                 catch(e){
                     console.log(e);
                 }
-                // console.log(val);
             }
             try{
                 ValidatorGroups.upsert({address:data.address}, {$set:data});

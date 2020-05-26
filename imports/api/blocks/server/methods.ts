@@ -46,12 +46,15 @@ Meteor.methods({
 
                 if (chainState) {
                     chainState.averageBlockTime = (chainState.averageBlockTime * (i-1) + blockTime) / i;
+                    chainState.latestHeight = block.number;
                 }
                 else{
                     chainState = {}
                     chainState.averageBlockTime = 0;
                     chainState.txCount = 0;
                 }
+
+                chainState.latestHeight = block.number;
 
                 // get transactions
                 if (block.transactions.length > 0){
