@@ -69,19 +69,20 @@ const typeDefs = gql`
         input: String!
         nonce: Int
         to: Account
-        transactionIndex: Int!
-        value: String!
+        transactionIndex: Int
+        value: String
         v: String!
         r: String!
         s: String!
         pending: Boolean
-        timestamp: Int!
+        timestamp: Int
     }
 
     type Account {
         _id: String!
         address: String!
         balance: BigInt
+       
     }
 
     type ValidatorGroup {
