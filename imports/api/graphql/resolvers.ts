@@ -96,10 +96,10 @@ export default {
     async to(parent) {
       try{
         const temp = await Accounts.findOne({ address: parent.to });
-        console.log("==============1==================");
-        console.log(parent.to);
-        console.log(temp);
-        console.log("==============2==================");
+        // console.log("==============1==================");
+        // console.log(parent.to);
+        // console.log(temp);
+        // console.log("==============2==================");
 
         return temp;
       }
