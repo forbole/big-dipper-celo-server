@@ -1,7 +1,6 @@
 import { Meteor } from "meteor/meteor";
 import { newKit, CeloContract } from "@celo/contractkit";
 
-import PUB from "../../graphql/subscriptions";
 import { Contracts } from "../../contracts/contracts";
 
 const abiDecoder = require("abi-decoder");
