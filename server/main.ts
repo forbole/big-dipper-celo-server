@@ -121,20 +121,20 @@ function getContractABI() {
   });
 }
 
-async function getAccount(address: String) {
-  Meteor.call("accounts.getAccountSummary", address, (error, result) => {
-    if (error) {
-      console.log(error);
-    }
+// async function getAccount(address: String) {
+//   Meteor.call("accounts.getAccountSummary", address, (error, result) => {
+//     if (error) {
+//       console.log(error);
+//     }
 
-    if (result) {
-      console.log(result);
-      // console.log("==================1================")
-      // console.log(JSON.stringify(result));
-      // console.log("The account details: " + result);
-    }
-  });
-}
+//     if (result) {
+//       console.log(result);
+//       // console.log("==================1================")
+//       // console.log(JSON.stringify(result));
+//       // console.log("The account details: " + result);
+//     }
+//   });
+// }
 
 Meteor.startup(() => {
   // make sure the chain has block
@@ -146,6 +146,6 @@ Meteor.startup(() => {
     updatePendingTransactions();
     getContracts();
     getContractABI();
-    getAccount(address);
+    // getAccount(address);
   });
 });
