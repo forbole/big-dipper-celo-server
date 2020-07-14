@@ -3,7 +3,7 @@ import { newKit, CeloContract } from "@celo/contractkit";
 
 import { Contracts } from "../../contracts/contracts";
 
-const abiDecoder = require("abi-decoder");
+import * as abiDecoder from "abi-decoder";
 
 let kit = newKit(Meteor.settings.public.fornoAddress);
 let web3 = kit.web3;
