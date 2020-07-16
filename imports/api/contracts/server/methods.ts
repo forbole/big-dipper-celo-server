@@ -49,30 +49,7 @@ Meteor.methods({
       CeloContract.Validators
     );
 
-    Object.keys(contracts).forEach(function (item) {
-      try {
-        Contracts.upsert(
-          { address: contracts[item] },
-          {
-            $set: {
-              name: item,
-              address: contracts[item],
-            },
-          }
-        );
-      } catch (e) {
-        console.log(e);
-      }
-    });
-
-    console.log(contracts);
-    return contracts;
-  },
-});
-
-Meteor.methods({
-  "contract.getContractABI": async function () {
-    let contractABI = {};
+        let contractABI = {};
     contractABI["Accounts"] = [
       {
         type: "function",
@@ -5360,15 +5337,31 @@ Meteor.methods({
     ];
 
 
-
-    Object.keys(contractABI).forEach(function (item) {
+    Object.keys(contracts).forEach(function (item) {
       try {
         Contracts.upsert(
-          { name: item },
+          { address: contracts[item] },
           {
             $set: {
-              ABI: contractABI[item],
+              name: item,
+              address: contracts[item],
             },
+          },
+          () => {
+                Object.keys(contractABI).forEach(function (item) {
+                  try {
+                    Contracts.upsert(
+                      { name: item },
+                      {
+                        $set: {
+                          ABI: contractABI[item],
+                        },
+                      }
+                    );
+                  } catch (e) {
+                    console.log(e);
+                  }
+                });
           }
         );
       } catch (e) {
@@ -5376,9 +5369,7 @@ Meteor.methods({
       }
     });
 
-    return contractABI;
-
-    abiDecoder.addABI(contractABI["validatorsABI"]);
-
+    console.log(contracts);
+    return contracts;
   },
 });
