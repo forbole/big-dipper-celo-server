@@ -89,11 +89,11 @@ function updateChainState(number: Number) {
       console.log("Updated chain height to: " + result);
     }
 
-    // timerChain = Meteor.setInterval(() => {
-    //   web3.eth.getBlockNumber().then((num) => {
-    //     updateChainState(num);
-    //   });
-    // }, 5000);
+    timerChain = Meteor.setInterval(() => {
+      web3.eth.getBlockNumber().then((num) => {
+        updateChainState(num);
+      });
+    }, 5000);
   });
 }
 
