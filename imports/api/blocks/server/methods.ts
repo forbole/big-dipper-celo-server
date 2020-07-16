@@ -42,13 +42,20 @@ Meteor.methods({
         // calculate block time
         block.blockTime = blockTime;
 
+        console.log("== Calculated block time: %o", blockTime)
         let chainState: { [k: string]: any } = Chain.findOne({
           chainId: chainId,
         });
 
+        console.log("== chainState: %o", chainState);
         if (chainState) {
-          chainState.averageBlockTime =
-            (chainState.averageBlockTime * (i - 1) + blockTime) / i;
+
+          // make sure averageBlockTime and txCount exist before calculation
+
+          if (!chainState.averageBlockTime) chainState.averageBlockTime = 0;
+          if (!chainState.txCount) chainState.txCount = 0;
+          
+          chainState.averageBlockTime = (chainState.averageBlockTime * (i - 1) + blockTime) / i;
           chainState.latestHeight = block.number;
         } else {
           chainState = {};
@@ -84,6 +91,8 @@ Meteor.methods({
           }
           chainState.txCount += block.transactions.length;
         }
+
+        console.log(chainState);
 
         // console.log(chainState)
         Chain.upsert({ chainId: chainId }, { $set: chainState });
