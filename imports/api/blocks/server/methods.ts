@@ -42,12 +42,10 @@ Meteor.methods({
         // calculate block time
         block.blockTime = blockTime;
 
-        console.log("== Calculated block time: %o", blockTime)
         let chainState: { [k: string]: any } = Chain.findOne({
           chainId: chainId,
         });
 
-        console.log("== chainState: %o", chainState);
         if (chainState) {
 
           // make sure averageBlockTime and txCount exist before calculation
@@ -91,8 +89,6 @@ Meteor.methods({
           }
           chainState.txCount += block.transactions.length;
         }
-
-        console.log(chainState);
 
         // console.log(chainState)
         Chain.upsert({ chainId: chainId }, { $set: chainState });
