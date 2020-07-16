@@ -97,18 +97,6 @@ function updateChainState(number: Number) {
   });
 }
 
-function getContracts() {
-  Meteor.call("contract.getContractAddress", (error, result) => {
-    if (error) {
-      console.log(error);
-    }
-
-    if (result) {
-      console.log("Contracts have been processed " + result);
-    }
-  });
-}
-
 function getContractABI() {
   Meteor.call("contract.getContractABI", (error, result) => {
     if (error) {
@@ -124,11 +112,19 @@ function getContractABI() {
 Meteor.startup(() => {
   // make sure the chain has block
   web3.eth.getBlockNumber().then((number) => {
-    updateChainState(number);
-    updateValidators();
-    updateBlock(number);
-    updateTokenPrice();
-    updatePendingTransactions();
-    getContracts();
+    Meteor.call("contract.getContractAddress", (error, result) => {
+      if (error) {
+        console.log(error);
+      }
+
+      if (result) {
+        console.log("Contracts have been processed " + result);
+        updateChainState(number);
+        updateValidators();
+        updateBlock(number);
+        updateTokenPrice();
+        updatePendingTransactions();
+      }
+    });
   });
 });
