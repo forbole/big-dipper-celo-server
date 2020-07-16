@@ -1,7 +1,8 @@
 import { Meteor } from 'meteor/meteor';
 import { Transactions } from '../../transactions/transactions';
-import { Accounts } from '../../accounts/accounts';
+import { Contracts } from '../../contracts/contracts';
 import { newKit } from '@celo/contractkit';
+import * as abiDecoder from 'abi-decoder';
 
 import PUB from '../../graphql/subscriptions';
 
@@ -17,12 +18,10 @@ Meteor.methods({
                 console.log("Processing pending transaction: "+tx.hash);
                 // insert tx
                 try{
-                    tx.pending = false;
-                    Transactions.update({hash: tx.hash},{$set:tx}, (error, result) => {
-                        PUB.pubsub.publish(PUB.TRANSACTION_ADDED, { transactionAdded: tx });
-                    });
                     if (parseInt(tx.value) > 0) {
-                        let balance = await web3.eth.getBalance(tx.to)
+                        // this is a money transfer txn
+                        // store the recepient account
+                        // let balance = await web3.eth.getBalance(tx.to)
                         Meteor.call('accounts.update', tx.to, (error, result) => {
                             if (error){
                                 console.log(error)
@@ -31,7 +30,46 @@ Meteor.methods({
                                 console.log(result)
                             }
                         })
-                    }    
+                    }
+                    else{
+                        // this is a contract call
+                        // the tx address will be the contract address
+
+                        if (tx.input != "0x"){
+                            // make sure it has input in the txn
+                            let contract = Contracts.findOne({address:tx.to});
+                            if (contract && contract.ABI) {
+                                abiDecoder.addABI(contract.ABI);
+                                let decodedInput = abiDecoder.decodeMethod(tx.input);
+                                // if (decodedInput)
+                                //     console.log(decodedInput);
+                                if ((contract.name == "GoldToken" || contract.name == "StableToken")
+                                    && decodedInput && decodedInput.name
+                                    && (decodedInput.name == 'Transfer')
+                                    ){
+                                    console.log("=== Contract Name: %o",contract.name);
+                                    for (let i in decodedInput.params){
+                                        if (decodedInput.params[i].type == 'address'){
+                                            Meteor.call('accounts.update', decodedInput.params[i].value, (error, result) => {
+                                                if (error){
+                                                    console.log(error)
+                                                }
+                                                if (result){
+                                                    console.log(result)
+                                                }
+                                            })
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+
+                    tx.pending = false;
+                    Transactions.update({ hash: tx.hash }, { $set: tx }, (error, result) => {
+                        PUB.pubsub.publish(PUB.TRANSACTION_ADDED, { transactionAdded: tx });
+                    });
+
                 }
                 catch(e){
                     console.log(e)
