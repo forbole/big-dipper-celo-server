@@ -1,4 +1,5 @@
 import { Meteor } from 'meteor/meteor';
+import { HTTP } from 'meteor/http';
 import { Transactions } from '../../transactions/transactions';
 import { Contracts } from '../../contracts/contracts';
 import { newKit } from '@celo/contractkit';
@@ -8,6 +9,9 @@ import PUB from '../../graphql/subscriptions';
 
 let kit = newKit(Meteor.settings.public.fornoAddress);
 let web3 = kit.web3;
+// let web3Provider = web3.currentProvider.existingProvider.host;
+
+// console.log("=== current provider: %o", web3Provider);
 
 Meteor.methods({
     'transactions.updatePending': async function(){
@@ -30,6 +34,8 @@ Meteor.methods({
                                 console.log(result)
                             }
                         })
+
+                        tx.type = 'transfer';
                     }
                     else{
                         // this is a contract call
@@ -38,16 +44,16 @@ Meteor.methods({
                         if (tx.input != "0x"){
                             // make sure it has input in the txn
                             let contract = Contracts.findOne({address:tx.to});
-                            if (contract && contract.ABI) {
+                            if (!!contract && !!contract.ABI) {
                                 abiDecoder.addABI(contract.ABI);
                                 let decodedInput = abiDecoder.decodeMethod(tx.input);
-                                // if (decodedInput)
-                                //     console.log(decodedInput);
                                 if ((contract.name == "GoldToken" || contract.name == "StableToken")
                                     && decodedInput && decodedInput.name
-                                    && (decodedInput.name == 'Transfer')
+                                    && ((decodedInput.name == 'transfer') || (decodedInput.name == 'transferWithComment') || (decodedInput.name == 'transferFrom'))
                                     ){
-                                    console.log("=== Contract Name: %o",contract.name);
+                                    // console.log("=== Contract Name: %o", contract.name);
+                                    // console.log("=== Function Name: %o", decodedInput.name);
+                                    // console.log("=== Input Params: %o", decodedInput.params);
                                     for (let i in decodedInput.params){
                                         if (decodedInput.params[i].type == 'address'){
                                             Meteor.call('accounts.update', decodedInput.params[i].value, (error, result) => {
@@ -61,6 +67,14 @@ Meteor.methods({
                                         }
                                     }
                                 }
+
+                                if (decodedInput){
+                                    tx.decodedInput = decodedInput;
+                                    tx.type = contract.name+"|"+decodedInput.name;
+                                }
+                            }
+                            else{
+                                tx.type = 'contractCall'
                             }
                         }
                     }

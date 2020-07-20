@@ -1,5 +1,6 @@
 import { Meteor } from "meteor/meteor";
-import { newKit, CeloContract } from "@celo/contractkit";
+import { newKit } from "@celo/contractkit";
+
 
 import "../imports/startup/server";
 
