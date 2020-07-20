@@ -47,8 +47,13 @@ Meteor.methods({
         });
 
         if (chainState) {
-          chainState.averageBlockTime =
-            (chainState.averageBlockTime * (i - 1) + blockTime) / i;
+
+          // make sure averageBlockTime and txCount exist before calculation
+
+          if (!chainState.averageBlockTime) chainState.averageBlockTime = 0;
+          if (!chainState.txCount) chainState.txCount = 0;
+          
+          chainState.averageBlockTime = (chainState.averageBlockTime * (i - 1) + blockTime) / i;
           chainState.latestHeight = block.number;
         } else {
           chainState = {};

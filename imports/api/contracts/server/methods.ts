@@ -1,10 +1,9 @@
 import { Meteor } from "meteor/meteor";
 import { newKit, CeloContract } from "@celo/contractkit";
 
-import PUB from "../../graphql/subscriptions";
 import { Contracts } from "../../contracts/contracts";
 
-const abiDecoder = require("abi-decoder");
+import * as abiDecoder from "abi-decoder";
 
 let kit = newKit(Meteor.settings.public.fornoAddress);
 let web3 = kit.web3;
@@ -50,30 +49,7 @@ Meteor.methods({
       CeloContract.Validators
     );
 
-    Object.keys(contracts).forEach(function (item) {
-      try {
-        Contracts.upsert(
-          { address: contracts[item] },
-          {
-            $set: {
-              name: item,
-              address: contracts[item],
-            },
-          }
-        );
-      } catch (e) {
-        console.log(e);
-      }
-    });
-
-    console.log(contracts);
-    return contracts;
-  },
-});
-
-Meteor.methods({
-  "contract.getContractABI": async function () {
-    let contractABI = {};
+        let contractABI = {};
     contractABI["Accounts"] = [
       {
         type: "function",
@@ -5361,21 +5337,31 @@ Meteor.methods({
     ];
 
 
-
-    Object.keys(contractABI).forEach(function (item) {
+    Object.keys(contracts).forEach(function (item) {
       try {
-        //     console.log("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
-
-        // console.log(item)
-        // console.log(contractABI)
-        //     console.log("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
-
         Contracts.upsert(
-          { name: item },
+          { address: contracts[item] },
           {
             $set: {
-              ABI: contractABI[item],
+              name: item,
+              address: contracts[item],
             },
+          },
+          () => {
+                Object.keys(contractABI).forEach(function (item) {
+                  try {
+                    Contracts.upsert(
+                      { name: item },
+                      {
+                        $set: {
+                          ABI: contractABI[item],
+                        },
+                      }
+                    );
+                  } catch (e) {
+                    console.log(e);
+                  }
+                });
           }
         );
       } catch (e) {
@@ -5383,51 +5369,7 @@ Meteor.methods({
       }
     });
 
-    return contractABI;
-
-    abiDecoder.addABI(contractABI["validatorsABI"]);
-    // abiDecoder.addABI(attestationsABI);
-    // abiDecoder.addABI(lockedGoldABI);
-    // abiDecoder.addABI(escrowABI);
-    // abiDecoder.addABI(exchangeABI);
-    // abiDecoder.addABI(feeCurrencyWhitelistABI);
-    // abiDecoder.addABI(gasPriceMinimumABI);
-    // abiDecoder.addABI(goldTokenABI);
-    // abiDecoder.addABI(randomABI);
-    // abiDecoder.addABI(reserveABI);
-    // abiDecoder.addABI(sortedOraclesABI);
-    // abiDecoder.addABI(stableTokenABI);
-    // abiDecoder.addABI(validatorsABI);
-
-    // const testData =
-    //   "0x53d9d9100000000000000000000000000000000000000000000000000000000000000060000000000000000000000000000000000000000000000000000000000000000100000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000002000000000000000000000000a6d9c5f7d4de3cef51ad3b7235d79ccc95114de5000000000000000000000000a6d9c5f7d4de3cef51ad3b7235d79ccc95114daa";
-    // const decodedData = abiDecoder.decodeMethod(testData);
-    //   console.log("================1==================");
-    //   console.log(abiDecoder.decodeMethod(accountsABI));
-    //   console.log("================1==================");
-
-    // const data =  '0x0135f7afbdb60845516acc60e5bee804ee66b9face961f9885fc672b21d14d88';
-
-    // web3.eth.getTransactionReceipt(
-    //   "0x0135f7afbdb60845516acc60e5bee804ee66b9face961f9885fc672b21d14d88",
-    //   function (e, receipt) {
-    //     const decodedLogs = abiDecoder.decodeLogs(receipt.logs);
-    //         console.log("================2==================");
-
-    //         console.log(decodedLogs);
-    //             console.log("================2==================");
-
-    //   }
-
-    // const decodedData = abiDecoder.decodeMethod(testData);
-
-    // const wowo = abiDecoder.addABI(testABI);
-    // // const testABI = abiDecoder.addABI(accountsABI);
-    // // const accountsABIdecoded = abiDecoder.decodeMethod(accountsABI);
-    // console.log("================1==================");
-    // console.log(abiDecoder.addABI(accountsABI));
-    // console.log("================2==================");
-    // console.log(wowo ? wowo : "not");
-    // console.log("================3==================");
+    console.log(contracts);
+    return contracts;
   },
 });
