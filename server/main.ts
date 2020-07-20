@@ -1,5 +1,6 @@
 import { Meteor } from "meteor/meteor";
-import { newKit, CeloContract } from "@celo/contractkit";
+import { newKit } from "@celo/contractkit";
+
 
 import "../imports/startup/server";
 
@@ -89,23 +90,11 @@ function updateChainState(number: Number) {
       console.log("Updated chain height to: " + result);
     }
 
-    // timerChain = Meteor.setInterval(() => {
-    //   web3.eth.getBlockNumber().then((num) => {
-    //     updateChainState(num);
-    //   });
-    // }, 5000);
-  });
-}
-
-function getContracts() {
-  Meteor.call("contract.getContractAddress", (error, result) => {
-    if (error) {
-      console.log(error);
-    }
-
-    if (result) {
-      console.log("Contracts have been processed " + result);
-    }
+    timerChain = Meteor.setInterval(() => {
+      web3.eth.getBlockNumber().then((num) => {
+        updateChainState(num);
+      });
+    }, 5000);
   });
 }
 
@@ -121,31 +110,22 @@ function getContractABI() {
   });
 }
 
-async function getAccount(address: String) {
-  Meteor.call("accounts.getAccountSummary", address, (error, result) => {
-    if (error) {
-      console.log(error);
-    }
-
-    if (result) {
-      console.log(result);
-      // console.log("==================1================")
-      // console.log(JSON.stringify(result));
-      // console.log("The account details: " + result);
-    }
-  });
-}
-
 Meteor.startup(() => {
   // make sure the chain has block
   web3.eth.getBlockNumber().then((number) => {
-    updateChainState(number);
-    updateValidators();
-    updateBlock(number);
-    updateTokenPrice();
-    updatePendingTransactions();
-    getContracts();
-    getContractABI();
-    getAccount(address);
+    Meteor.call("contract.getContractAddress", (error, result) => {
+      if (error) {
+        console.log(error);
+      }
+
+      if (result) {
+        console.log("Contracts have been processed " + result);
+        updateChainState(number);
+        updateValidators();
+        updateBlock(number);
+        updateTokenPrice();
+        updatePendingTransactions();
+      }
+    });
   });
 });
