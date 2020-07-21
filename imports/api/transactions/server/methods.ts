@@ -22,10 +22,21 @@ Meteor.methods({
                 console.log("Processing pending transaction: "+tx.hash);
                 // insert tx
                 try{
+                    Meteor.call('accounts.update', tx.from, (error, result) => {
+                        if (error) {
+                            console.log(error)
+                        }
+                        if (result) {
+                            console.log(result)
+                        }
+                    });
+                    
                     if (parseInt(tx.value) > 0) {
                         // this is a money transfer txn
                         // store the recepient account
                         // let balance = await web3.eth.getBalance(tx.to)
+
+
                         Meteor.call('accounts.update', tx.to, (error, result) => {
                             if (error){
                                 console.log(error)

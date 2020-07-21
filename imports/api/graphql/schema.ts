@@ -1,8 +1,10 @@
 import { gql } from 'apollo-server-express'
 import BigInt from "apollo-type-bigint-fix";
+import GraphQLJSON from "graphql-type-json";
 
 const typeDefs = gql`
     scalar BigInt
+    scalar JSON
 
     type Chain {
         _id: String!
@@ -67,8 +69,10 @@ const typeDefs = gql`
         gatewayFee: String!
         hash: String!
         input: String!
+        decodedInput: JSON
+        type: String!
         nonce: Int
-        to: Account
+        to: ToWalletObject!
         transactionIndex: Int
         value: String
         v: String!
@@ -82,7 +86,33 @@ const typeDefs = gql`
         _id: String!
         address: String!
         balance: BigInt
-       
+    }
+
+    interface ToWalletObject {
+        address: String!
+    }
+
+    type ToWalletAddress implements ToWalletObject {
+        address: String!
+    }
+
+    type ToWalletAccount implements ToWalletObject {
+        _id: String!
+        address: String!
+        account: Account!
+    }
+
+    type ToWalletContract implements ToWalletObject {
+        _id: String!
+        address: String!
+        contract: Contract!
+    }
+
+    type Contract {
+        _id: String!
+        address: String!
+        name: String!
+        ABI: JSON
     }
 
     type ValidatorGroup {
