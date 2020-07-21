@@ -70,7 +70,7 @@ Meteor.methods({
 
                                 if (decodedInput){
                                     tx.decodedInput = decodedInput;
-                                    tx.type = contract.name+"|"+decodedInput.name;
+                                    tx.type = decodedInput.name;
                                 }
                             }
                             else{
