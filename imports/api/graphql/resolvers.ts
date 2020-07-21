@@ -4,10 +4,13 @@ import { Accounts } from "../accounts/accounts";
 import { Blocks } from "../blocks/blocks";
 import { ValidatorGroups } from "../validator-groups/validator-groups";
 import { Validators } from "../validators/validators";
+import { Contracts } from "../contracts/contracts";
+import GraphQLJSON from "graphql-type-json";
 
 import PUB from "./subscriptions";
 
 export default {
+  JSON: GraphQLJSON,
   Subscription: {
     chainUpdated: {
       subscribe: () => PUB.pubsub.asyncIterator([PUB.CHAIN_UPDATED]),
@@ -93,30 +96,34 @@ export default {
     },
   },
   Transaction: {
-    async to(parent) {
-      try{
-        const temp = await Accounts.findOne({ address: parent.to });
-        // console.log("==============1==================");
-        // console.log(parent.to);
-        // console.log(temp);
-        // console.log("==============2==================");
-
-        return temp;
-      }
-      catch(e){
-        console.log(e);
-      }
-      
+    to(parent) {
+        if (parent.value == "0"){
+          // it's a contract call
+          let contract = Contracts.findOne({ address: parent.to });
+          if (contract){
+            return {
+              _id: contract._id,
+              address: parent.to,
+              contract: contract
+            }
+          }
+          else{
+            return {
+              address: parent.to
+            }
+          }
+        }
+        else {
+          // it's a native transfer
+          let account = Accounts.findOne({ address: parent.to });
+          return {
+            _id: account._id,
+            address: parent.to,
+            account: account
+          }
+        }
     },
     from(parent) {
-      let temp = Accounts.findOne({ address: parent.from });
-      // console.log("==============4==================");
-      // console.log(parent.from);
-      // console.log(temp);
-      // console.log("==============5==================");
-
-      return temp;
-      console.log(parent.from);
       return Accounts.findOne({ address: parent.from });
     },
     timestamp(parent) {
@@ -136,4 +143,17 @@ export default {
       return ValidatorGroups.findOne({ address: parent.validatorGroup });
     },
   },
+  ToWalletObject: {
+    __resolveType(obj, context, info) {
+      if (obj.contract) {
+        return 'ToWalletContract';
+      }
+
+      if (obj.account) {
+        return 'ToWalletAccount';
+      }
+
+      return null;
+    },
+  }
 };
