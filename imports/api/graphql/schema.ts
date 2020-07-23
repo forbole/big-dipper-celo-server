@@ -86,8 +86,16 @@ const typeDefs = gql`
         _id: String!
         address: String!
         balance: BigInt
+        totalBalance: TotalBalance
     }
 
+      type TotalBalance {
+        gold: BigInt
+        lockedGold: BigInt
+        usd: BigInt
+        total: BigInt
+        pending: BigInt
+    }
     interface ToWalletObject {
         address: String!
     }
