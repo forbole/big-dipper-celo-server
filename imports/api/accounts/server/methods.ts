@@ -12,9 +12,6 @@ Meteor.methods({
   "accounts.update": async function (address) {
     console.log("Update wallet address: " + address);
     let balance = await web3.eth.getBalance(address);
-    // let totalBalance = kit.getTotalBalance(address);
-    // console.log("TOTAL BALANCE");
-    // console.log(totalBalance);
 
     if (parseInt(balance) > 0) {
       // update or insert address if balance larger than 0
@@ -71,8 +68,6 @@ Meteor.methods({
 
   // console.log(accounts);
   // console.log(accountsWrapper);
-
-
 
   // const account = await kit.contracts.getAccounts();
   // for (let c in accountList){
