@@ -67,7 +67,7 @@ function updateBlock(number: Number) {
     }
 
     if (result) {
-     console.log("Updated block height to: " + result);
+      console.log("Updated block height to: " + result);
     }
 
     timer = Meteor.setInterval(() => {
@@ -131,7 +131,18 @@ function getAccountSummary() {
     }
   });
 
-  
+
+  Meteor.call("accounts.getLockedGold", (error, result) => {
+    if (error) {
+      console.log(error);
+    }
+
+    if (result) {
+      console.log("The lockedGold have been updated: " + result);
+    }
+  });
+
+
 }
 
 Meteor.startup(() => {

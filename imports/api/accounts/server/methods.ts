@@ -10,7 +10,7 @@ let web3 = kit.web3;
 
 Meteor.methods({
   "accounts.update": async function (address) {
-     console.log("Update wallet address: " + address);
+    console.log("Update wallet address: " + address);
     let balance = await web3.eth.getBalance(address);
 
     if (parseInt(balance) > 0) {
@@ -98,6 +98,53 @@ Meteor.methods({
     )
 
   },
+
+  "accounts.getLockedGold": async function () {
+    let accountList = Accounts.find().fetch();
+
+    accountList.forEach(async (item) => {
+      try {
+        let lockedG: { [c: string]: any } = {};
+        let lockedGolds = await kit.contracts.getLockedGold();
+
+        try {
+          let summary  = (await lockedGolds.getAccountSummary(item.address))
+          let pendingWithdrawalsTotals = (await lockedGolds.getPendingWithdrawalsTotalValue(item.address))
+          try {
+            lockedG.total = summary.lockedGold.total.toNumber()
+            lockedG.nonvoting = summary.lockedGold.nonvoting.toNumber()
+            lockedG.requirement = summary.lockedGold.requirement.toNumber()
+            lockedG.pendingWithdrawals = summary.pendingWithdrawals
+            lockedG.pendingWithdrawalsTotal = pendingWithdrawalsTotals.toNumber()
+            try {
+              Accounts.upsert(
+                { address: item.address },
+                {
+                  $set: { lockedGold: lockedG }
+                })
+            }
+            catch (e) {
+              console.log(e)
+            }
+          }
+          catch (e) {
+
+          }
+
+        }
+        catch (e) {
+          console.log(e)
+        }
+      }
+      catch (e) {
+        console.log(e)
+      }
+    })
+  },
+
+
+
+
 
 
   // "accounts.getAccountSummary": async function (address) {
