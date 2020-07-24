@@ -67,7 +67,7 @@ function updateBlock(number: Number) {
     }
 
     if (result) {
-      console.log("Updated block height to: " + result);
+     console.log("Updated block height to: " + result);
     }
 
     timer = Meteor.setInterval(() => {
@@ -120,6 +120,18 @@ function getAccountSummary() {
       console.log("The accounts summary have been updated: " + result);
     }
   });
+
+  Meteor.call("accounts.getAttestations", (error, result) => {
+    if (error) {
+      console.log(error);
+    }
+
+    if (result) {
+      console.log("The accounts attestations have been updated: " + result);
+    }
+  });
+
+  
 }
 
 Meteor.startup(() => {

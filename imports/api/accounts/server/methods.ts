@@ -4,7 +4,7 @@ import { Accounts } from "../../accounts/accounts";
 import { Chain } from "../../chain/chain";
 
 import PUB from "../../graphql/subscriptions";
-
+import { BigNumber } from 'bignumber.js'
 let kit = newKit(Meteor.settings.public.fornoAddress);
 let web3 = kit.web3;
 
@@ -47,6 +47,45 @@ Meteor.methods({
             })
         }
 
+        catch (e) {
+          console.log(e)
+        }
+      }
+
+      catch (e) {
+        console.log(e)
+      }
+    }
+    )
+
+  },
+
+
+  "accounts.getAttestations": async function () {
+    let accountList = Accounts.find().fetch();
+
+    accountList.forEach(async (item) => {
+      try {
+        let attestations = await kit.contracts.getAttestations();
+        let attestationList: { [c: string]: any } = {};
+        try {
+          attestationList.requestFees = (await attestations.attestationRequestFees(item.address)).toNumber()
+          attestationList.expiryBlocks = await attestations.attestationExpiryBlocks()
+          // attestation.feeRequired = await (await attestations.attestationFeeRequired(attestation.requestFees)).toNumber()
+
+          try {
+            Accounts.upsert(
+              { address: item.address },
+              {
+                $set: { attestation: attestationList }
+              })
+          }
+
+          catch (e) {
+            console.log(e)
+          }
+
+        }
         catch (e) {
           console.log(e)
         }
