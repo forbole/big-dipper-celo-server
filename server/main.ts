@@ -87,7 +87,7 @@ function updateChainState(number: Number) {
     }
 
     if (result) {
-      console.log("Updated chain height to: " + result);
+      //console.log("Updated chain height to: " + result);
     }
 
     timerChain = Meteor.setInterval(() => {
@@ -110,6 +110,18 @@ function getContractABI() {
   });
 }
 
+function getAccountSummary() {
+  Meteor.call("accounts.getAccountSummary", (error, result) => {
+    if (error) {
+      console.log(error);
+    }
+
+    if (result) {
+      console.log("The accounts summary have been updated: " + result);
+    }
+  });
+}
+
 Meteor.startup(() => {
   // make sure the chain has block
   web3.eth.getBlockNumber().then((number) => {
@@ -125,6 +137,7 @@ Meteor.startup(() => {
         updateBlock(number);
         updateTokenPrice();
         updatePendingTransactions();
+        getAccountSummary();
       }
     });
   });

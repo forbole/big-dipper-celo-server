@@ -10,11 +10,8 @@ let web3 = kit.web3;
 
 Meteor.methods({
   "accounts.update": async function (address) {
-    console.log("Update wallet address: " + address);
+     console.log("Update wallet address: " + address);
     let balance = await web3.eth.getBalance(address);
-    // let totalBalance = kit.getTotalBalance(address);
-    // console.log("TOTAL BALANCE");
-    // console.log(totalBalance);
 
     if (parseInt(balance) > 0) {
       // update or insert address if balance larger than 0
@@ -29,6 +26,40 @@ Meteor.methods({
       );
     }
   },
+
+
+  "accounts.getAccountSummary": async function () {
+    let accountList = Accounts.find().fetch();
+
+    accountList.forEach(async (item) => {
+      try {
+        let accounts = await kit.contracts.getAccounts()
+        let accountSummary: { [c: string]: any } = {};
+        try {
+          accountSummary.summary = await accounts.getAccountSummary(item.address)
+          accountSummary.isAccount = await accounts.isAccount(item.address)
+          accountSummary.isSigner = await accounts.isSigner(item.address)
+
+          Accounts.upsert(
+            { address: item.address },
+            {
+              $set: { accountSummary: accountSummary.summary, isAccount: accountSummary.isAccount, isSigner: accountSummary.isSigner }
+            })
+        }
+
+        catch (e) {
+          console.log(e)
+        }
+      }
+
+      catch (e) {
+        console.log(e)
+      }
+    }
+    )
+
+  },
+
 
   // "accounts.getAccountSummary": async function (address) {
   //   let accountList = Accounts.find().fetch();
