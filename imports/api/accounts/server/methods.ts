@@ -11,64 +11,57 @@ let web3 = kit.web3;
 Meteor.methods({
   "accounts.update": async function (address) {
     console.log("Update wallet address: " + address);
+    let data: { [c: string]: any } = {};
+
     let balance = await web3.eth.getBalance(address);
-    // let totalBalance = kit.getTotalBalance(address);
-    // console.log("TOTAL BALANCE");
-    // console.log(totalBalance);
+    let totalBalance = await kit.getTotalBalance(address)
+
+    data.gold = totalBalance.gold.toNumber();
+    data.lockedGold = totalBalance.lockedGold.toNumber();
+    data.usd = totalBalance.usd.toNumber();
+    data.total = totalBalance.total.toNumber();
+    data.pending = totalBalance.pending.toNumber();
+
 
     if (parseInt(balance) > 0) {
       // update or insert address if balance larger than 0
       Accounts.upsert(
         { address: address },
-        { $set: { address: address, balance: parseInt(balance) } },
+        { $set: { address: address, balance: parseInt(balance), totalBalance: data } },
         (error, result) => {
           PUB.pubsub.publish(PUB.ACCOUNT_ADDED, {
-            accountAdded: { address: address, balance: balance },
+            accountAdded: { address: address, balance: balance, totalBalance: data },
           });
         }
       );
     }
   },
 
-  // "accounts.getAccountSummary": async function (address) {
-  //   let accountList = Accounts.find().fetch();
-  //   console.log(accountList);
-  //   let acc = "0x4caEEFF39cd3b889462b995bDAf2dF97836f490C";
-
-  //   const accounts = await web3.eth.getAccounts();
-  //   const accountsWrapper = await kit.contracts.getAccounts();
-
-  //   // console.log(accounts);
-  //   // console.log(accountsWrapper);
-
-  //   let totalBalance = await kit.getTotalBalance(acc);
-  //   console.log(totalBalance);
 
 
-  //   // const account = await kit.contracts.getAccounts();
-  //   // for (let c in accountList){
-  //   //   if(account)
-  //   // }
-  //   // account.getAccountSummary(acc).then((accountSummary) => {
-  //   //   console.log("!!!!account summary");
-  //   //   console.log(accountSummary);
-  //   // });
 
-  //   const accounts2 = await web3.eth.getAccounts();
-  //   let account = accounts2[0];
+  // let acc = "0x4caEEFF39cd3b889462b995bDAf2dF97836f490C";
+  // let acc1 = "0x050f34537f5b2a00b9b9c752cb8500a3fce3da7d"
 
-  //   console.log(account);
-  //   // if (parseInt(balance) > 0) { 
-  //   //   // update or insert address if balance larger than 0
-  //   //   Accounts.upsert(
-  //   //     { address: address },
-  //   //     { $set: { address: address, balance: parseInt(balance) } },
-  //   //     (error, result) => {
-  //   //       PUB.pubsub.publish(PUB.ACCOUNT_ADDED, {
-  //   //         accountAdded: { address: address, balance: balance },
-  //   //       });
-  //   //     }
-  //   //   );
-  //   // }
+  // const accounts = await web3.eth.getAccounts();
+  // console.log(accounts)
+  // const accountsWrapper = await kit.contracts.getAccounts();
+
+  // console.log(accounts);
+  // console.log(accountsWrapper);
+
+  // const account = await kit.contracts.getAccounts();
+  // for (let c in accountList){
+  //   if(account)
+  // }
+  // account.getAccountSummary(acc).then((accountSummary) => {
+  //   console.log("!!!!account summary");
+  //   console.log(accountSummary);
+  // });
+
+  // const accounts2 = await web3.eth.getAccounts();
+  // let account = accounts2[0];
+
+  // }
   // },
 });

@@ -110,6 +110,8 @@ function getContractABI() {
   });
 }
 
+
+
 Meteor.startup(() => {
   // make sure the chain has block
   web3.eth.getBlockNumber().then((number) => {
