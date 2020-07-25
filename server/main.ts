@@ -110,17 +110,7 @@ function getContractABI() {
   });
 }
 
-function getTotalBalance() {
-  Meteor.call("accounts.getTotalBalance", (error, result) => {
-    if (error) {
-      console.log(error);
-    }
 
-    if (result) {
-      console.log("The total accounts balance have been updated: " + result);
-    }
-  });
-}
 
 Meteor.startup(() => {
   // make sure the chain has block
@@ -137,7 +127,6 @@ Meteor.startup(() => {
         updateBlock(number);
         updateTokenPrice();
         updatePendingTransactions();
-        getTotalBalance();
       }
     });
   });
