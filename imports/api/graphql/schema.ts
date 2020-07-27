@@ -70,7 +70,7 @@ const typeDefs = gql`
         hash: String!
         input: String!
         decodedInput: JSON
-        type: String!
+        type: String
         nonce: Int
         to: ToWalletObject!
         transactionIndex: Int
@@ -97,22 +97,22 @@ const typeDefs = gql`
         pending: BigInt
     }
     interface ToWalletObject {
-        address: String!
+        address: String
     }
 
     type ToWalletAddress implements ToWalletObject {
-        address: String!
+        address: String
     }
 
     type ToWalletAccount implements ToWalletObject {
-        _id: String!
-        address: String!
-        account: Account!
+        _id: String
+        address: String
+        account: Account
     }
 
     type ToWalletContract implements ToWalletObject {
-        _id: String!
-        address: String!
+        _id: String
+        address: String
         contract: Contract!
     }
 
