@@ -37,31 +37,26 @@ Meteor.methods({
     }
   },
 
+  "accounts.getLockedGold": async function (address: string) {
+      let lockedG: { [c: string]: any } = {};
+      let lockedGolds = await kit.contracts.getLockedGold();
 
+      let summary  = (await lockedGolds.getAccountSummary(address));
 
+      if (summary){
+        let pendingWithdrawalsTotals = (await lockedGolds.getPendingWithdrawalsTotalValue(address))
 
-  // let acc = "0x4caEEFF39cd3b889462b995bDAf2dF97836f490C";
-  // let acc1 = "0x050f34537f5b2a00b9b9c752cb8500a3fce3da7d"
+        lockedG.total = summary.lockedGold.total
+        lockedG.nonvoting = summary.lockedGold.nonvoting
+        lockedG.requirement = summary.lockedGold.requirement
+        lockedG.pendingWithdrawals = summary.pendingWithdrawals
+        lockedG.pendingWithdrawalsTotal = pendingWithdrawalsTotals
+  
+        return lockedG;
+      }
 
-  // const accounts = await web3.eth.getAccounts();
-  // console.log(accounts)
-  // const accountsWrapper = await kit.contracts.getAccounts();
-
-  // console.log(accounts);
-  // console.log(accountsWrapper);
-
-  // const account = await kit.contracts.getAccounts();
-  // for (let c in accountList){
-  //   if(account)
-  // }
-  // account.getAccountSummary(acc).then((accountSummary) => {
-  //   console.log("!!!!account summary");
-  //   console.log(accountSummary);
-  // });
-
-  // const accounts2 = await web3.eth.getAccounts();
-  // let account = accounts2[0];
-
-  // }
-  // },
+      else{
+        return "Address not found."
+      }
+  },
 });
