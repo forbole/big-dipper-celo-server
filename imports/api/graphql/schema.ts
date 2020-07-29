@@ -15,6 +15,7 @@ const typeDefs = gql`
         tokenPrice: tokenPrice
         walletCount: Int
         epochNumber: Int
+        epochSize: Int
     }
 
     type Subscription {

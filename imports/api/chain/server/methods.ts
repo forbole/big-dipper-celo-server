@@ -12,12 +12,15 @@ let web3 = kit.web3;
 Meteor.methods({
     'chain.updateChain': async function(height){
         // this.unblock();
-        let chainId = await web3.eth.net.getId();
-        let epochNumber = await kit.getEpochNumberOfBlock(height);
+        const chainId = await web3.eth.net.getId();
+        const epochNumber = await kit.getEpochNumberOfBlock(height);
+        const validators = await kit.contracts.getValidators();
+        const epochSize = await validators.getEpochSize();
         Chain.upsert({chainId:chainId}, {
             $set:{
                 walletCount: Accounts.find().count(),
-                epochNumber: epochNumber
+                epochNumber: epochNumber,
+                epochSize: epochSize.toNumber()
             }},(error, result) => {
             let chainState = Chain.findOne({chainId:chainId});
             PUB.pubsub.publish(PUB.CHAIN_UPDATED, { chainUpdated: chainState });
@@ -26,11 +29,11 @@ Meteor.methods({
     },
     'chain.updateCoin': async function(){
         // this.unblock();
-        let url = "https://api.coingecko.com/api/v3/simple/price?ids=celo-gold&vs_currencies=usd&include_market_cap=true&include_24hr_vol=true&include_24hr_change=true&include_last_updated_at=true"
+        const url = "https://api.coingecko.com/api/v3/simple/price?ids=celo-gold&vs_currencies=usd&include_market_cap=true&include_24hr_vol=true&include_24hr_change=true&include_last_updated_at=true"
         let response = HTTP.get(url);
         try{
             if (response.statusCode == 200){
-                let chainId = await web3.eth.net.getId();
+                const chainId = await web3.eth.net.getId();
                 Chain.upsert({ chainId: chainId }, { $set: {tokenPrice: {
                     usd:response.data['celo-gold'].usd,
                     usdMarketCap:response.data['celo-gold'].usd_market_cap,
@@ -38,7 +41,7 @@ Meteor.methods({
                     usd24hChange:response.data['celo-gold'].usd_24h_change,
                     lastUpdatedAt:response.data['celo-gold'].last_updated_at
                 }} }, (error, result) => {
-                    let chainState = Chain.findOne({ chainId: chainId });
+                    const chainState = Chain.findOne({ chainId: chainId });
                     PUB.pubsub.publish(PUB.CHAIN_UPDATED, { chainUpdated: chainState });
                 });
             }
@@ -48,8 +51,8 @@ Meteor.methods({
         }
     },
     'chain.getCurrentValidatorSet': async function(){
-        let validators = await kit.contracts.getValidators();
-        let validatorSet = await validators.currentValidatorAccountsSet();
+        const validators = await kit.contracts.getValidators();
+        const validatorSet = await validators.currentValidatorAccountsSet();
         return validatorSet;
     }
 })
