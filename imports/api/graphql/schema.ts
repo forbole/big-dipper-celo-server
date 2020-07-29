@@ -87,6 +87,11 @@ const typeDefs = gql`
         address: String!
         balance: BigInt
         totalBalance: TotalBalance
+        accountSummary: JSON
+        isAccount: Boolean
+        isSigner: Boolean
+        lockedGold: JSON
+        attestation: JSON
     }
 
       type TotalBalance {

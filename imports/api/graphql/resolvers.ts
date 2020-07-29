@@ -1,3 +1,4 @@
+import { Meteor } from "meteor/meteor";
 import { Chain } from "../chain/chain";
 import { Transactions } from "../transactions/transactions";
 import { Accounts } from "../accounts/accounts";
@@ -60,7 +61,8 @@ export default {
       return Transactions.findOne({ hash: args.hash });
     },
     account(_, args, context, info) {
-      return Accounts.findOne({ address: args.address });
+      let account = Meteor.call('accounts.getAccount', args.address);
+      return account;
     },
     blocks: async (_, { pageSize = 20, page = 1 }, { dataSources }) => {
       const totalCounts = Blocks.find().count();

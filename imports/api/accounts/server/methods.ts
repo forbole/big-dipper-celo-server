@@ -37,31 +37,43 @@ Meteor.methods({
     }
   },
 
+  "accounts.getAccount": async function (address: string) {
+      if (!address){
+        return "No address provided."
+      }
+
+      let account = Accounts.findOne({address:address});
+
+      if (!account){
+        return "Account not found.";
+      }
+
+      let lockedGold: { [c: string]: any } = {};
+      let accounts = await kit.contracts.getAccounts();
+      let lockedGolds = await kit.contracts.getLockedGold();
+
+
+      let lockedGoldSummary  = await lockedGolds.getAccountSummary(address);
+      let accountSummary = await accounts.getAccountSummary(address);
 
 
 
-  // let acc = "0x4caEEFF39cd3b889462b995bDAf2dF97836f490C";
-  // let acc1 = "0x050f34537f5b2a00b9b9c752cb8500a3fce3da7d"
+      if (lockedGoldSummary){
+        let pendingWithdrawalsTotals = (await lockedGolds.getPendingWithdrawalsTotalValue(address))
 
-  // const accounts = await web3.eth.getAccounts();
-  // console.log(accounts)
-  // const accountsWrapper = await kit.contracts.getAccounts();
+        lockedGold.total = lockedGoldSummary.lockedGold.total
+        lockedGold.nonvoting = lockedGoldSummary.lockedGold.nonvoting
+        lockedGold.requirement = lockedGoldSummary.lockedGold.requirement
+        lockedGold.pendingWithdrawals = lockedGoldSummary.pendingWithdrawals
+        lockedGold.pendingWithdrawalsTotal = pendingWithdrawalsTotals
+  
+        // return lockedG;
+      }
 
-  // console.log(accounts);
-  // console.log(accountsWrapper);
+      account.lockedGold = lockedGold;
+      account.accountSummary = accountSummary;
 
-  // const account = await kit.contracts.getAccounts();
-  // for (let c in accountList){
-  //   if(account)
-  // }
-  // account.getAccountSummary(acc).then((accountSummary) => {
-  //   console.log("!!!!account summary");
-  //   console.log(accountSummary);
-  // });
-
-  // const accounts2 = await web3.eth.getAccounts();
-  // let account = accounts2[0];
-
-  // }
-  // },
+      // console.log(account);
+      return account;
+  },
 });
