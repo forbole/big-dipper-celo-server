@@ -61,8 +61,7 @@ export default {
       return Transactions.findOne({ hash: args.hash });
     },
     account(_, args, context, info) {
-      let account = Meteor.call('accounts.getAccount', args.address);
-      return account;
+      return Meteor.call('accounts.getAccount', args.address);
     },
     blocks: async (_, { pageSize = 20, page = 1 }, { dataSources }) => {
       const totalCounts = Blocks.find().count();
@@ -144,6 +143,10 @@ export default {
     validatorGroup(parent) {
       return ValidatorGroups.findOne({ address: parent.validatorGroup });
     },
+    signer(parent) {
+      console.log(parent.signer);
+      return Meteor.call('accounts.getAccount', parent.signer);
+    }
   },
   ToWalletObject: {
     __resolveType(obj, context, info) {
