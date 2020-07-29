@@ -37,26 +37,43 @@ Meteor.methods({
     }
   },
 
-  "accounts.getLockedGold": async function (address: string) {
-      let lockedG: { [c: string]: any } = {};
+  "accounts.getAccount": async function (address: string) {
+      if (!address){
+        return "No address provided."
+      }
+
+      let account = Accounts.findOne({address:address});
+
+      if (!account){
+        return "Account not found.";
+      }
+
+      let lockedGold: { [c: string]: any } = {};
+      let accounts = await kit.contracts.getAccounts();
       let lockedGolds = await kit.contracts.getLockedGold();
 
-      let summary  = (await lockedGolds.getAccountSummary(address));
 
-      if (summary){
+      let lockedGoldSummary  = await lockedGolds.getAccountSummary(address);
+      let accountSummary = await accounts.getAccountSummary(address);
+
+
+
+      if (lockedGoldSummary){
         let pendingWithdrawalsTotals = (await lockedGolds.getPendingWithdrawalsTotalValue(address))
 
-        lockedG.total = summary.lockedGold.total
-        lockedG.nonvoting = summary.lockedGold.nonvoting
-        lockedG.requirement = summary.lockedGold.requirement
-        lockedG.pendingWithdrawals = summary.pendingWithdrawals
-        lockedG.pendingWithdrawalsTotal = pendingWithdrawalsTotals
+        lockedGold.total = lockedGoldSummary.lockedGold.total
+        lockedGold.nonvoting = lockedGoldSummary.lockedGold.nonvoting
+        lockedGold.requirement = lockedGoldSummary.lockedGold.requirement
+        lockedGold.pendingWithdrawals = lockedGoldSummary.pendingWithdrawals
+        lockedGold.pendingWithdrawalsTotal = pendingWithdrawalsTotals
   
-        return lockedG;
+        // return lockedG;
       }
 
-      else{
-        return "Address not found."
-      }
+      account.lockedGold = lockedGold;
+      account.accountSummary = accountSummary;
+
+      // console.log(account);
+      return account;
   },
 });
