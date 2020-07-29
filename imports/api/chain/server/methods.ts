@@ -13,9 +13,11 @@ Meteor.methods({
     'chain.updateChain': async function(height){
         // this.unblock();
         let chainId = await web3.eth.net.getId();
+        let epochNumber = await kit.getEpochNumberOfBlock(height);
         Chain.upsert({chainId:chainId}, {
             $set:{
-                walletCount:Accounts.find().count()
+                walletCount: Accounts.find().count(),
+                epochNumber: epochNumber
             }},(error, result) => {
             let chainState = Chain.findOne({chainId:chainId});
             PUB.pubsub.publish(PUB.CHAIN_UPDATED, { chainUpdated: chainState });
@@ -29,7 +31,6 @@ Meteor.methods({
         try{
             if (response.statusCode == 200){
                 let chainId = await web3.eth.net.getId();
-                let data = 
                 Chain.upsert({ chainId: chainId }, { $set: {tokenPrice: {
                     usd:response.data['celo-gold'].usd,
                     usdMarketCap:response.data['celo-gold'].usd_market_cap,
@@ -45,5 +46,10 @@ Meteor.methods({
         catch(e){
             console.log(e);
         }
+    },
+    'chain.getCurrentValidatorSet': async function(){
+        let validators = await kit.contracts.getValidators();
+        let validatorSet = await validators.currentValidatorAccountsSet();
+        return validatorSet;
     }
 })

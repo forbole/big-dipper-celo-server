@@ -87,6 +87,15 @@ export default {
     validator(_, args, context, info) {
       return Validators.findOne({ address: args.address });
     },
+    currentValidatorSet(_, args, context, info){
+      let validators = Meteor.call('chain.getCurrentValidatorSet');
+      let validatorSet = new Array();
+      validators.forEach(validator => {
+        validatorSet.push(Validators.findOne({address:validator.address}))
+      });
+
+      return validatorSet
+    }
   },
   Block: {
     transactions(parent) {

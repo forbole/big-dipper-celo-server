@@ -14,6 +14,7 @@ const typeDefs = gql`
         chainId: Int
         tokenPrice: tokenPrice
         walletCount: Int
+        epochNumber: Int
     }
 
     type Subscription {
@@ -165,6 +166,7 @@ const typeDefs = gql`
             page: Int
         ): TransactionList!
         accounts: [Account]
+        currentValidatorSet: [Validator]!
         block(number: Int): Block
         transaction(hash: String!): Transaction
         account(address: String!): Account
