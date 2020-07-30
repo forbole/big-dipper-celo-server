@@ -167,7 +167,7 @@ export default {
         return 'ToWalletAccount';
       }
 
-      return {address: null};
+      return 'ToWalletAddress';
     },
   }
 };
