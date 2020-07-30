@@ -10,6 +10,7 @@
   "dependencies": {
     "@babel/runtime": "^7.8.4",
     "@celo/contractkit": "^0.4.1",
+    "@types/meteor": "^1.4.48",
     "abi-decoder": "^2.3.0",
     "apollo-client": "^2.6.8",
     "apollo-server-express": "^2.14.2",
