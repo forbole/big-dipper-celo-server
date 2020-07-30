@@ -43,7 +43,7 @@ export default {
         {
           sort: { blockNumber: -1 },
           limit: pageSize,
-          page: (page - 1) * pageSize,
+          skip: (page - 1) * pageSize,
         }
       ).fetch();
       return {
@@ -63,11 +63,32 @@ export default {
     account(_, args, context, info) {
       return Meteor.call('accounts.getAccount', args.address);
     },
+    accounts: async (_, { pageSize = 20, page = 1 }, { dataSources }) => {
+      const totalCounts = Accounts.find().count();
+      const accounts = Accounts.find(
+        {},
+        {
+          sort: { balance: -1 },
+          limit: pageSize,
+          skip: (page - 1) * pageSize,
+        }
+      ).fetch();
+      return {
+        pageSize: pageSize,
+        page: page,
+        accounts,
+        totalCounts: totalCounts,
+        cursor: accounts.length
+          ? accounts[accounts.length - 1].address
+          : null,
+        hasMore: accounts.length == pageSize,
+      };
+    },
     blocks: async (_, { pageSize = 20, page = 1 }, { dataSources }) => {
       const totalCounts = Blocks.find().count();
       const blocks = Blocks.find(
         {},
-        { sort: { number: -1 }, limit: pageSize, page: (page - 1) * pageSize }
+        { sort: { number: -1 }, limit: pageSize, skip: (page - 1) * pageSize }
       ).fetch();
       return {
         pageSize: pageSize,

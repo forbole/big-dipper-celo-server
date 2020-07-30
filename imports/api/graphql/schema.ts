@@ -166,13 +166,25 @@ const typeDefs = gql`
             pageSize: Int
             page: Int
         ): TransactionList!
-        accounts: [Account]
+        accounts(
+            pageSize: Int
+            page: Int
+        ): AccountList!
         currentValidatorSet: [Validator]!
         block(number: Int): Block
         transaction(hash: String!): Transaction
         account(address: String!): Account
         validatorGroup(address:String!): ValidatorGroup
         validator(address:String!): Validator
+    }
+
+    type AccountList {
+        cursor: Int!
+        pageSize: Int!
+        page: Int!
+        totalCounts: Int!
+        hasMore: Boolean!
+        accounts: [Account]
     }
 
     type BlockList {
