@@ -7,7 +7,7 @@ const typeDefs = gql`
     scalar JSON
 
     type Chain {
-        _id: String!
+        _id: String
         averageBlockTime: Float
         txCount: Int
         latestHeight: Int
@@ -34,7 +34,7 @@ const typeDefs = gql`
     }
 
     type Block {
-        _id: String!
+        _id: String
         extraData: String!
         gasLimit: Int
         gasUsed: Int!
@@ -60,7 +60,7 @@ const typeDefs = gql`
     }
 
     type Transaction {
-        _id: String!
+        _id: String
         blockHash: String!
         blockNumber: Int!
         from: Account
@@ -85,7 +85,7 @@ const typeDefs = gql`
     }
 
     type Account {
-        _id: String!
+        _id: String
         address: String!
         balance: BigInt
         totalBalance: TotalBalance
@@ -97,7 +97,7 @@ const typeDefs = gql`
         txCount: Int
     }
 
-      type TotalBalance {
+    type TotalBalance {
         gold: BigInt
         lockedGold: BigInt
         usd: BigInt
@@ -132,7 +132,7 @@ const typeDefs = gql`
     }
 
     type ValidatorGroup {
-        _id: String!
+        _id: String
         address: String!
         affiliates: [String]
         commission: Float!
@@ -146,7 +146,7 @@ const typeDefs = gql`
     }
 
     type Validator{
-        _id: String!
+        _id: String
         affiliation: String!
         blsPublicKey: String!
         ecdsaPublicKey: String!
