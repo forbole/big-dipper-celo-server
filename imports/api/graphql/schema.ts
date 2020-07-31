@@ -94,6 +94,7 @@ const typeDefs = gql`
         isSigner: Boolean
         lockedGold: JSON
         attestation: JSON
+        txCount: Int
     }
 
       type TotalBalance {

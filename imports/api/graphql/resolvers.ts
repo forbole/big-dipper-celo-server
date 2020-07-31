@@ -61,7 +61,9 @@ export default {
       return Transactions.findOne({ hash: args.hash });
     },
     account(_, args, context, info) {
-      return Meteor.call('accounts.getAccount', args.address);
+      const account = Meteor.call('accounts.getAccount', args.address);
+      account.txCount = Transactions.find({$or:[{from:args.address},{to:args.address}]}).count();
+      return account;
     },
     accounts: async (_, { pageSize = 20, page = 1 }, { dataSources }) => {
       const totalCounts = Accounts.find().count();
