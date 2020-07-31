@@ -16,11 +16,15 @@ Meteor.methods({
         const epochNumber = await kit.getEpochNumberOfBlock(height);
         const validators = await kit.contracts.getValidators();
         const epochSize = await validators.getEpochSize();
+        const goldToken = await kit.contracts.getGoldToken();
+        const stableToken = await kit.contracts.getStableToken();
         Chain.upsert({chainId:chainId}, {
             $set:{
                 walletCount: Accounts.find().count(),
                 epochNumber: epochNumber,
-                epochSize: epochSize.toNumber()
+                epochSize: epochSize.toNumber(),
+                celoTotalSupply: await (await goldToken.totalSupply()).toNumber(),
+                cUSDTotalSupply: await (await stableToken.totalSupply()).toNumber()
             }},(error, result) => {
             let chainState = Chain.findOne({chainId:chainId});
             PUB.pubsub.publish(PUB.CHAIN_UPDATED, { chainUpdated: chainState });
