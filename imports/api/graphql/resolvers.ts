@@ -60,6 +60,27 @@ export default {
     transaction(_, args, context, info) {
       return Transactions.findOne({ hash: args.hash });
     },
+    transactionsByAccount: async (_, { address, pageSize = 20, page = 1 }, { dataSources }) => {
+      const totalCounts = Transactions.find({$or:[{to:address},{from:address}]}).count();
+      const transactions = Transactions.find(
+        {$or:[{to:address},{from:address}]},
+        {
+          sort: { blockNumber: -1 },
+          limit: pageSize,
+          skip: (page - 1) * pageSize,
+        }
+      ).fetch();
+      return {
+        pageSize: pageSize,
+        page: page,
+        transactions,
+        totalCounts: totalCounts,
+        cursor: transactions.length
+          ? transactions[transactions.length - 1].blockNumber
+          : null,
+        hasMore: transactions.length == pageSize,
+      };
+    },
     account(_, args, context, info) {
       const account = Meteor.call('accounts.getAccount', args.address);
       account.txCount = Transactions.find({$or:[{from:args.address},{to:args.address}]}).count();

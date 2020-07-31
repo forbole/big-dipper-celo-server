@@ -174,6 +174,11 @@ const typeDefs = gql`
         currentValidatorSet: [Validator]!
         block(number: Int): Block
         transaction(hash: String!): Transaction
+        transactionsByAccount(
+            address: String!,
+            pageSize: Int,
+            page: Int
+        ): TransactionList
         account(address: String!): Account
         validatorGroup(address:String!): ValidatorGroup
         validator(address:String!): Validator
