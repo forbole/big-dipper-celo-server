@@ -30,6 +30,9 @@ Meteor.methods({
                     valData.validatorGroup = valGroups[i].address;
                     try{
                         Validators.upsert({ address: valData.address}, {$set:valData})
+                        // Meteor.call("accounts.update", valData.address)
+                        // Meteor.call("accounts.update", valData.affiliation)
+                        // Meteor.call("accounts.update", valData.signer)
                     }
                     catch(e){
                         console.log(e);
