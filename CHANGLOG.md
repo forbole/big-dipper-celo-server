@@ -2,6 +2,7 @@
 
 ## [Unreleased]
 
+* [#35] Track the validators signature existance in blocks 
 * Store contract ABI from `contractKit` generated ABI
 * [#28] Provide resolver returning transaction list by querying account address
 * [#26] Add token total supply to chain state
