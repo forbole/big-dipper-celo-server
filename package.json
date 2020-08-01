@@ -8,20 +8,21 @@
     "visualize": "meteor --production --extra-packages bundle-visualizer"
   },
   "dependencies": {
-    "@babel/runtime": "^7.8.4",
-    "@celo/contractkit": "^0.4.1",
+    "@babel/runtime": "^7.11.0",
+    "@celo/contractkit": "^0.4.11",
+    "@celo/utils": "^0.1.17",
     "@types/meteor": "^1.4.48",
     "abi-decoder": "^2.3.0",
-    "apollo-client": "^2.6.8",
-    "apollo-server-express": "^2.14.2",
+    "apollo-client": "^2.6.10",
+    "apollo-server-express": "^2.16.1",
     "apollo-type-bigint-fix": "^0.1.2",
     "express": "^4.17.1",
-    "graphql": "^15.0.0",
+    "graphql": "^15.3.0",
     "graphql-type-json": "^0.3.2",
     "meteor-node-stubs": "^1.0.0",
     "react": "^16.13.0",
     "react-dom": "^16.13.0",
-    "web3": "^1.2.7"
+    "web3": "^1.2.11"
   },
   "meteor": {
     "mainModule": {
