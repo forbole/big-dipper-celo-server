@@ -2,6 +2,7 @@
 
 ## [Unreleased]
 
+* Store contract ABI from `contractKit` generated ABI
 * [#28] Provide resolver returning transaction list by querying account address
 * [#26] Add token total supply to chain state
 * [#20] Store Epoch number to chain state
