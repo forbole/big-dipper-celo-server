@@ -86,7 +86,7 @@ const typeDefs = gql`
 
     type Account {
         _id: String
-        address: String!
+        address: String
         balance: BigInt
         totalBalance: TotalBalance
         accountSummary: JSON
