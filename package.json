@@ -9,6 +9,7 @@
   },
   "dependencies": {
     "@babel/runtime": "^7.11.0",
+    "@celo/celocli": "0.0.53",
     "@celo/contractkit": "^0.4.11",
     "@celo/utils": "^0.1.17",
     "@types/meteor": "^1.4.48",
