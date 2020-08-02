@@ -4,7 +4,7 @@ import { Transactions } from "../transactions/transactions";
 import { Accounts } from "../accounts/accounts";
 import { Blocks } from "../blocks/blocks";
 import { ValidatorGroups } from "../validator-groups/validator-groups";
-import { Validators } from "../validators/validators";
+import { Validators, ValidatorRecords } from "../validators/validators";
 import { Contracts } from "../contracts/contracts";
 import GraphQLJSON from "graphql-type-json";
 
@@ -148,6 +148,29 @@ export default {
     miner(parent) {
       return Validators.findOne({ signer: parent.miner });
     },
+    signers(parent) {
+      const pipeline = [
+        {
+          '$match': {
+            'blockNumber': parent.number
+          }
+        }, {
+          '$lookup': {
+            'from': 'validators', 
+            'localField': 'signer', 
+            'foreignField': 'signer', 
+            'as': 'validator'
+          }
+        }, {
+          '$unwind': {
+            'path': '$validator'
+          }
+        }
+      ]
+      const signerRecords = ValidatorRecords.rawCollection().aggregate(pipeline).toArray()
+      console.log(signerRecords);
+      return signerRecords
+    }
   },
   Transaction: {
     to(parent) {
