@@ -66,23 +66,43 @@ Meteor.methods({
         chainState.latestHeight = block.number
 
         // get block singer records
-        
-        const epochNumber = await kit.getEpochNumberOfBlock(block.number)
-        const election = await kit.contracts.getElection()
-        const validatorSet = await election.getElectedValidators(epochNumber)
-        const validators = await kit.contracts.getValidators()
-        const epochSize = await validators.getEpochSize()
-        // console.log(validatorSet)
+        const bulkValidatorRecords = ValidatorRecords.rawCollection().initializeUnorderedBulkOp();
 
-        const electionRC = new ElectionResultsCache(election, epochSize.toNumber())
-        for (let v in validatorSet){
-          let record:any = {
-            blockNumber: block.number,
-            signer: validatorSet[v].signer,
-            exist: await electionRC.signedParent(validatorSet[v].signer, block)
-          }
-          ValidatorRecords.insert(record);
-        }
+        kit.getEpochNumberOfBlock(block.number)
+        .then(async (epochNumber) => {
+          kit.contracts.getElection()
+          .then(async (election) => {
+            election.getElectedValidators(epochNumber)
+            .then(async (validatorSet) => {
+              const validators = await kit.contracts.getValidators()
+              const epochSize = await validators.getEpochSize()
+              const electionRC = new ElectionResultsCache(election, epochSize.toNumber())
+              for (let v in validatorSet){
+                electionRC.signedParent(validatorSet[v].signer, block)
+                .then(async (exist) => {
+                  let record:any = {
+                    blockNumber: block.number,
+                    signer: validatorSet[v].signer,
+                    exist: exist 
+                  }
+                  ValidatorRecords.insert(record)
+                })
+                .catch((reason)=>{
+                  console.log("Getting signed parent: %o", reason)
+                })
+              }
+            })
+            .catch((reason)=>{
+              console.log("Getting elected validators: %o", reason)
+            })
+          })
+          .catch((reason)=>{
+            console.log("Getting election contract: %o", reason)
+          })
+        })
+        .catch((reason)=>{
+          console.log("Getting epoch number: %o", reason)
+        })
         // const blockExtraData = parseBlockExtraData(block.extraData);
         // console.log(blockExtraData);
 
