@@ -44,6 +44,8 @@ Meteor.methods({
         // calculate block time
         block.blockTime = blockTime
 
+        block.hasSingers = false
+
         let chainState: { [k: string]: any } = Chain.findOne({
           chainId: chainId,
         });
@@ -66,29 +68,29 @@ Meteor.methods({
         chainState.latestHeight = block.number
 
         // get block singer records
-        try{
-          const epochNumber = await kit.getEpochNumberOfBlock(block.number)
-          const election = await kit.contracts.getElection()
-          const validatorSet = await election.getElectedValidators(epochNumber)
-          const validators = await kit.contracts.getValidators()
-          const epochSize = await validators.getEpochSize()
-          // console.log(validatorSet)
+        // try{
+        //   const epochNumber = await kit.getEpochNumberOfBlock(block.number)
+        //   const election = await kit.contracts.getElection()
+        //   const validatorSet = await election.getElectedValidators(epochNumber)
+        //   const validators = await kit.contracts.getValidators()
+        //   const epochSize = await validators.getEpochSize()
+        //   // console.log(validatorSet)
 
-          const electionRC = new ElectionResultsCache(election, epochSize.toNumber())
-          for (let v in validatorSet){
-            let record:any = {
-              blockNumber: block.number,
-              signer: validatorSet[v].signer,
-              exist: await electionRC.signedParent(validatorSet[v].signer, block)
-            }
-            ValidatorRecords.insert(record);
-          }
-        // const blockExtraData = parseBlockExtraData(block.extraData);
-        // console.log(blockExtraData);
-        }
-        catch(e){
-          console.log(e)
-        }
+        //   const electionRC = new ElectionResultsCache(election, epochSize.toNumber())
+        //   for (let v in validatorSet){
+        //     let record:any = {
+        //       blockNumber: block.number,
+        //       signer: validatorSet[v].signer,
+        //       exist: await electionRC.signedParent(validatorSet[v].signer, block)
+        //     }
+        //     ValidatorRecords.insert(record);
+        //   }
+        // // const blockExtraData = parseBlockExtraData(block.extraData);
+        // // console.log(blockExtraData);
+        // }
+        // catch(e){
+        //   console.log(e)
+        // }
         // get transactions hash
         if (block.transactions.length > 0) {
           for (let j = 0; j < block.transactions.length; j++) {
