@@ -52,11 +52,19 @@ const typeDefs = gql`
         transactions: [Transaction]
         transactionsRoot: String!
         blockTime: Int!
+        signers: [SignerRecord]
     }
 
     type Randomness {
         committed: String!
         revealed: String!
+    }
+    
+    type SignerRecord {
+        blockNumber: Int
+        signer: String
+        exist: Boolean
+        validator: Validator
     }
 
     type Transaction {
