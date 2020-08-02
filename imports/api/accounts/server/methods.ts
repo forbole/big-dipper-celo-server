@@ -95,38 +95,38 @@ Meteor.methods({
         return "Account not found.";
       }
 
-      let lockedGold: { [c: string]: any } = {}
-      let accounts = await kit.contracts.getAccounts()
-      let lockedGolds = await kit.contracts.getLockedGold()
+      // let lockedGold: { [c: string]: any } = {}
+      // let accounts = await kit.contracts.getAccounts()
+      // let lockedGolds = await kit.contracts.getLockedGold()
 
-      try{
-        let lockedGoldSummary  = await lockedGolds.getAccountSummary(address)
+      // try{
+      //   let lockedGoldSummary  = await lockedGolds.getAccountSummary(address)
 
-        if (lockedGoldSummary){
-          let pendingWithdrawalsTotals = (await lockedGolds.getPendingWithdrawalsTotalValue(address))
+      //   if (lockedGoldSummary){
+      //     let pendingWithdrawalsTotals = (await lockedGolds.getPendingWithdrawalsTotalValue(address))
   
-          lockedGold.total = lockedGoldSummary.lockedGold.total
-          lockedGold.nonvoting = lockedGoldSummary.lockedGold.nonvoting
-          lockedGold.requirement = lockedGoldSummary.lockedGold.requirement
-          lockedGold.pendingWithdrawals = lockedGoldSummary.pendingWithdrawals
-          lockedGold.pendingWithdrawalsTotal = pendingWithdrawalsTotals
+      //     lockedGold.total = lockedGoldSummary.lockedGold.total
+      //     lockedGold.nonvoting = lockedGoldSummary.lockedGold.nonvoting
+      //     lockedGold.requirement = lockedGoldSummary.lockedGold.requirement
+      //     lockedGold.pendingWithdrawals = lockedGoldSummary.pendingWithdrawals
+      //     lockedGold.pendingWithdrawalsTotal = pendingWithdrawalsTotals
     
-          // return lockedG;
-        }
-      }
-      catch(e){
-        console.log(e)
-      }
+      //     // return lockedG;
+      //   }
+      // }
+      // catch(e){
+      //   console.log(e)
+      // }
 
-      try{
-        let accountSummary = await accounts.getAccountSummary(address)
+      // try{
+      //   let accountSummary = await accounts.getAccountSummary(address)
 
-        account.lockedGold = lockedGold
-        account.accountSummary = accountSummary
-      }
-      catch(e){
-        console.log(e)
-      }
+      //   account.lockedGold = lockedGold
+      //   account.accountSummary = accountSummary
+      // }
+      // catch(e){
+      //   console.log(e)
+      // }
       // console.log(account);
       return account
   },
