@@ -1,5 +1,4 @@
 import { Meteor } from 'meteor/meteor';
-import { HTTP } from 'meteor/http';
 import { Transactions } from '../../transactions/transactions';
 import { Contracts } from '../../contracts/contracts';
 import { newKit } from '@celo/contractkit';
@@ -36,15 +35,16 @@ Meteor.methods({
                         // store the recepient account
                         // let balance = await web3.eth.getBalance(tx.to)
 
-
-                        Meteor.call('accounts.update', tx.to, (error, result) => {
-                            if (error){
-                                console.log(error)
-                            }
-                            if (result){
-                                console.log(result)
-                            }
-                        })
+                        if (tx.to){
+                            Meteor.call('accounts.update', tx.to, (error, result) => {
+                                if (error){
+                                    console.log(error)
+                                }
+                                if (result){
+                                    console.log(result)
+                                }
+                            })
+                        }
 
                         tx.type = 'transfer';
                     }
@@ -91,14 +91,16 @@ Meteor.methods({
                             }
                         }
 
-                        Meteor.call('accounts.update', tx.to, (error, result) => {
-                            if (error){
-                                console.log(error)
-                            }
-                            if (result){
-                                console.log(result)
-                            }
-                        })
+                        if (tx.to){
+                            Meteor.call('accounts.update', tx.to, (error, result) => {
+                                if (error){
+                                    console.log(error)
+                                }
+                                if (result){
+                                    console.log(result)
+                                }
+                            })    
+                        }
                     }
 
                     tx.pending = false;
