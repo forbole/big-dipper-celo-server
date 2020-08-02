@@ -90,6 +90,15 @@ Meteor.methods({
                                 tx.type = 'contractCall'
                             }
                         }
+
+                        Meteor.call('accounts.update', tx.to, (error, result) => {
+                            if (error){
+                                console.log(error)
+                            }
+                            if (result){
+                                console.log(result)
+                            }
+                        })
                     }
 
                     tx.pending = false;
