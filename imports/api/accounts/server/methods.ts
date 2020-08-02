@@ -18,15 +18,17 @@ Meteor.methods({
     data.gold = totalBalance.gold.toNumber()
     data.lockedGold = totalBalance.lockedGold.toNumber()
     data.usd = totalBalance.usd.toNumber()
-    data.total = totalBalance.total.toNumber()
+    data.total = (totalBalance.total)?totalBalance.total.toNumber():0
     data.pending = totalBalance.pending.toNumber()
 
-    let account = Accounts.findOne({address:address})
+    let account:{ [k: string]: any }
+    account = Accounts.findOne({address:address})
     let code:string
     if (account){
       code = account.code
     }
     else{
+      account = {}
       try{
         code = await web3.eth.getCode(address)
       }
@@ -42,7 +44,7 @@ Meteor.methods({
     let lockedGolds = await kit.contracts.getLockedGold()
 
     try{
-      let lockedGoldSummary  = await lockedGolds.getAccountSummary(address)
+      let lockedGoldSummary = await lockedGolds.getAccountSummary(address)
 
       if (lockedGoldSummary){
         let pendingWithdrawalsTotals = (await lockedGolds.getPendingWithdrawalsTotalValue(address))
