@@ -58,13 +58,14 @@ Meteor.methods({
                             if (!!contract && !!contract.ABI) {
                                 abiDecoder.addABI(contract.ABI);
                                 let decodedInput = abiDecoder.decodeMethod(tx.input);
-                                if ((contract.name == "GoldToken" || contract.name == "StableToken")
-                                    && decodedInput && decodedInput.name
-                                    && ((decodedInput.name == 'transfer') || (decodedInput.name == 'transferWithComment') || (decodedInput.name == 'transferFrom'))
-                                    ){
+                                // if ((contract.name == "GoldToken" || contract.name == "StableToken")
+                                //     && decodedInput && decodedInput.name
+                                //     && ((decodedInput.name == 'transfer') || (decodedInput.name == 'transferWithComment') || (decodedInput.name == 'transferFrom'))
+                                //     ){
                                     // console.log("=== Contract Name: %o", contract.name);
                                     // console.log("=== Function Name: %o", decodedInput.name);
                                     // console.log("=== Input Params: %o", decodedInput.params);
+                                if (decodedInput && decodedInput.name){
                                     for (let i in decodedInput.params){
                                         if (decodedInput.params[i].type == 'address'){
                                             Meteor.call('accounts.update', decodedInput.params[i].value, (error, result) => {
@@ -78,6 +79,7 @@ Meteor.methods({
                                         }
                                     }
                                 }
+                                // }
 
                                 if (decodedInput){
                                     tx.decodedInput = decodedInput;
