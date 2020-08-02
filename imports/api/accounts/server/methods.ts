@@ -24,6 +24,7 @@ Meteor.methods({
     let account:{ [k: string]: any }
     account = Accounts.findOne({address:address})
     let code:string
+
     if (account){
       code = account.code
     }
@@ -103,7 +104,6 @@ Meteor.methods({
 
       // try{
       //   let lockedGoldSummary  = await lockedGolds.getAccountSummary(address)
-
       //   if (lockedGoldSummary){
       //     let pendingWithdrawalsTotals = (await lockedGolds.getPendingWithdrawalsTotalValue(address))
   
