@@ -11,25 +11,30 @@ let web3 = kit.web3;
 
 Meteor.methods({
     'chain.updateChain': async function(height){
-        // this.unblock();
-        const chainId = await web3.eth.net.getId();
-        const epochNumber = await kit.getEpochNumberOfBlock(height);
-        const validators = await kit.contracts.getValidators();
-        const epochSize = await validators.getEpochSize();
-        const goldToken = await kit.contracts.getGoldToken();
-        const stableToken = await kit.contracts.getStableToken();
-        Chain.upsert({chainId:chainId}, {
-            $set:{
-                walletCount: Accounts.find().count(),
-                epochNumber: epochNumber,
-                epochSize: epochSize.toNumber(),
-                celoTotalSupply: await (await goldToken.totalSupply()).toNumber(),
-                cUSDTotalSupply: await (await stableToken.totalSupply()).toNumber()
-            }},(error, result) => {
-            let chainState = Chain.findOne({chainId:chainId});
-            PUB.pubsub.publish(PUB.CHAIN_UPDATED, { chainUpdated: chainState });
-        });
-        return height
+        this.unblock();
+        try{
+            const chainId = await web3.eth.net.getId();
+            const epochNumber = await kit.getEpochNumberOfBlock(height);
+            const validators = await kit.contracts.getValidators();
+            const epochSize = await validators.getEpochSize();
+            const goldToken = await kit.contracts.getGoldToken();
+            const stableToken = await kit.contracts.getStableToken();
+            Chain.upsert({chainId:chainId}, {
+                $set:{
+                    walletCount: Accounts.find().count(),
+                    epochNumber: epochNumber,
+                    epochSize: epochSize.toNumber(),
+                    celoTotalSupply: await (await goldToken.totalSupply()).toNumber(),
+                    cUSDTotalSupply: await (await stableToken.totalSupply()).toNumber()
+                }},(error, result) => {
+                let chainState = Chain.findOne({chainId:chainId});
+                PUB.pubsub.publish(PUB.CHAIN_UPDATED, { chainUpdated: chainState });
+            });
+            return height
+        }
+        catch(e){
+            console.log(e.response)
+        }
     },
     'chain.updateCoin': async function(){
         // this.unblock();

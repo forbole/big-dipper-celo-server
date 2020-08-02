@@ -18,23 +18,66 @@ Meteor.methods({
     data.gold = totalBalance.gold.toNumber()
     data.lockedGold = totalBalance.lockedGold.toNumber()
     data.usd = totalBalance.usd.toNumber()
-    data.total = totalBalance.total.toNumber()
+    data.total = (totalBalance.total)?totalBalance.total.toNumber():0
     data.pending = totalBalance.pending.toNumber()
 
-    let account = Accounts.findOne({address:address})
-    let code
+    let account:{ [k: string]: any }
+    account = Accounts.findOne({address:address})
+    let code:string
+
     if (account){
       code = account.code
     }
     else{
-      code = await web3.eth.getCode(address)
+      account = {}
+      try{
+        code = await web3.eth.getCode(address)
+      }
+      catch(e){
+        console.log(e)
+      }
+    }
+
+    account.code = code
+
+    let lockedGold: { [c: string]: any } = {}
+    let accounts = await kit.contracts.getAccounts()
+    let lockedGolds = await kit.contracts.getLockedGold()
+
+    try{
+      let lockedGoldSummary = await lockedGolds.getAccountSummary(address)
+
+      if (lockedGoldSummary){
+        let pendingWithdrawalsTotals = (await lockedGolds.getPendingWithdrawalsTotalValue(address))
+
+        lockedGold.total = lockedGoldSummary.lockedGold.total
+        lockedGold.nonvoting = lockedGoldSummary.lockedGold.nonvoting
+        lockedGold.requirement = lockedGoldSummary.lockedGold.requirement
+        lockedGold.pendingWithdrawals = lockedGoldSummary.pendingWithdrawals
+        lockedGold.pendingWithdrawalsTotal = pendingWithdrawalsTotals
+  
+        // return lockedG;
+      }
+    }
+    catch(e){
+      console.log(e)
+    }
+
+    try{
+      let accountSummary = await accounts.getAccountSummary(address)
+
+      account.lockedGold = lockedGold
+      account.accountSummary = accountSummary
+    }
+    catch(e){
+      console.log(e)
     }
 
     if (parseInt(balance) > 0) {
       // update or insert address if balance larger than 0
       Accounts.upsert(
         { address: address },
-        { $set: { address: address, balance: parseInt(balance), totalBalance: data, code:code } },
+        { $set: account },
         (error, result) => {
           PUB.pubsub.publish(PUB.ACCOUNT_ADDED, {
             accountAdded: { address: address, balance: balance, totalBalance: data },
@@ -55,38 +98,37 @@ Meteor.methods({
         return "Account not found.";
       }
 
-      let lockedGold: { [c: string]: any } = {}
-      let accounts = await kit.contracts.getAccounts()
-      let lockedGolds = await kit.contracts.getLockedGold()
+      // let lockedGold: { [c: string]: any } = {}
+      // let accounts = await kit.contracts.getAccounts()
+      // let lockedGolds = await kit.contracts.getLockedGold()
 
-      try{
-        let lockedGoldSummary  = await lockedGolds.getAccountSummary(address)
-
-        if (lockedGoldSummary){
-          let pendingWithdrawalsTotals = (await lockedGolds.getPendingWithdrawalsTotalValue(address))
+      // try{
+      //   let lockedGoldSummary  = await lockedGolds.getAccountSummary(address)
+      //   if (lockedGoldSummary){
+      //     let pendingWithdrawalsTotals = (await lockedGolds.getPendingWithdrawalsTotalValue(address))
   
-          lockedGold.total = lockedGoldSummary.lockedGold.total
-          lockedGold.nonvoting = lockedGoldSummary.lockedGold.nonvoting
-          lockedGold.requirement = lockedGoldSummary.lockedGold.requirement
-          lockedGold.pendingWithdrawals = lockedGoldSummary.pendingWithdrawals
-          lockedGold.pendingWithdrawalsTotal = pendingWithdrawalsTotals
+      //     lockedGold.total = lockedGoldSummary.lockedGold.total
+      //     lockedGold.nonvoting = lockedGoldSummary.lockedGold.nonvoting
+      //     lockedGold.requirement = lockedGoldSummary.lockedGold.requirement
+      //     lockedGold.pendingWithdrawals = lockedGoldSummary.pendingWithdrawals
+      //     lockedGold.pendingWithdrawalsTotal = pendingWithdrawalsTotals
     
-          // return lockedG;
-        }
-      }
-      catch(e){
-        console.log(e)
-      }
+      //     // return lockedG;
+      //   }
+      // }
+      // catch(e){
+      //   console.log(e)
+      // }
 
-      try{
-        let accountSummary = await accounts.getAccountSummary(address)
+      // try{
+      //   let accountSummary = await accounts.getAccountSummary(address)
 
-        account.lockedGold = lockedGold
-        account.accountSummary = accountSummary
-      }
-      catch(e){
-        console.log(e)
-      }
+      //   account.lockedGold = lockedGold
+      //   account.accountSummary = accountSummary
+      // }
+      // catch(e){
+      //   console.log(e)
+      // }
       // console.log(account);
       return account
   },
