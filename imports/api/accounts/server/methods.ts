@@ -60,7 +60,7 @@ Meteor.methods({
       }
     }
     catch(e){
-      console.log(e)
+      console.log("Error LockedGold.getAccountSummary")
     }
 
     try{
@@ -70,7 +70,7 @@ Meteor.methods({
       account.accountSummary = accountSummary
     }
     catch(e){
-      console.log(e)
+      console.log("Error Account.getAccountSummary")
     }
 
     if (parseInt(balance) > 0) {

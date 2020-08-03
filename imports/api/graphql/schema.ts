@@ -160,7 +160,8 @@ const typeDefs = gql`
         ecdsaPublicKey: String!
         name: String!
         score: Float!
-        signer: Account!
+        signerAccount: Account
+        signer: String!
         validatorGroup: ValidatorGroup!
     }
 
