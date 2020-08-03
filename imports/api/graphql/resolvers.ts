@@ -146,7 +146,18 @@ export default {
       return Transactions.find({ hash: { $in: parent.transactions } }).fetch();
     },
     miner(parent) {
-      return Validators.findOne({ signer: parent.miner });
+      let miner = Validators.findOne({ signer: parent.miner })
+      if (!miner)
+        miner = {
+          address: "",
+          name: "",
+          affiliation: "",
+          blsPublicKey: "",
+          ecdsaPublicKey: "",
+          score: 0,
+          signer: parent.miner
+        }
+      return miner
     },
     signers(parent) {
       const pipeline = [
@@ -217,9 +228,9 @@ export default {
   },
   Validator: {
     validatorGroup(parent) {
-      return ValidatorGroups.findOne({ address: parent.validatorGroup });
+      return ValidatorGroups.findOne({ address: parent.affiliation });
     },
-    signer(parent) {
+    signerAccount(parent) {
       console.log(parent.signer);
       return Meteor.call('accounts.getAccount', parent.signer);
     }
