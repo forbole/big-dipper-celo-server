@@ -2,6 +2,7 @@
 
 ## [Unreleased]
 
+* Index validators directly instead of reading from validator groups
 * [#37] Return a list of signers in block resolver
 * Save contract bytecode
 * [#35] Track the validators signature existance in blocks 
