@@ -16,6 +16,8 @@ const typeDefs = gql`
         walletCount: Int
         epochNumber: Int
         epochSize: Int
+        cUSDTotalSupply: Int
+        celoTotalSupply: Int
     }
 
     type Subscription {
