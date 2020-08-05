@@ -2,6 +2,10 @@
 
 ## [Unreleased]
 
+* [#45] Fixed accounts list resolver
+
+## First Release v0.1.0
+
 * Index validators directly instead of reading from validator groups
 * [#37] Return a list of signers in block resolver
 * Save contract bytecode

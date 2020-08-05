@@ -73,6 +73,9 @@ Meteor.methods({
       console.log("Error Account.getAccountSummary")
     }
 
+    account.balance = balance
+    account.totalBlance = data
+
     if (parseInt(balance) > 0) {
       // update or insert address if balance larger than 0
       Accounts.upsert(
@@ -98,38 +101,6 @@ Meteor.methods({
         return "Account not found.";
       }
 
-      // let lockedGold: { [c: string]: any } = {}
-      // let accounts = await kit.contracts.getAccounts()
-      // let lockedGolds = await kit.contracts.getLockedGold()
-
-      // try{
-      //   let lockedGoldSummary  = await lockedGolds.getAccountSummary(address)
-      //   if (lockedGoldSummary){
-      //     let pendingWithdrawalsTotals = (await lockedGolds.getPendingWithdrawalsTotalValue(address))
-  
-      //     lockedGold.total = lockedGoldSummary.lockedGold.total
-      //     lockedGold.nonvoting = lockedGoldSummary.lockedGold.nonvoting
-      //     lockedGold.requirement = lockedGoldSummary.lockedGold.requirement
-      //     lockedGold.pendingWithdrawals = lockedGoldSummary.pendingWithdrawals
-      //     lockedGold.pendingWithdrawalsTotal = pendingWithdrawalsTotals
-    
-      //     // return lockedG;
-      //   }
-      // }
-      // catch(e){
-      //   console.log(e)
-      // }
-
-      // try{
-      //   let accountSummary = await accounts.getAccountSummary(address)
-
-      //   account.lockedGold = lockedGold
-      //   account.accountSummary = accountSummary
-      // }
-      // catch(e){
-      //   console.log(e)
-      // }
-      // console.log(account);
       return account
   },
 });

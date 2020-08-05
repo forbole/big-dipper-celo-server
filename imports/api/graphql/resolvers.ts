@@ -96,6 +96,9 @@ export default {
           skip: (page - 1) * pageSize,
         }
       ).fetch();
+      accounts.forEach((account) => {
+        account.txCount = Transactions.find({$or:[{from:account.address},{to:account.address}]}).count();
+      })
       return {
         pageSize: pageSize,
         page: page,
