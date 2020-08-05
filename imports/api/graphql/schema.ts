@@ -157,6 +157,7 @@ const typeDefs = gql`
 
     type Validator{
         _id: String
+        address: String!
         affiliation: String!
         blsPublicKey: String!
         ecdsaPublicKey: String!
