@@ -190,12 +190,12 @@ const typeDefs = gql`
             pageSize: Int,
             page: Int
         ): TransactionList
-        downtime(
+        validatedBlocks(
             address: String
             pageSize: Int
             page: Int
         ): BlockList!
-        validatedBlocks(
+        downtime(
             address: String
             pageSize: Int
             page: Int

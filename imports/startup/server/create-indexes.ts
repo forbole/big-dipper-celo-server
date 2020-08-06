@@ -7,6 +7,8 @@ import { Validators, ValidatorRecords } from "../../api/validators/validators";
 import { Contracts } from "../../api/contracts/contracts";
 
 Blocks.rawCollection().createIndex({ number: -1 }, { unique: true });
+Blocks.rawCollection().createIndex({ miner: 1 });
+Blocks.rawCollection().createIndex({ number: -1, miner: 1 });
 Accounts.rawCollection().createIndex({ address: 1 }, { unique: true });
 Transactions.rawCollection().createIndex({ hash: 1 }, { unique: true });
 Transactions.rawCollection().createIndex({ blockNumber: -1 });

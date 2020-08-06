@@ -187,7 +187,22 @@ export default {
         cursor: blocks.length ? blocks[blocks.length - 1].number : null,
         hasMore: blocks.length ? blocks[blocks.length - 1].number != 1 : false,
       };
-    }
+    },
+    validatedBlocks(_, { address, pageSize = 20, page = 1 }, context, info){
+      const totalCounts = Blocks.find({miner:address}).count()
+      const blocks = Blocks.find(
+        {miner:address},
+        { sort: { number: -1 }, limit: pageSize, skip: (page - 1) * pageSize }
+      ).fetch()
+      return {
+        pageSize: pageSize,
+        page: page,
+        blocks,
+        totalCounts: totalCounts,
+        cursor: blocks.length ? blocks[blocks.length - 1].number : null,
+        hasMore: blocks.length ? blocks[blocks.length - 1].number != 1 : false,
+      };
+    },
   },
   Block: {
     transactions(parent) {
