@@ -1,11 +1,16 @@
 # CHANGELOG
 
-## [Unreleased]
+## [v0.1.2]
 
 * [#45] Fixed accounts list resolver
 * Return validator downtime blocks in resolver
 * Return validator proposed blocks in resolver
 * Make `validatorGroup` in `Validator` schema not mandatory
+
+## v0.1.1
+
+* Temporally disabled indexing validator uptime
+* Update validator indexing method
 
 ## First Release v0.1.0
 
