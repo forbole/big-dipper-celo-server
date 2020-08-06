@@ -190,7 +190,7 @@ const typeDefs = gql`
             pageSize: Int,
             page: Int
         ): TransactionList
-        validatedBlocks(
+        proposedBlocks(
             address: String
             pageSize: Int
             page: Int

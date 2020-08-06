@@ -4,7 +4,7 @@
 
 * [#45] Fixed accounts list resolver
 * Return validator downtime blocks in resolver
-* Return validator validated blocks in resolver
+* Return validator proposed blocks in resolver
 * Make `validatorGroup` in `Validator` schema not mandatory
 
 ## First Release v0.1.0
