@@ -3,6 +3,8 @@
 ## [Unreleased]
 
 * [#45] Fixed accounts list resolver
+* Return validator downtime blocks in resolver
+* Return validator validated blocks in resolver
 
 ## First Release v0.1.0
 

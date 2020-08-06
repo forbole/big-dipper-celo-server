@@ -164,7 +164,7 @@ const typeDefs = gql`
         score: Float!
         signerAccount: Account
         signer: String!
-        validatorGroup: ValidatorGroup!
+        validatorGroup: ValidatorGroup
     }
 
     type Query {
@@ -190,6 +190,16 @@ const typeDefs = gql`
             pageSize: Int,
             page: Int
         ): TransactionList
+        validatedBlocks(
+            address: String
+            pageSize: Int
+            page: Int
+        ): BlockList!
+        downtime(
+            address: String
+            pageSize: Int
+            page: Int
+        ): BlockList!
         account(address: String!): Account
         validatorGroup(address:String!): ValidatorGroup
         validator(address:String!): Validator

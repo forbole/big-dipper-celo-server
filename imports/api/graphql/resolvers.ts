@@ -142,7 +142,67 @@ export default {
       });
 
       return validatorSet
-    }
+    },
+    async downtime(_, { address, pageSize = 20, page = 1 }, context, info){
+      const totalCounts = ValidatorRecords.find({signer:address}).count();
+      const pipeline = [
+        {
+          '$match': {
+            'signer': address, 
+            'exist': false
+          }
+        }, {
+          '$lookup': {
+            'from': 'blocks', 
+            'localField': 'blockNumber', 
+            'foreignField': 'number', 
+            'as': 'block'
+          }
+        }, {
+          '$sort': {
+            'blockNumber': -1
+          }
+        }, {
+          '$skip': (page - 1) * pageSize
+        }, {
+          '$limit': pageSize
+        }, {
+          '$unwind': {
+            'path': '$block'
+          }
+        }
+      ]
+      const records = await ValidatorRecords.rawCollection().aggregate(pipeline).toArray()
+
+      let blocks = new Array()
+      records.forEach(record => {
+        blocks.push(record.block)
+      });
+
+      return {
+        pageSize: pageSize,
+        page: page,
+        blocks,
+        totalCounts: totalCounts,
+        cursor: blocks.length ? blocks[blocks.length - 1].number : null,
+        hasMore: blocks.length ? blocks[blocks.length - 1].number != 1 : false,
+      };
+    },
+    validatedBlocks(_, { address, pageSize = 20, page = 1 }, context, info){
+      const totalCounts = Blocks.find({miner:address}).count()
+      const blocks = Blocks.find(
+        {miner:address},
+        { sort: { number: -1 }, limit: pageSize, skip: (page - 1) * pageSize }
+      ).fetch()
+      return {
+        pageSize: pageSize,
+        page: page,
+        blocks,
+        totalCounts: totalCounts,
+        cursor: blocks.length ? blocks[blocks.length - 1].number : null,
+        hasMore: blocks.length ? blocks[blocks.length - 1].number != 1 : false,
+      };
+    },
   },
   Block: {
     transactions(parent) {
@@ -162,7 +222,7 @@ export default {
         }
       return miner
     },
-    signers(parent) {
+    async signers(parent) {
       const pipeline = [
         {
           '$match': {
@@ -181,8 +241,8 @@ export default {
           }
         }
       ]
-      const signerRecords = ValidatorRecords.rawCollection().aggregate(pipeline).toArray()
-      console.log(signerRecords);
+      const signerRecords = await ValidatorRecords.rawCollection().aggregate(pipeline).toArray()
+      // console.log(signerRecords);
       return signerRecords
     }
   },
