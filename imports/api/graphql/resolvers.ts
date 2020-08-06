@@ -188,7 +188,7 @@ export default {
         hasMore: blocks.length ? blocks[blocks.length - 1].number != 1 : false,
       };
     },
-    validatedBlocks(_, { address, pageSize = 20, page = 1 }, context, info){
+    proposedBlocks(_, { address, pageSize = 20, page = 1 }, context, info){
       const totalCounts = Blocks.find({miner:address}).count()
       const blocks = Blocks.find(
         {miner:address},
