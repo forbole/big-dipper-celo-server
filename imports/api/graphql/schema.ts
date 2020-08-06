@@ -164,7 +164,7 @@ const typeDefs = gql`
         score: Float!
         signerAccount: Account
         signer: String!
-        validatorGroup: ValidatorGroup!
+        validatorGroup: ValidatorGroup
     }
 
     type Query {
