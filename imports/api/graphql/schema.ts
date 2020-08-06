@@ -190,6 +190,16 @@ const typeDefs = gql`
             pageSize: Int,
             page: Int
         ): TransactionList
+        downtime(
+            address: String
+            pageSize: Int
+            page: Int
+        ): BlockList!
+        validatedBlocks(
+            address: String
+            pageSize: Int
+            page: Int
+        ): BlockList!
         account(address: String!): Account
         validatorGroup(address:String!): ValidatorGroup
         validator(address:String!): Validator
