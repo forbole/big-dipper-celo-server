@@ -6,6 +6,16 @@ const typeDefs = gql`
     scalar BigInt
     scalar JSON
 
+    enum Order {
+        ASC
+        DESC
+    }
+
+    input SortBy {
+        field: String!
+        order: Order!
+    }
+
     type Chain {
         _id: String
         averageBlockTime: Float
@@ -181,6 +191,7 @@ const typeDefs = gql`
         accounts(
             pageSize: Int
             page: Int
+            sortBy: SortBy
         ): AccountList!
         currentValidatorSet: [Validator]!
         block(number: Int): Block
@@ -203,6 +214,7 @@ const typeDefs = gql`
         account(address: String!): Account
         validatorGroup(address:String!): ValidatorGroup
         validator(address:String!): Validator
+        
     }
 
     type AccountList {
