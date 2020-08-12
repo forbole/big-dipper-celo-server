@@ -56,7 +56,7 @@ Meteor.methods({
 
           if (!chainState.averageBlockTime) chainState.averageBlockTime = 0
           if (!chainState.txCount) chainState.txCount = 0
-          
+
           chainState.averageBlockTime = (chainState.averageBlockTime * (i - 1) + blockTime) / i
           chainState.latestHeight = block.number
         } else {
@@ -68,7 +68,7 @@ Meteor.methods({
         chainState.latestHeight = block.number
 
         // get block singer records
-        try{
+        try {
           const epochNumber = await kit.getEpochNumberOfBlock(block.number)
           const election = await kit.contracts.getElection()
           const validatorSet = await election.getElectedValidators(epochNumber)
@@ -77,8 +77,8 @@ Meteor.methods({
           // console.log(validatorSet)
 
           const electionRC = new ElectionResultsCache(election, epochSize.toNumber())
-          for (let v in validatorSet){
-            let record:any = {
+          for (let v in validatorSet) {
+            let record: any = {
               blockNumber: block.number,
               signer: validatorSet[v].signer,
               exist: await electionRC.signedParent(validatorSet[v].signer, block)
@@ -86,10 +86,10 @@ Meteor.methods({
             ValidatorRecords.insert(record);
           }
           block.hasSingers = true
-        // const blockExtraData = parseBlockExtraData(block.extraData);
-        // console.log(blockExtraData);
+          // const blockExtraData = parseBlockExtraData(block.extraData);
+          // console.log(blockExtraData);
         }
-        catch(e){
+        catch (e) {
           console.log(e)
         }
 
@@ -134,4 +134,17 @@ Meteor.methods({
 
     return targetHeight
   },
+
+  "proposals.getProposals": async function (targetHeight) {
+
+    const proposals = await kit.contracts.getGovernance()
+    console.log("~~~~~~~~~~~~~~~~~~~~~~")
+    console.log(await proposals.concurrentProposals())
+    console.log(await proposals.getConfig())
+
+    console.log("~~~~~~~~~~~~~~~~~~~~~~")
+
+  },
+
+
 });

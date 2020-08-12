@@ -97,9 +97,9 @@ export default {
       // console.log(sortItems)
       // console.log("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
 
-      const totalCounts = Accounts.find().count();
+      const totalCounts = Accounts.find({balance: {$gt: 0}}).count();
       const accounts = Accounts.find(
-        {},
+        {balance: {$gt: 0}},
         {
           sort: sortItems,
           limit: pageSize,
