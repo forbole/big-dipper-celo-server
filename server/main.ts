@@ -111,6 +111,19 @@ function getContractABI() {
 }
 
 
+function getAllProposals() {
+  Meteor.call("proposals.getProposals"), (error, result) => {
+    if (error) {
+      console.log(error);
+    }
+
+    if (result) {
+      console.log(result);
+    }
+  });
+}
+
+
 
 Meteor.startup(() => {
   // make sure the chain has block
@@ -127,6 +140,7 @@ Meteor.startup(() => {
         updateBlock(number);
         updateTokenPrice();
         updatePendingTransactions();
+        getAllProposals();
       }
     });
   });
