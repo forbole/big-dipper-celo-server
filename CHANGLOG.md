@@ -6,6 +6,7 @@
 * Return validator downtime blocks in resolver
 * Return validator proposed blocks in resolver
 * Make `validatorGroup` in `Validator` schema not mandatory
+* Added `SortBy` Option in accounts query
 
 ## v0.1.1
 

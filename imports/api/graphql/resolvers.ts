@@ -93,10 +93,6 @@ export default {
         sortItems[sortBy.field] = sortBy.order === 'ASC' ? 1 : -1
       }
 
-      // console.log("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
-      // console.log(sortItems)
-      // console.log("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
-
       const totalCounts = Accounts.find({balance: {$gt: 0}}).count();
       const accounts = Accounts.find(
         {balance: {$gt: 0}},
