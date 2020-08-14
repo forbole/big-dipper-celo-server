@@ -2,7 +2,7 @@ import { Meteor } from "meteor/meteor"
 import { newKit, ContractKit, CeloContract } from "@celo/contractkit"
 import { Proposals } from "../../governance/proposals"
 
-let kit = newKit(Meteor.settings.public.fornoAddress)
+let kit = newKit('https://rc1-forno.celo-testnet.org')
 let web3 = kit.web3;
 
 Meteor.methods({
@@ -10,37 +10,29 @@ Meteor.methods({
 
         const governance = await kit._web3Contracts.getGovernance()
         const events = await governance.getPastEvents('ProposalQueued', { fromBlock: 0 })
-        let proposalData: { [proposal: string]: any } = {}
+        const proposalData = {
+            proposal: {},
+        }
 
         events.forEach(function (item, index) {
-            proposalData[index + 1] = item
+            proposalData.proposal[index + 1] = item
         })
 
-        // console.log("~~~~~~~~~~~~")
-        // console.log(proposalData)
-        // console.log("~~~~~~~~~~~~")
+        Object.keys(proposalData.proposal).forEach(function (item) {
+            try {
+                Proposals.upsert(
+                    { proposalNumber: parseFloat(proposalData.proposal[item].returnValues.proposalId) },
+                    {
+                        $set: proposalData.proposal[item],
+                    }
 
-        // Object.keys(proposalData).forEach(function (item) {
-        //     try {
-        //         Proposals.upsert(
-        //             {},
-        //             {
-        //                 $set: {
-        //                     proposal: proposalData[item],
-        //                 },
-        //             },
+                );
+            } catch (e) {
+                console.log(e);
+            }
+        };
 
-        //         );
-        //     } catch (e) {
-        //         console.log(e);
-        //     }
-        // });
-
-        console.log("~~~~~~~~~~~~~")
-        console.log(proposalData);
-
-        return proposalData;
+        return proposalData
     },
-
 
 });
