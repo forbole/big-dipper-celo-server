@@ -36,12 +36,16 @@ export default {
     accountCount(_, args, context, info) {
       return Accounts.find().count();
     },
-    transactions: async (_, { pageSize = 20, page = 1 }, { dataSources }) => {
+    transactions: async (_, { pageSize = 20, page = 1, sortBy = { field: "blockNumber", order: 'DESC' } }, { dataSources }) => {
       const totalCounts = Transactions.find().count();
+      const sortItems = {}
+      if (sortBy) {
+        sortItems[sortBy.field] = sortBy.order === 'ASC' ? 1 : -1
+      }
       const transactions = Transactions.find(
         {},
         {
-          sort: { blockNumber: -1 },
+          sort: sortItems,
           limit: pageSize,
           skip: (page - 1) * pageSize,
         }
@@ -61,9 +65,9 @@ export default {
       return Transactions.findOne({ hash: args.hash });
     },
     transactionsByAccount: async (_, { address, pageSize = 20, page = 1 }, { dataSources }) => {
-      const totalCounts = Transactions.find({$or:[{to:address},{from:address}]}).count();
+      const totalCounts = Transactions.find({ $or: [{ to: address }, { from: address }] }).count();
       const transactions = Transactions.find(
-        {$or:[{to:address},{from:address}]},
+        { $or: [{ to: address }, { from: address }] },
         {
           sort: { blockNumber: -1 },
           limit: pageSize,
@@ -83,21 +87,27 @@ export default {
     },
     account(_, args, context, info) {
       const account = Meteor.call('accounts.getAccount', args.address);
-      account.txCount = Transactions.find({$or:[{from:args.address},{to:args.address}]}).count();
+      account.txCount = Transactions.find({ $or: [{ from: args.address }, { to: args.address }] }).count();
       return account;
     },
-    accounts: async (_, { pageSize = 20, page = 1 }, { dataSources }) => {
-      const totalCounts = Accounts.find().count();
+    accounts: async (_, { pageSize = 20, page = 1, sortBy = { field: "balance", order: 'DESC' } }, { dataSources }) => {
+
+      const sortItems = {}
+      if (sortBy) {
+        sortItems[sortBy.field] = sortBy.order === 'ASC' ? 1 : -1
+      }
+
+      const totalCounts = Accounts.find({ balance: { $gt: 0 } }).count();
       const accounts = Accounts.find(
-        {},
+        { balance: { $gt: 0 } },
         {
-          sort: { balance: -1 },
+          sort: sortItems,
           limit: pageSize,
           skip: (page - 1) * pageSize,
         }
       ).fetch();
       accounts.forEach((account) => {
-        account.txCount = Transactions.find({$or:[{from:account.address},{to:account.address}]}).count();
+        account.txCount = Transactions.find({ $or: [{ from: account.address }, { to: account.address }] }).count();
       })
       return {
         pageSize: pageSize,
@@ -110,11 +120,16 @@ export default {
         hasMore: accounts.length == pageSize,
       };
     },
-    blocks: async (_, { pageSize = 20, page = 1 }, { dataSources }) => {
+    blocks: async (_, { pageSize = 20, page = 1, sortBy = { field: "number", order: 'DESC' } }, { dataSources }) => {
       const totalCounts = Blocks.find().count();
+      const sortItems = {}
+      if (sortBy) {
+        sortItems[sortBy.field] = sortBy.order === 'ASC' ? 1 : -1
+      }
+
       const blocks = Blocks.find(
         {},
-        { sort: { number: -1 }, limit: pageSize, skip: (page - 1) * pageSize }
+        { sort: sortItems, limit: pageSize, skip: (page - 1) * pageSize }
       ).fetch();
       return {
         pageSize: pageSize,
@@ -134,28 +149,28 @@ export default {
     validator(_, args, context, info) {
       return Validators.findOne({ address: args.address });
     },
-    currentValidatorSet(_, args, context, info){
+    currentValidatorSet(_, args, context, info) {
       let validators = Meteor.call('chain.getCurrentValidatorSet');
       let validatorSet = new Array();
       validators.forEach(validator => {
-        validatorSet.push(Validators.findOne({address:validator.address}))
+        validatorSet.push(Validators.findOne({ address: validator.address }))
       });
 
       return validatorSet
     },
-    async downtime(_, { address, pageSize = 20, page = 1 }, context, info){
-      const totalCounts = ValidatorRecords.find({signer:address}).count();
+    async downtime(_, { address, pageSize = 20, page = 1 }, context, info) {
+      const totalCounts = ValidatorRecords.find({ signer: address }).count();
       const pipeline = [
         {
           '$match': {
-            'signer': address, 
+            'signer': address,
             'exist': false
           }
         }, {
           '$lookup': {
-            'from': 'blocks', 
-            'localField': 'blockNumber', 
-            'foreignField': 'number', 
+            'from': 'blocks',
+            'localField': 'blockNumber',
+            'foreignField': 'number',
             'as': 'block'
           }
         }, {
@@ -188,10 +203,10 @@ export default {
         hasMore: blocks.length ? blocks[blocks.length - 1].number != 1 : false,
       };
     },
-    proposedBlocks(_, { address, pageSize = 20, page = 1 }, context, info){
-      const totalCounts = Blocks.find({miner:address}).count()
+    proposedBlocks(_, { address, pageSize = 20, page = 1 }, context, info) {
+      const totalCounts = Blocks.find({ miner: address }).count()
       const blocks = Blocks.find(
-        {miner:address},
+        { miner: address },
         { sort: { number: -1 }, limit: pageSize, skip: (page - 1) * pageSize }
       ).fetch()
       return {
@@ -230,9 +245,9 @@ export default {
           }
         }, {
           '$lookup': {
-            'from': 'validators', 
-            'localField': 'signer', 
-            'foreignField': 'signer', 
+            'from': 'validators',
+            'localField': 'signer',
+            'foreignField': 'signer',
             'as': 'validator'
           }
         }, {
@@ -248,31 +263,31 @@ export default {
   },
   Transaction: {
     to(parent) {
-        if (parent.value == "0"){
-          // it's a contract call
-          let contract = Contracts.findOne({ address: parent.to });
-          if (contract){
-            return {
-              _id: contract._id,
-              address: parent.to,
-              contract: contract
-            }
-          }
-          else{
-            return {
-              address: parent.to
-            }
+      if (parent.value == "0") {
+        // it's a contract call
+        let contract = Contracts.findOne({ address: parent.to });
+        if (contract) {
+          return {
+            _id: contract._id,
+            address: parent.to,
+            contract: contract
           }
         }
         else {
-          // it's a native transfer
-          let account = Accounts.findOne({ address: parent.to });
           return {
-            _id: account._id,
-            address: parent.to,
-            account: account
+            address: parent.to
           }
         }
+      }
+      else {
+        // it's a native transfer
+        let account = Accounts.findOne({ address: parent.to });
+        return {
+          _id: account._id,
+          address: parent.to,
+          account: account
+        }
+      }
     },
     from(parent) {
       return Accounts.findOne({ address: parent.from });
