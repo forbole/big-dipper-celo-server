@@ -183,10 +183,12 @@ const typeDefs = gql`
         blocks(
             pageSize: Int
             page: Int
+            sortBy: SortBy
         ): BlockList! 
         transactions(
             pageSize: Int
             page: Int
+            sortBy: SortBy
         ): TransactionList!
         accounts(
             pageSize: Int

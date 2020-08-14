@@ -36,12 +36,16 @@ export default {
     accountCount(_, args, context, info) {
       return Accounts.find().count();
     },
-    transactions: async (_, { pageSize = 20, page = 1 }, { dataSources }) => {
+    transactions: async (_, { pageSize = 20, page = 1, sortBy = { field: "blockNumber", order: 'DESC' } }, { dataSources }) => {
       const totalCounts = Transactions.find().count();
+      const sortItems = {}
+      if (sortBy) {
+        sortItems[sortBy.field] = sortBy.order === 'ASC' ? 1 : -1
+      }
       const transactions = Transactions.find(
         {},
         {
-          sort: { blockNumber: -1 },
+          sort: sortItems,
           limit: pageSize,
           skip: (page - 1) * pageSize,
         }
@@ -93,9 +97,9 @@ export default {
         sortItems[sortBy.field] = sortBy.order === 'ASC' ? 1 : -1
       }
 
-      const totalCounts = Accounts.find({balance: {$gt: 0}}).count();
+      const totalCounts = Accounts.find({ balance: { $gt: 0 } }).count();
       const accounts = Accounts.find(
-        {balance: {$gt: 0}},
+        { balance: { $gt: 0 } },
         {
           sort: sortItems,
           limit: pageSize,
@@ -116,11 +120,16 @@ export default {
         hasMore: accounts.length == pageSize,
       };
     },
-    blocks: async (_, { pageSize = 20, page = 1 }, { dataSources }) => {
+    blocks: async (_, { pageSize = 20, page = 1, sortBy = { field: "number", order: 'DESC' } }, { dataSources }) => {
       const totalCounts = Blocks.find().count();
+      const sortItems = {}
+      if (sortBy) {
+        sortItems[sortBy.field] = sortBy.order === 'ASC' ? 1 : -1
+      }
+
       const blocks = Blocks.find(
         {},
-        { sort: { number: -1 }, limit: pageSize, skip: (page - 1) * pageSize }
+        { sort: sortItems, limit: pageSize, skip: (page - 1) * pageSize }
       ).fetch();
       return {
         pageSize: pageSize,
