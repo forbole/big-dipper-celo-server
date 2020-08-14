@@ -1,6 +1,7 @@
 # CHANGELOG
 
 ## [v0.1.3]
+* Added validator address in the schema
 * Added Ordering with `SortBy` Option in accounts query
 
 ## [v0.1.2]
