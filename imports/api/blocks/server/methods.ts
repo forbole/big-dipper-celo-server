@@ -135,16 +135,5 @@ Meteor.methods({
     return targetHeight
   },
 
-  "proposals.getProposals": async function (targetHeight) {
-
-    const proposals = await kit.contracts.getGovernance()
-    console.log("~~~~~~~~~~~~~~~~~~~~~~")
-    console.log(await proposals.concurrentProposals())
-    console.log(await proposals.getConfig())
-
-    console.log("~~~~~~~~~~~~~~~~~~~~~~")
-
-  },
-
 
 });
