@@ -6,6 +6,7 @@ import { Blocks } from "../blocks/blocks";
 import { ValidatorGroups } from "../validator-groups/validator-groups";
 import { Validators, ValidatorRecords } from "../validators/validators";
 import { Contracts } from "../contracts/contracts";
+import { Proposals } from "../governance/proposals"
 import GraphQLJSON from "graphql-type-json";
 
 import PUB from "./subscriptions";
@@ -216,6 +217,36 @@ export default {
         totalCounts: totalCounts,
         cursor: blocks.length ? blocks[blocks.length - 1].number : null,
         hasMore: blocks.length ? blocks[blocks.length - 1].number != 1 : false,
+      };
+    },
+
+    proposal(_, args, context, info) {
+      return Proposals.findOne({ proposalNumber: args.proposalNumber });
+    },
+
+    proposals: async (_, { pageSize = 20, page = 1, sortBy = { field: "proposalNumber", order: 'DESC' } }, { dataSources }) => {
+      const totalCounts = Proposals.find().count();
+      const sortItems = {}
+      if (sortBy) {
+        sortItems[sortBy.field] = sortBy.order === 'ASC' ? 1 : -1
+      }
+      const proposals = Proposals.find(
+        {},
+        {
+          sort: sortItems,
+          limit: pageSize,
+          skip: (page - 1) * pageSize,
+        }
+      ).fetch();
+      return {
+        pageSize: pageSize,
+        page: page,
+        proposals,
+        totalCounts: totalCounts,
+        cursor: proposals.length
+          ? proposals[proposals.length - 1].proposalNumber
+          : null,
+        hasMore: proposals.length == pageSize,
       };
     },
   },

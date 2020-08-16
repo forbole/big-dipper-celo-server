@@ -124,6 +124,23 @@ const typeDefs = gql`
         total: BigInt
         pending: BigInt
     }
+
+    type Proposal{
+        _id: String
+        proposalNumber: Int
+        address: String
+        blockHash: String
+        blockNumber: Int
+        event: String
+        logIndex: Int
+        raw: JSON
+        removed: Boolean
+        returnValues: JSON
+        signature: String
+        transactionHash: String
+        transactionIndex: Int
+    }
+    
     interface ToWalletObject {
         address: String
     }
@@ -217,7 +234,10 @@ const typeDefs = gql`
         account(address: String!): Account
         validatorGroup(address:String!): ValidatorGroup
         validator(address:String!): Validator
-        
+        proposal(proposalNumber: Int): Proposal
+        proposals(pageSize: Int
+            page: Int
+            sortBy: SortBy): ProposalList!
     }
 
     type AccountList {
@@ -245,6 +265,15 @@ const typeDefs = gql`
         totalCounts: Int!
         hasMore: Boolean!
         transactions: [Transaction]
+    }
+
+     type ProposalList {
+        cursor: Int!
+        pageSize: Int!
+        page: Int!
+        totalCounts: Int!
+        hasMore: Boolean!
+        proposals: [Proposal]
     }
 `;
 
