@@ -3,6 +3,7 @@
 ## [v0.1.3]
 * Added validator address in the schema
 * Added Ordering with `SortBy` Option in accounts query
+* Implemented resolver returning proposal & proposal list 
 
 ## [v0.1.2]
 
