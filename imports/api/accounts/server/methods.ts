@@ -12,7 +12,7 @@ Meteor.methods({
     console.log("Update wallet address: " + address)
     let data: { [c: string]: any } = {}
 
-    let balance = await web3.eth.getBalance(address)
+    let balance = parseFloat(await web3.eth.getBalance(address))
     let totalBalance = await kit.getTotalBalance(address)
 
     data.gold = totalBalance.gold.toNumber()
