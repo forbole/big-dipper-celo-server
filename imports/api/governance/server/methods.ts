@@ -1,22 +1,59 @@
 import { Meteor } from "meteor/meteor"
 import { newKit, ContractKit, CeloContract } from "@celo/contractkit"
 import { Proposals } from "../../governance/proposals"
+import BigNumber from 'bignumber.js'
+import {  ProposalStage } from '@celo/contractkit/lib/wrappers/Governance';
 
 let kit = newKit('https://rc1-forno.celo-testnet.org')
 let web3 = kit.web3;
 
+
 Meteor.methods({
     "proposals.getProposals": async function () {
-
         const governance = await kit._web3Contracts.getGovernance()
         const events = await governance.getPastEvents('ProposalQueued', { fromBlock: 0 })
         const proposalData = {
             proposal: {},
         }
+        const proposalRecord = {};
 
         events.forEach(function (item, index) {
             proposalData.proposal[index + 1] = item
         })
+
+        const getGovernance = await kit.contracts.getGovernance()
+
+
+        for (let c in proposalData.proposal) {
+            proposalRecord[c] = await getGovernance.getProposalRecord(c)
+            if (proposalRecord[c].stage === ProposalStage.Expiration) {
+                proposalData.proposal[c].minDeposit = (await getGovernance.minDeposit()).toNumber()
+
+                const executedProposals = await governance.getPastEvents('ProposalExecuted', { fromBlock: 0 })
+
+                if (executedProposals.find((e) => new BigNumber(e.returnValues.proposalId).eq(c))) {
+                    proposalData.proposal[c].status = "Approved"
+                }
+                else {
+                    proposalData.proposal[c].status = "Rejected"
+                }
+                const duration = await getGovernance.stageDurations()
+                let proposalEpoch = new BigNumber(proposalData.proposal[c].returnValues.timestamp)
+                let referrendumEpoch = proposalEpoch.plus(duration.Approval)
+                let executionEpoch = referrendumEpoch.plus(duration.Referendum)
+                let expirationEpoch = executionEpoch.plus(duration.Execution)
+
+                proposalData.proposal[c].proposalEpoch = proposalEpoch.toNumber()
+                proposalData.proposal[c].referrendumEpoch = referrendumEpoch.toNumber()
+                proposalData.proposal[c].executionEpoch = executionEpoch.toNumber()
+                proposalData.proposal[c].expirationEpoch = expirationEpoch.toNumber()
+
+                proposalData.proposal[c].upvotes = (await getGovernance.getUpvotes(c)).toNumber()
+                proposalData.proposal[c].votes = (await getGovernance.getVotes(c))
+
+            }
+        }
+
 
         Object.keys(proposalData.proposal).forEach(function (item) {
             try {
@@ -26,13 +63,13 @@ Meteor.methods({
                         $set: proposalData.proposal[item],
                     }
 
-                );
+                )
             } catch (e) {
                 console.log(e);
             }
-        };
+        });
+
 
         return proposalData
-    },
-
+    }
 });
