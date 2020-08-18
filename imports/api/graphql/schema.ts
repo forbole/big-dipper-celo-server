@@ -139,6 +139,14 @@ const typeDefs = gql`
         signature: String
         transactionHash: String
         transactionIndex: Int
+        executionEpoch: BigInt
+        expirationEpoch: BigInt
+        proposalEpoch: BigInt
+        referrendumEpoch: BigInt
+        minDeposit: BigInt
+        status: String
+        upvotes: BigInt
+        votes: JSON
     }
     
     interface ToWalletObject {
