@@ -147,6 +147,10 @@ const typeDefs = gql`
         status: String
         upvotes: BigInt
         votes: JSON
+        proposalTitle: String
+        proposalAuthor: String
+        proposalStatus: String
+        proposalOverview: String
     }
     
     interface ToWalletObject {
