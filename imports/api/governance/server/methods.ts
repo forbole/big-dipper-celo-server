@@ -2,7 +2,8 @@ import { Meteor } from "meteor/meteor"
 import { newKit, ContractKit, CeloContract } from "@celo/contractkit"
 import { Proposals } from "../../governance/proposals"
 import BigNumber from 'bignumber.js'
-import {  ProposalStage } from '@celo/contractkit/lib/wrappers/Governance';
+import { ProposalStage } from '@celo/contractkit/lib/wrappers/Governance';
+import fetch from 'cross-fetch'
 
 let kit = newKit('https://rc1-forno.celo-testnet.org')
 let web3 = kit.web3;
@@ -22,7 +23,6 @@ Meteor.methods({
         })
 
         const getGovernance = await kit.contracts.getGovernance()
-
 
         for (let c in proposalData.proposal) {
             proposalRecord[c] = await getGovernance.getProposalRecord(c)
@@ -52,6 +52,17 @@ Meteor.methods({
                 proposalData.proposal[c].votes = (await getGovernance.getVotes(c))
 
             }
+
+            await fetch(`https://raw.githubusercontent.com/celo-org/celo-proposals/master/CGPs/000${c}.md`)
+                .then((response) => response.text())
+                .then((text) => {
+                    const [title, executed, proposalOverview] = text.split("#").filter(function (el) { return el.length != 0 })
+                    const [proposalTitle, proposalDateYear, proposalDateMonth, proposalDateDay, proposalAuthor, proposalStatus] = title.split("-").filter(function (el) { return el.length != 0 })
+                    proposalData.proposal[c].proposalTitle = proposalTitle
+                    proposalData.proposal[c].proposalAuthor = proposalAuthor
+                    proposalData.proposal[c].proposalStatus = proposalStatus
+                    proposalData.proposal[c].proposalOverview = proposalOverview
+                })
         }
 
 
@@ -68,7 +79,6 @@ Meteor.methods({
                 console.log(e);
             }
         });
-
 
         return proposalData
     }
