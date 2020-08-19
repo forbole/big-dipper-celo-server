@@ -216,6 +216,11 @@ const typeDefs = gql`
         ): BlockList!
         account(address: String!): Account
         validatorGroup(address:String!): ValidatorGroup
+        validatorGroups(
+            pageSize: Int
+            page: Int
+            sortBy: SortBy
+        ): ValidatorGroupList!
         validator(address:String!): Validator
         
     }
@@ -245,6 +250,14 @@ const typeDefs = gql`
         totalCounts: Int!
         hasMore: Boolean!
         transactions: [Transaction]
+    }
+
+    type ValidatorGroupList{
+        pageSize: Int!
+        page: Int!
+        totalCounts: Int!
+        hasMore: Boolean!
+        validatorGroups: [ValidatorGroup]
     }
 `;
 

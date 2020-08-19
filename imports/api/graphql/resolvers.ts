@@ -146,6 +146,30 @@ export default {
     validatorGroup(_, args, context, info) {
       return ValidatorGroups.findOne({ address: args.address });
     },
+
+    validatorGroups: async (_, { pageSize = 20, page = 1, sortBy = { field: "commission", order: 'DESC' } }, { dataSources }) => {
+      const totalCounts = ValidatorGroups.find().count();
+      const sortItems = {}
+      if (sortBy) {
+        sortItems[sortBy.field] = sortBy.order === 'ASC' ? 1 : -1
+      }
+      const validatorGroups = ValidatorGroups.find(
+        {},
+        {
+          sort: sortItems,
+          limit: pageSize,
+          skip: (page - 1) * pageSize,
+        }
+      ).fetch();
+      return {
+        pageSize: pageSize,
+        page: page,
+        validatorGroups,
+        totalCounts: totalCounts,
+        hasMore: validatorGroups.length == pageSize,
+      };
+    },
+
     validator(_, args, context, info) {
       return Validators.findOne({ address: args.address });
     },
