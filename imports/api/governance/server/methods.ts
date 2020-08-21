@@ -5,7 +5,7 @@ import BigNumber from 'bignumber.js'
 import { ProposalStage } from '@celo/contractkit/lib/wrappers/Governance';
 import fetch from 'cross-fetch'
 
-let kit = newKit('https://rc1-forno.celo-testnet.org')
+let kit = newKit(Meteor.settings.public.fornoAddress)
 let web3 = kit.web3;
 
 
@@ -14,71 +14,86 @@ Meteor.methods({
         const governance = await kit._web3Contracts.getGovernance()
         const events = await governance.getPastEvents('ProposalQueued', { fromBlock: 0 })
         const proposalData = {
-            proposal: {},
+            proposal: {
+            }
         }
         const proposalRecord = {};
 
         events.forEach(function (item, index) {
-            proposalData.proposal[index + 1] = item
+            proposalData.proposal[index + 1] = item,
+                proposalData.proposal[index + 1].upvoteList = []
         })
 
         const getGovernance = await kit.contracts.getGovernance()
 
-        for (let c in proposalData.proposal) {
-            proposalRecord[c] = await getGovernance.getProposalRecord(c)
-            if (proposalRecord[c].stage === ProposalStage.Expiration) {
-                proposalData.proposal[c].minDeposit = (await getGovernance.minDeposit()).toNumber()
+        Object.keys(proposalData.proposal).forEach(async function (item: any, index: number) {
+            proposalRecord[item] = await getGovernance.getProposalRecord(item)
+
+            if (proposalRecord[item].stage === ProposalStage.Expiration) {
+                proposalData.proposal[item].minDeposit = (await getGovernance.minDeposit()).toNumber()
 
                 const executedProposals = await governance.getPastEvents('ProposalExecuted', { fromBlock: 0 })
 
-                if (executedProposals.find((e) => new BigNumber(e.returnValues.proposalId).eq(c))) {
-                    proposalData.proposal[c].status = "Approved"
+                if (executedProposals.find((e) => new BigNumber(e.returnValues.proposalId).eq(item))) {
+                    proposalData.proposal[item].status = "Approved"
                 }
                 else {
-                    proposalData.proposal[c].status = "Rejected"
+                    proposalData.proposal[item].status = "Rejected"
                 }
+
+                const getUpvoters: any[] = await governance.getPastEvents('ProposalUpvoted', { fromBlock: 0 })
+
+                let upvotersList = {};
+                let counter = 0;
+                for (let s = 0; s < getUpvoters.length; s++) {
+                    if (getUpvoters[s].returnValues.proposalId === item) {
+                        upvotersList[counter] = getUpvoters[s],
+                            counter++
+                    }
+                    proposalData.proposal[item].upvoteList = upvotersList
+
+                }
+
                 const duration = await getGovernance.stageDurations()
-                let proposalEpoch = new BigNumber(proposalData.proposal[c].returnValues.timestamp)
+                let proposalEpoch = new BigNumber(proposalData.proposal[item].returnValues.timestamp)
                 let referrendumEpoch = proposalEpoch.plus(duration.Approval)
                 let executionEpoch = referrendumEpoch.plus(duration.Referendum)
                 let expirationEpoch = executionEpoch.plus(duration.Execution)
 
-                proposalData.proposal[c].proposalEpoch = proposalEpoch.toNumber()
-                proposalData.proposal[c].referrendumEpoch = referrendumEpoch.toNumber()
-                proposalData.proposal[c].executionEpoch = executionEpoch.toNumber()
-                proposalData.proposal[c].expirationEpoch = expirationEpoch.toNumber()
+                proposalData.proposal[item].proposalEpoch = proposalEpoch.toNumber()
+                proposalData.proposal[item].referrendumEpoch = referrendumEpoch.toNumber()
+                proposalData.proposal[item].executionEpoch = executionEpoch.toNumber()
+                proposalData.proposal[item].expirationEpoch = expirationEpoch.toNumber()
 
-                proposalData.proposal[c].upvotes = (await getGovernance.getUpvotes(c)).toNumber()
-                proposalData.proposal[c].votes = (await getGovernance.getVotes(c))
+                proposalData.proposal[item].upvotes = (await getGovernance.getUpvotes(item)).toNumber()
+                proposalData.proposal[item].votes = (await getGovernance.getVotes(item))
 
-            }
+                await fetch(`https://raw.githubusercontent.com/celo-org/celo-proposals/master/CGPs/000${item}.md`)
+                    .then((response) => response.text())
+                    .then((text) => {
+                        const [title, executed, proposalOverview] = text.split("#").filter(function (el) { return el.length != 0 })
+                        const [proposalTitle, proposalDateYear, proposalDateMonth, proposalDateDay, proposalAuthor, proposalStatus] = title.split("-").filter(function (el) { return el.length != 0 })
+                        proposalData.proposal[item].proposalTitle = proposalTitle
+                        proposalData.proposal[item].proposalAuthor = proposalAuthor
+                        proposalData.proposal[item].proposalStatus = proposalStatus
+                        proposalData.proposal[item].proposalOverview = proposalOverview
+                    })
 
-            await fetch(`https://raw.githubusercontent.com/celo-org/celo-proposals/master/CGPs/000${c}.md`)
-                .then((response) => response.text())
-                .then((text) => {
-                    const [title, executed, proposalOverview] = text.split("#").filter(function (el) { return el.length != 0 })
-                    const [proposalTitle, proposalDateYear, proposalDateMonth, proposalDateDay, proposalAuthor, proposalStatus] = title.split("-").filter(function (el) { return el.length != 0 })
-                    proposalData.proposal[c].proposalTitle = proposalTitle
-                    proposalData.proposal[c].proposalAuthor = proposalAuthor
-                    proposalData.proposal[c].proposalStatus = proposalStatus
-                    proposalData.proposal[c].proposalOverview = proposalOverview
-                })
-        }
+                Object.keys(proposalData.proposal).forEach(function (element) {
+                    try {
+                        Proposals.upsert(
+                            { proposalNumber: parseFloat(proposalData.proposal[element].returnValues.proposalId) },
+                            {
+                                $set: proposalData.proposal[element],
+                            }
 
-
-        Object.keys(proposalData.proposal).forEach(function (item) {
-            try {
-                Proposals.upsert(
-                    { proposalNumber: parseFloat(proposalData.proposal[item].returnValues.proposalId) },
-                    {
-                        $set: proposalData.proposal[item],
+                        )
+                    } catch (e) {
+                        console.log(e);
                     }
-
-                )
-            } catch (e) {
-                console.log(e);
+                });
             }
-        });
+        })
 
         return proposalData
     }
