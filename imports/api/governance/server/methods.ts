@@ -43,6 +43,36 @@ Meteor.methods({
 
                 const getUpvoters: any[] = await governance.getPastEvents('ProposalUpvoted', { fromBlock: 0 })
 
+                const getTotalVotes: any[] = await governance.getPastEvents('ProposalVoted', { fromBlock: 0 })
+
+                let votedAbstain = 0;
+                let votedNo = 0;
+                let votedYes = 0;
+
+                // Abstain -> value == 1 
+                // No -> value == 2
+                // Yes ->  value == 3
+                for (let s = 0; s < getTotalVotes.length; s++) {
+                    if (getTotalVotes[s].returnValues.proposalId == item && getTotalVotes[s].returnValues.value == 1) {
+                        votedAbstain += parseFloat(getTotalVotes[s].returnValues.weight)
+                    }
+                    else if (getTotalVotes[s].returnValues.proposalId == item && getTotalVotes[s].returnValues.value == 2) {
+                        votedNo += parseFloat(getTotalVotes[s].returnValues.weight)
+                    }
+                    else if (getTotalVotes[s].returnValues.proposalId == item && getTotalVotes[s].returnValues.value == 3) {
+                        votedYes += parseFloat(getTotalVotes[s].returnValues.weight)
+                    }
+                    let totalVotesValue = votedAbstain + votedNo + votedYes
+                    let totalVotes = {
+                        Abstain: votedAbstain,
+                        No: votedNo,
+                        Yes: votedYes,
+                        Total: totalVotesValue
+                    }
+                    proposalData.proposal[item].votes = totalVotes
+
+                }
+
                 let upvotersList = {};
                 let counter = 0;
                 for (let s = 0; s < getUpvoters.length; s++) {
@@ -66,7 +96,7 @@ Meteor.methods({
                 proposalData.proposal[item].expirationEpoch = expirationEpoch.toNumber()
 
                 proposalData.proposal[item].upvotes = (await getGovernance.getUpvotes(item)).toNumber()
-                proposalData.proposal[item].votes = (await getGovernance.getVotes(item))
+                // proposalData.proposal[item].votes = (await getGovernance.getVotes(item))
 
                 await fetch(`https://raw.githubusercontent.com/celo-org/celo-proposals/master/CGPs/000${item}.md`)
                     .then((response) => response.text())
