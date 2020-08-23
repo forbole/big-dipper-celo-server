@@ -45,22 +45,39 @@ Meteor.methods({
 
                 const getTotalVotes: any[] = await governance.getPastEvents('ProposalVoted', { fromBlock: 0 })
 
-                let votedAbstain = 0;
-                let votedNo = 0;
-                let votedYes = 0;
+                let votedAbstain = 0
+                let votedNo = 0
+                let votedYes = 0
+                let votedAbstainList = {}
+                let votedNoList = {}
+                let votedYesList = {}
+                let counterAbstain = 0
+                let counterNo = 0
+                let counterYes = 0;
 
                 // Abstain -> value == 1 
                 // No -> value == 2
                 // Yes ->  value == 3
                 for (let s = 0; s < getTotalVotes.length; s++) {
                     if (getTotalVotes[s].returnValues.proposalId == item && getTotalVotes[s].returnValues.value == 1) {
-                        votedAbstain += parseFloat(getTotalVotes[s].returnValues.weight)
+                        votedAbstain += parseFloat(getTotalVotes[s].returnValues.weight),
+                            votedAbstainList[counterAbstain] = getTotalVotes[s],
+                            counterAbstain++
                     }
                     else if (getTotalVotes[s].returnValues.proposalId == item && getTotalVotes[s].returnValues.value == 2) {
-                        votedNo += parseFloat(getTotalVotes[s].returnValues.weight)
+                        votedNo += parseFloat(getTotalVotes[s].returnValues.weight),
+                            votedNoList[counterNo] = getTotalVotes[s],
+                            counterNo++
                     }
                     else if (getTotalVotes[s].returnValues.proposalId == item && getTotalVotes[s].returnValues.value == 3) {
-                        votedYes += parseFloat(getTotalVotes[s].returnValues.weight)
+                        votedYes += parseFloat(getTotalVotes[s].returnValues.weight),
+                            votedYesList[counterYes] = getTotalVotes[s],
+                            counterYes++
+                    }
+                    let totalVotesList = {
+                        Abstain: votedAbstainList,
+                        No: votedNoList,
+                        Yes: votedYesList
                     }
                     let totalVotesValue = votedAbstain + votedNo + votedYes
                     let totalVotes = {
@@ -70,7 +87,7 @@ Meteor.methods({
                         Total: totalVotesValue
                     }
                     proposalData.proposal[item].votes = totalVotes
-
+                    proposalData.proposal[item].totalVotesList = totalVotesList
                 }
 
                 let upvotersList = {};
