@@ -9,6 +9,26 @@ let kit = newKit(Meteor.settings.public.fornoAddress)
 let web3 = kit.web3;
 
 
+function mergeObjects(object1, object2, object3) {
+
+    let mergedObject = {}
+    let counter = 0;
+    for (let c in object1) {
+        mergedObject[counter] = object1[c],
+            counter++
+    }
+    for (let d in object2) {
+        mergedObject[counter] = object2[d],
+            counter++
+    }
+
+    for (let e in object3) {
+        mergedObject[counter] = object3[e],
+            counter++
+    }
+    return mergedObject;
+}
+
 Meteor.methods({
     "proposals.getProposals": async function () {
         const governance = await kit._web3Contracts.getGovernance()
@@ -62,22 +82,27 @@ Meteor.methods({
                     if (getTotalVotes[s].returnValues.proposalId == item && getTotalVotes[s].returnValues.value == 1) {
                         votedAbstain += parseFloat(getTotalVotes[s].returnValues.weight),
                             votedAbstainList[counterAbstain] = getTotalVotes[s],
+                            votedAbstainList[counterAbstain]["voteType"] = "Abstain",
                             counterAbstain++
                     }
                     else if (getTotalVotes[s].returnValues.proposalId == item && getTotalVotes[s].returnValues.value == 2) {
                         votedNo += parseFloat(getTotalVotes[s].returnValues.weight),
                             votedNoList[counterNo] = getTotalVotes[s],
+                            votedNoList[counterNo]["voteType"] = "No",
                             counterNo++
                     }
                     else if (getTotalVotes[s].returnValues.proposalId == item && getTotalVotes[s].returnValues.value == 3) {
                         votedYes += parseFloat(getTotalVotes[s].returnValues.weight),
                             votedYesList[counterYes] = getTotalVotes[s],
+                            votedYesList[counterYes]["voteType"] = "Yes",
                             counterYes++
                     }
+                    let allVotesTotal = mergeObjects(votedNoList, votedYesList, votedAbstainList)
                     let totalVotesList = {
                         Abstain: votedAbstainList,
                         No: votedNoList,
-                        Yes: votedYesList
+                        Yes: votedYesList,
+                        All: allVotesTotal
                     }
                     let totalVotesValue = votedAbstain + votedNo + votedYes
                     let totalVotes = {
