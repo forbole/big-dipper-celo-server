@@ -163,6 +163,9 @@ const typeDefs = gql`
         nextCommission: Float!
         nextCommissionBlock: Int!
         slashingMultiplier: Float!
+        lockedGoldAmount: BigInt
+        votes: BigInt
+        votesAvailable: BigInt
     }
 
     type Validator{
