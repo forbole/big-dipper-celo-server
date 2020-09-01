@@ -2,8 +2,11 @@ import { Meteor } from 'meteor/meteor'
 import { ValidatorGroups } from '../../validator-groups/validator-groups'
 import { Validators } from '../../validators/validators'
 import { newKit } from '@celo/contractkit'
+import BigNumber from 'bignumber.js'
+import e from 'express'
+import { ElectionWrapper } from '@celo/contractkit/lib/wrappers/Election'
+import { ElectionResultsCache } from "@celo/celocli/lib/utils/election"
 
-// import PUB from '../../graphql/subscriptions';
 
 let kit = newKit(Meteor.settings.public.fornoAddress)
 
@@ -14,9 +17,17 @@ Meteor.methods({
         let validators = await valContract.getRegisteredValidators()
         let lockedGold = await kit.contracts.getLockedGold()
 
-        let epochNumber = await kit.getEpochNumberOfBlock(latestHeight)
+        let epochNumber = await kit.getEpochNumberOfBlock(latestHeight) - 1
         let election = await kit.contracts.getElection()
-        let electedValidatorSet = await election.getElectedValidators(epochNumber)
+        let electedValidatorSet = await election.getElectedValidators(epochNumber)  //100 in total
+
+        // let voter = await election.getVoter("0x01b2b83fdf26afc3ca7062c35bc68c8dde56db04")
+
+        const epochVoterRewards = await election.getVoterRewards(
+            "0x3c86b6a27a074c1c4cc904d8808a1c33078db4e6",
+            epochNumber,
+            await election.getVoterShare("0x3c86b6a27a074c1c4cc904d8808a1c33078db4e6", latestHeight)
+        )
 
         for (let i in validators) {
             let data: { [k: string]: any } = {}
@@ -35,6 +46,8 @@ Meteor.methods({
             }
         }
 
+
+
         for (let i in valGroups) {
             let data: { [k: string]: any } = {}
             data = valGroups[i]
@@ -44,24 +57,30 @@ Meteor.methods({
             data.slashingMultiplier = valGroups[i].slashingMultiplier.toNumber()
             data.lastSlashed = valGroups[i].lastSlashed.toNumber()
             data.members = valGroups[i].members
-            for (let d in electedValidatorSet) {
-                for (let e in data.members) {
-                    if (electedValidatorSet[d].address === data.members[e]) {
-                        data.members[e].isElected = true
-                    }
-                }
+            data.members.isElected = false
 
+            for (let b in validators) {
+                if (data.address === validators[b].address) {
+                    data.score = validators[b].score.toNumber()
+                }
             }
-            // try {
-            // let election = await kit.contracts.getElection()
+
+            for (let d in electedValidatorSet) {
+                // for (let e in data.members) {
+                if (electedValidatorSet[d].address === data.members) {
+                    data.members.isElected = true
+                }
+                else {
+                    data.members.isElected = false
+                }
+            }
+
+
             data.lockedGoldAmount = (await lockedGold.getAccountTotalLockedGold(data.address)).toNumber()
             const votes = await election.getValidatorGroupVotes(data.address)
             data.votes = votes.votes.toNumber()
-            // }
-            // catch (e) {
-            //     console.log(e)
-            // }
-            // data.votesAvailable = await validatorGroupVotes.votes.toNumber() + validatorGroupVotes.capacity.toNumber()
+            data.votesAvailable = votes.votes.toNumber() + votes.capacity.toNumber()
+
 
             try {
                 ValidatorGroups.upsert({ address: data.address }, { $set: data })
