@@ -19,7 +19,6 @@ Meteor.methods({
 
         let epochNumber = await kit.getEpochNumberOfBlock(latestHeight) - 1
         let election = await kit.contracts.getElection()
-        let electedValidatorSet = await election.getElectedValidators(epochNumber)  //100 in total
 
         // let voter = await election.getVoter("0x01b2b83fdf26afc3ca7062c35bc68c8dde56db04")
 
@@ -57,7 +56,6 @@ Meteor.methods({
             data.slashingMultiplier = valGroups[i].slashingMultiplier.toNumber()
             data.lastSlashed = valGroups[i].lastSlashed.toNumber()
             data.members = valGroups[i].members
-            data.members.isElected = false
 
             for (let b in validators) {
                 if (data.address === validators[b].address) {
@@ -65,13 +63,15 @@ Meteor.methods({
                 }
             }
 
+            const electedValidatorSet = await election.getElectedValidators(epochNumber)  //100 in total
+
+
             for (let d in electedValidatorSet) {
-                // for (let e in data.members) {
-                if (electedValidatorSet[d].address === data.members) {
-                    data.members.isElected = true
-                }
-                else {
-                    data.members.isElected = false
+                for (let e in data.members) {
+                    if (electedValidatorSet[d].address === data.members[e]) {
+                        data.electedValidators = true
+                    }
+
                 }
             }
 
