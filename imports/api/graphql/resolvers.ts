@@ -7,6 +7,7 @@ import { ValidatorGroups } from "../validator-groups/validator-groups";
 import { Validators, ValidatorRecords } from "../validators/validators";
 import { Contracts } from "../contracts/contracts";
 import GraphQLJSON from "graphql-type-json";
+import moment from "moment";
 
 import PUB from "./subscriptions";
 
@@ -157,6 +158,56 @@ export default {
       });
 
       return validatorSet
+    },
+
+    coinHistoryByDates(_, { dateFrom = "22-08-2020", dateTo = "11-09-2020" }, context, info) {
+
+      let fromDate = moment(`${dateFrom} 00:00`, "DD-MM-YYYY HH:mm").unix()
+      let toDate = moment(`${dateTo} 00:00`, "DD-MM-YYYY HH:mm").unix()
+
+      let url = `https://api.coingecko.com/api/v3/coins/celo-gold/market_chart/range?vs_currency=usd&from=${fromDate}&to=${toDate}`
+
+      let response = HTTP.get(url);
+      if (response.statusCode == 200) {
+        let data = JSON.parse(response.content)
+
+        let prices = data.prices
+        let market_caps = data.market_caps
+        let total_volumes = data.total_volumes
+
+        return { prices, market_caps, total_volumes }
+      }
+    },
+
+    coinHistory(_, { date = "14-09-2020" }, context, info) {
+      if (date) {
+        let url = `https://api.coingecko.com/api/v3/coins/celo-gold/history?date=${date}`;
+
+        let response = HTTP.get(url);
+        if (response.statusCode == 200) {
+          let data = JSON.parse(response.content)
+          let id = data.id
+          let symbol = data.symbol
+          let name = data.name
+          let localization = data.localization
+          let image = data.image
+          let market_data = data.market_data
+          let community_data = data.community_data
+          let developer_data = data.developer_data
+          let public_interest_stats = data.public_interest_stats
+
+          return { id, symbol, name, localization, image, market_data, community_data, developer_data, public_interest_stats }
+        }
+      }
+      else {
+        let url = `https://api.coingecko.com/api/v3/coins/celo-gold/market_chart?vs_currency=usd&days=7`;
+        let response = HTTP.get(url);
+        if (response.statusCode == 200) {
+          let data = JSON.parse(response.content)
+          console.log(data)
+        }
+      }
+
     },
     async downtime(_, { address, pageSize = 20, page = 1 }, context, info) {
       const totalCounts = ValidatorRecords.find({ signer: address }).count();
