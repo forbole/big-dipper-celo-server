@@ -179,7 +179,23 @@ export default {
       }
     },
 
-    coinHistory(_, { date = "14-09-2020" }, context, info) {
+    coinHistoryByNumOfDays(_, { count = 1 }, context, info) {
+
+      let url = `https://api.coingecko.com/api/v3/coins/celo-gold/market_chart?vs_currency=usd&days=${count}`
+
+      let response = HTTP.get(url);
+      if (response.statusCode == 200) {
+        let data = JSON.parse(response.content)
+
+        let prices = data.prices
+        let market_caps = data.market_caps
+        let total_volumes = data.total_volumes
+
+        return { prices, market_caps, total_volumes }
+      }
+    },
+
+    coinHistoryByDate(_, { date = "14-09-2020" }, context, info) {
       if (date) {
         let url = `https://api.coingecko.com/api/v3/coins/celo-gold/history?date=${date}`;
 
