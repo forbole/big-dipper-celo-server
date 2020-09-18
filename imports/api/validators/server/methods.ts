@@ -11,7 +11,7 @@ import { ElectionResultsCache } from "@celo/celocli/lib/utils/election"
 let kit = newKit(Meteor.settings.public.fornoAddress)
 
 Meteor.methods({
-    'validators.update': async function (latestHeight) {
+    'validators.update': async function (latestHeight: number) {
         let valContract = await kit.contracts.getValidators()
         let valGroups = await valContract.getRegisteredValidatorGroups()
         let validators = await valContract.getRegisteredValidators()
@@ -22,32 +22,14 @@ Meteor.methods({
 
         let election = await kit.contracts.getElection()
 
-        let electedValidatorSet = await election.getElectedValidators(lastEpochNumber)  //100 in total
+        let electedValidatorSet = await election.getElectedValidators(lastEpochNumber)
 
-        let firstBlockNumberForEpoch = await kit.getFirstBlockNumberForEpoch(epochNumber)
-        let lastBlockNumberForEpoch = await kit.getLastBlockNumberForEpoch(epochNumber)
-
-        let epochSize = await kit.getEpochSize()
-
-
-        // let voter = await election.getVoter("0x01b2b83fdf26afc3ca7062c35bc68c8dde56db04")
-
-        const epochVoterRewards = await election.getVoterRewards(
-            "0x3c86b6a27a074c1c4cc904d8808a1c33078db4e6",
-            lastEpochNumber,
-            await election.getVoterShare("0x3c86b6a27a074c1c4cc904d8808a1c33078db4e6", latestHeight)
-        )
-        // console.log("===============")
-        // console.log(validators.length)
-        // console.log(electedValidatorSet.length)
-        // console.log(valGroups.length)
-        // console.log(epochNumber)
-        // console.log(epochSize)
-        // console.log(firstBlockNumberForEpoch)
-        // console.log(lastBlockNumberForEpoch)
-
-
-        // console.log("===============")
+        // const epochVoterRewards = await election.getVoterRewards(
+        //     "0x3c86b6a27a074c1c4cc904d8808a1c33078db4e6",
+        //     lastEpochNumber,
+        //     await election.getVoterShare("0x3c86b6a27a074c1c4cc904d8808a1c33078db4e6", latestHeight)
+        // )
+       
 
         for (let i in validators) {
             let data: { [k: string]: any } = {}
