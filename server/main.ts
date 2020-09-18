@@ -67,7 +67,7 @@ function updateBlock(number: Number) {
     }
 
     if (result) {
-      console.log("Updated block height to: " + result);
+      // console.log("Updated block height to: " + result);
     }
 
     timer = Meteor.setInterval(() => {
@@ -77,6 +77,19 @@ function updateBlock(number: Number) {
     }, 10000);
   });
 }
+
+function updateEpoch(latestHeight: Number) {
+  Meteor.call("epoch.update", latestHeight, (error, result) => {
+    if (error) {
+      console.log(error);
+    }
+
+    if (result) {
+      console.log("Updated epoch data");
+    }
+  })
+}
+
 
 // Update chain latest status every 10 seconds.
 function updateChainState(number: Number) {
@@ -93,6 +106,7 @@ function updateChainState(number: Number) {
     timerChain = Meteor.setInterval(() => {
       web3.eth.getBlockNumber().then((num) => {
         updateChainState(num);
+        updateEpoch(num);
       });
     }, 5000);
   });
