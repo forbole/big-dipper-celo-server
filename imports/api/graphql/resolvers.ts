@@ -6,6 +6,7 @@ import { Blocks } from "../blocks/blocks";
 import { ValidatorGroups } from "../validator-groups/validator-groups";
 import { Validators, ValidatorRecords } from "../validators/validators";
 import { Contracts } from "../contracts/contracts";
+import { Epoch } from "../epoch/epoch"
 import GraphQLJSON from "graphql-type-json";
 
 import PUB from "./subscriptions";
@@ -217,6 +218,10 @@ export default {
         cursor: blocks.length ? blocks[blocks.length - 1].number : null,
         hasMore: blocks.length ? blocks[blocks.length - 1].number != 1 : false,
       };
+    },
+
+    epoch() {
+      return Epoch.findOne();
     },
   },
   Block: {

@@ -178,6 +178,14 @@ const typeDefs = gql`
         validatorGroup: ValidatorGroup
     }
 
+    type Epoch{
+        _id: String
+        epochNumber: Int!
+        epochSize: Int!
+        firstBlockNumberForEpoch: Int!
+        lastBlockNumberForEpoch: Int!
+    }
+
     type Query {
         chain: Chain
         accountCount: Int!
@@ -217,6 +225,7 @@ const typeDefs = gql`
         account(address: String!): Account
         validatorGroup(address:String!): ValidatorGroup
         validator(address:String!): Validator
+        epoch: Epoch
         
     }
 
