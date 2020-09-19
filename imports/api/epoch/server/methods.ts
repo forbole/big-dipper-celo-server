@@ -11,8 +11,6 @@ Meteor.methods({
         let epochNumber = await kit.getEpochNumberOfBlock(latestHeight)
         let firstBlockNumberForEpoch = await kit.getFirstBlockNumberForEpoch(epochNumber)
         let lastBlockNumberForEpoch = await kit.getLastBlockNumberForEpoch(epochNumber)
-        // let currentBlockInEpoch = latestHeight - firstBlockNumberForEpoch
-        // let remainingEpochTime = lastBlockNumberForEpoch - latestHeight
 
         try {
             Epoch.upsert({}, { $set: { epochSize: epochSize, epochNumber: epochNumber, firstBlockNumberForEpoch: firstBlockNumberForEpoch, lastBlockNumberForEpoch: lastBlockNumberForEpoch } })
