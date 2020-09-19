@@ -2,10 +2,6 @@ import { Meteor } from 'meteor/meteor'
 import { ValidatorGroups } from '../../validator-groups/validator-groups'
 import { Validators } from '../../validators/validators'
 import { newKit } from '@celo/contractkit'
-import BigNumber from 'bignumber.js'
-import e from 'express'
-import { ElectionWrapper } from '@celo/contractkit/lib/wrappers/Election'
-import { ElectionResultsCache } from "@celo/celocli/lib/utils/election"
 
 
 let kit = newKit(Meteor.settings.public.fornoAddress)
