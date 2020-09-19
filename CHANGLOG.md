@@ -1,5 +1,9 @@
 # CHANGELOG
 
+# [UNRELEASED]
+
+* Changed 'totalBlance' to 'totalBalance' typo
+
 ## [v0.1.3]
 * Added validator address in the schema
 * Added Ordering with `SortBy` Option in accounts query
