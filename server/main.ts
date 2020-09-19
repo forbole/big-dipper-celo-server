@@ -67,7 +67,7 @@ function updateBlock(number: Number) {
     }
 
     if (result) {
-      // console.log("Updated block height to: " + result);
+      console.log("Updated block height to: " + result);
     }
 
     timer = Meteor.setInterval(() => {
