@@ -1,5 +1,8 @@
 # CHANGELOG
 
+# [UNRELEASED]
+* Stored Epoch info, built resolvers and schema
+
 ## [v0.1.3]
 * Added validator address in the schema
 * Added Ordering with `SortBy` Option in accounts query
