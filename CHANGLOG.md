@@ -1,5 +1,10 @@
 # CHANGELOG
 
+# [UNRELEASED]
+
+* Implemented ValidatorGroups query in schema and resolvers
+* Stored total number of elected validators
+
 ## [v0.1.3]
 * Added validator address in the schema
 * Added Ordering with `SortBy` Option in accounts query
