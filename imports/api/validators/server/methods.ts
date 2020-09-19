@@ -29,7 +29,7 @@ Meteor.methods({
 
         for (let i in validators) {
             let data: { [k: string]: any } = {}
-            data = validators[i]
+            data = validators[i] 
             data.score = validators[i].score.toNumber()
             Meteor.call('accounts.update', validators[i].address);
             Meteor.call('accounts.update', validators[i].affiliation);
