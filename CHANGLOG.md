@@ -1,5 +1,8 @@
 # CHANGELOG
 
+# [UNRELEASED]
+* Implemented CoinHistoryByDate, CoinHistoryByDates, CoinHistoryByNumOfDays in Schema and Resolvers
+
 ## [v0.1.3]
 * Added validator address in the schema
 * Added Ordering with `SortBy` Option in accounts query
