@@ -8,6 +8,7 @@ import { Validators, ValidatorRecords } from "../validators/validators";
 import { Contracts } from "../contracts/contracts";
 import GraphQLJSON from "graphql-type-json";
 import moment from "moment";
+import numbro from "numbro";
 
 import PUB from "./subscriptions";
 
@@ -179,15 +180,22 @@ export default {
       }
     },
 
-    coinHistoryByNumOfDays(_, { count = 1 }, context, info) {
+    coinHistoryByNumOfDays(_, args, context, info) {
 
-      let url = `https://api.coingecko.com/api/v3/coins/celo-gold/market_chart?vs_currency=usd&days=${count}`
+      let url = `https://api.coingecko.com/api/v3/coins/celo-gold/market_chart?vs_currency=usd&days=${args.days}`
 
       let response = HTTP.get(url);
       if (response.statusCode == 200) {
         let data = JSON.parse(response.content)
 
-        let prices = data.prices
+        let coinPrices = data.prices
+        let prices = [];
+        for (let c = 0; c < coinPrices.length; c++) {
+          prices[c] = {
+            time: moment(coinPrices[c][0]).format("DD MMM hh:mm a"),
+            price: numbro(coinPrices[c][1]).format("0.0000")
+          }
+        }
         let market_caps = data.market_caps
         let total_volumes = data.total_volumes
 
