@@ -9,8 +9,9 @@ import { Contracts } from "../contracts/contracts";
 import GraphQLJSON from "graphql-type-json";
 import moment from "moment";
 import numbro from "numbro";
-
 import PUB from "./subscriptions";
+
+const CELO = 1e18;
 
 export default {
   JSON: GraphQLJSON,
@@ -162,7 +163,8 @@ export default {
     },
 
     coinHistoryByDates(_, { dateFrom = "22-08-2020", dateTo = "11-09-2020" }, context, info) {
-
+      
+      let celoTotal = Chain.findOne();
       let fromDate = moment(`${dateFrom} 00:00`, "DD-MM-YYYY HH:mm").unix()
       let toDate = moment(`${dateTo} 00:00`, "DD-MM-YYYY HH:mm").unix()
 
@@ -172,15 +174,23 @@ export default {
       if (response.statusCode == 200) {
         let data = JSON.parse(response.content)
 
-        let prices = data.prices
-        let market_caps = data.market_caps
+        let prices = [];
+        for (let c = 0; c < data.prices.length; c++) {
+          prices[c] = {
+            Time: moment(data.prices[c][0]).format("DD MMM hh:mm a"),
+            CELO: numbro(data.prices[c][1]).format("0.0000"),
+            Market_Cap: numbro((data.prices[c][1] * celoTotal.celoTotalSupply) / CELO).format("0.0000"),
+          }
+        }
         let total_volumes = data.total_volumes
 
-        return { prices, market_caps, total_volumes }
+        return { prices, total_volumes }
       }
     },
 
     coinHistoryByNumOfDays(_, args, context, info) {
+
+      let celoTotal = Chain.findOne();
 
       let url = `https://api.coingecko.com/api/v3/coins/celo-gold/market_chart?vs_currency=usd&days=${args.days}`
 
@@ -188,51 +198,23 @@ export default {
       if (response.statusCode == 200) {
         let data = JSON.parse(response.content)
 
-        let coinPrices = data.prices
+        let coinPrices = data
         let prices = [];
-        for (let c = 0; c < coinPrices.length; c++) {
+        for (let c = 0; c < coinPrices.prices.length; c++) {
           prices[c] = {
-            time: moment(coinPrices[c][0]).format("DD MMM hh:mm a"),
-            price: numbro(coinPrices[c][1]).format("0.0000")
+            Time: moment(coinPrices.prices[c][0]).format("DD MMM hh:mm a"),
+            CELO: numbro(coinPrices.prices[c][1]).format("0.0000"),
+            Market_Cap: numbro((coinPrices.prices[c][1] * celoTotal.celoTotalSupply) / CELO).format("0.0000"),
           }
         }
-        let market_caps = data.market_caps
         let total_volumes = data.total_volumes
 
-        return { prices, market_caps, total_volumes }
+        return { prices, total_volumes }
       }
     },
 
-    coinHistoryByDate(_, { date = "14-09-2020" }, context, info) {
-      if (date) {
-        let url = `https://api.coingecko.com/api/v3/coins/celo-gold/history?date=${date}`;
 
-        let response = HTTP.get(url);
-        if (response.statusCode == 200) {
-          let data = JSON.parse(response.content)
-          let id = data.id
-          let symbol = data.symbol
-          let name = data.name
-          let localization = data.localization
-          let image = data.image
-          let market_data = data.market_data
-          let community_data = data.community_data
-          let developer_data = data.developer_data
-          let public_interest_stats = data.public_interest_stats
-
-          return { id, symbol, name, localization, image, market_data, community_data, developer_data, public_interest_stats }
-        }
-      }
-      else {
-        let url = `https://api.coingecko.com/api/v3/coins/celo-gold/market_chart?vs_currency=usd&days=7`;
-        let response = HTTP.get(url);
-        if (response.statusCode == 200) {
-          let data = JSON.parse(response.content)
-          console.log(data)
-        }
-      }
-
-    },
+    
     async downtime(_, { address, pageSize = 20, page = 1 }, context, info) {
       const totalCounts = ValidatorRecords.find({ signer: address }).count();
       const pipeline = [

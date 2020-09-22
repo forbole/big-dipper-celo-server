@@ -178,17 +178,6 @@ const typeDefs = gql`
         validatorGroup: ValidatorGroup
     }
 
-     type CoinHistoryByDate {
-        id: String
-        symbol: String
-        name: String
-        localization: JSON
-        image: JSON
-        market_data: JSON 
-        community_data: JSON
-        developer_data: JSON
-        public_interest_stats: JSON
-    }
 
     type CoinHistoryByDates{
         prices: JSON
@@ -198,7 +187,6 @@ const typeDefs = gql`
 
     type CoinHistoryByNumOfDays{
         prices: JSON
-        market_caps: JSON 
         total_volumes: JSON
     }
 
@@ -241,7 +229,6 @@ const typeDefs = gql`
         account(address: String!): Account
         validatorGroup(address:String!): ValidatorGroup
         validator(address:String!): Validator
-        coinHistoryByDate(date: String): CoinHistoryByDate
         coinHistoryByDates(dateFrom: String, 
             dateTo: String): CoinHistoryByDates
         coinHistoryByNumOfDays(days: Int): CoinHistoryByNumOfDays
