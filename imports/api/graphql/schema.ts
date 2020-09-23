@@ -178,6 +178,13 @@ const typeDefs = gql`
         validatorGroup: ValidatorGroup
     }
 
+    type Election{
+        electedValidatorGroups: Int!
+        electedValidators: Int!
+        registeredValidatorGroups: Int!
+        registeredValidators: Int!
+    }
+
     type Query {
         chain: Chain
         accountCount: Int!
@@ -217,6 +224,7 @@ const typeDefs = gql`
         account(address: String!): Account
         validatorGroup(address:String!): ValidatorGroup
         validator(address:String!): Validator
+        election: Election
         
     }
 

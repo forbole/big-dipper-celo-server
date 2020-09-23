@@ -85,7 +85,7 @@ function updateElection(number: Number) {
     }
 
     if (result) {
-      console.log("Updated election: ");
+      console.log("Updated election!");
     }
   })
 }

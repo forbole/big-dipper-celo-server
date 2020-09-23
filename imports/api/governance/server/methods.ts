@@ -9,6 +9,7 @@ let web3 = kit.web3
 
 Meteor.methods({
     'election.update': async function (latestHeight: number) {
+
         let validatorsData = await kit.contracts.getValidators()
         let registeredValidatorGroups = await validatorsData.getRegisteredValidatorGroups()
         let registeredValidators = await validatorsData.getRegisteredValidators()
@@ -19,29 +20,26 @@ Meteor.methods({
         let election = await kit.contracts.getElection()
 
         let electedValidatorSet = await election.getElectedValidators(lastEpochNumber)
-        let electedValidatorGroup = await election.getActiveVotesForGroup("0x8a12caB622B8093208931fA008D12D6Ba5AF47E4")
-
-        // console.log(registeredValidatorGroups.length)
-        // console.log(registeredValidators.length)
 
         let electedGroup = [];
-        console.log(electedValidatorSet.length)
-        console.log(electedGroup.length)
-        for (let d = 0; d < electedGroup.length; d++) {
-            for (let c = 0; c < electedValidatorSet.length; c++) {
 
-                if (electedGroup[d] != electedValidatorSet[c].affiliation) {
-                    electedGroup[d + 1] = electedValidatorSet[c].affiliation
-                }
-                else {
-                    return
-                }
-                console.log(electedGroup)
-
-            }
+        for (let c = 0; c < electedValidatorSet.length; c++) {
+            electedGroup[c] = electedValidatorSet[c].affiliation
         }
+
+        let electedGroupSet;
+        for (let c = 0; c < electedValidatorSet.length; c++) {
+            electedGroupSet = Array.from(new Set(electedGroup))
+        }
+
+        try {
+            Election.upsert({}, { $set: { registeredValidators: registeredValidators.length, electedValidators: electedValidatorSet.length, registeredValidatorGroups: registeredValidatorGroups.length, electedValidatorGroups: electedGroupSet.length } })
+        }
+        catch (e) {
+            console.log("=== Error when upserting election ===")
+            console.log(e)
+        }
+
     }
-
-
 
 });
