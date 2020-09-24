@@ -138,18 +138,7 @@ Meteor.methods({
                 proposalData.proposal[item].expirationEpoch = expirationEpoch.toNumber()
 
                 proposalData.proposal[item].upvotes = (await getGovernance.getUpvotes(item)).toNumber()
-                // proposalData.proposal[item].votes = (await getGovernance.getVotes(item))
 
-                await fetch(`https://raw.githubusercontent.com/celo-org/celo-proposals/master/CGPs/000${item}.md`)
-                    .then((response) => response.text())
-                    .then((text) => {
-                        const [title, executed, proposalOverview] = text.split("#").filter(function (el) { return el.length != 0 })
-                        const [proposalTitle, proposalDateYear, proposalDateMonth, proposalDateDay, proposalAuthor, proposalStatus] = title.split("-").filter(function (el) { return el.length != 0 })
-                        proposalData.proposal[item].proposalTitle = proposalTitle
-                        proposalData.proposal[item].proposalAuthor = proposalAuthor
-                        proposalData.proposal[item].proposalStatus = proposalStatus
-                        proposalData.proposal[item].proposalOverview = proposalOverview
-                    })
 
                 Object.keys(proposalData.proposal).forEach(function (element) {
                     try {
