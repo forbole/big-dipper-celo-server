@@ -132,27 +132,24 @@ const typeDefs = gql`
         blockHash: String
         blockNumber: Int
         event: String
+        executionEpoch: BigInt
+        expirationEpoch: BigInt
         logIndex: Int
+        minDeposit: BigInt
+        proposalEpoch: BigInt
         raw: JSON
+        referrendumEpoch: BigInt
         removed: Boolean
         returnValues: JSON
         signature: String
+        status: String
+        totalVotesList: JSON
         transactionHash: String
         transactionIndex: Int
-        executionEpoch: BigInt
-        expirationEpoch: BigInt
-        proposalEpoch: BigInt
-        referrendumEpoch: BigInt
-        minDeposit: BigInt
-        status: String
+        upvoteList: JSON
         upvotes: BigInt
         votes: JSON
-        proposalTitle: String
-        proposalAuthor: String
-        proposalStatus: String
-        proposalOverview: String
-        upvoteList: JSON
-        totalVotesList: JSON
+
     }
     
     interface ToWalletObject {
