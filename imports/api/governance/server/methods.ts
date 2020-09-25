@@ -38,6 +38,15 @@ Meteor.methods({
             }
         }
         const proposalRecord = {};
+        let votedAbstain = 0
+        let votedNo = 0
+        let votedYes = 0
+        let votedAbstainList = {}
+        let votedNoList = {}
+        let votedYesList = {}
+        let counterAbstain = 0
+        let counterNo = 0
+        let counterYes = 0;
 
         events.forEach(function (item, index) {
             proposalData.proposal[index + 1] = item,
@@ -64,16 +73,6 @@ Meteor.methods({
                 const getUpvoters: any[] = await governance.getPastEvents('ProposalUpvoted', { fromBlock: 0 })
 
                 const getTotalVotes: any[] = await governance.getPastEvents('ProposalVoted', { fromBlock: 0 })
-
-                let votedAbstain = 0
-                let votedNo = 0
-                let votedYes = 0
-                let votedAbstainList = {}
-                let votedNoList = {}
-                let votedYesList = {}
-                let counterAbstain = 0
-                let counterNo = 0
-                let counterYes = 0;
 
                 // Abstain -> value == 1 
                 // No -> value == 2
