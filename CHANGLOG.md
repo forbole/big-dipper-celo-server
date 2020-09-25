@@ -1,6 +1,6 @@
 # CHANGELOG
 
-# [UNRELEASED]
+## [UNRELEASED]
 
 * Implemented ValidatorGroups query in schema and resolvers
 * Stored total number of elected validators
