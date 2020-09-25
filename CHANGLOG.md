@@ -1,6 +1,6 @@
 # CHANGELOG
 
-# [UNRELEASED]
+## [UNRELEASED]
 * Implemented CoinHistoryByDates, CoinHistoryByNumOfDays in Schema and Resolvers
 
 ## [v0.1.3]
