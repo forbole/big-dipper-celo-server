@@ -1,8 +1,8 @@
 # CHANGELOG
 
-# [UNRELEASED]
+## [UNRELEASED]
 
-* Changed 'totalBlance' to 'totalBalance' typo
+* Fixed 'totalBlance' to 'totalBalance' typo
 
 ## [v0.1.3]
 * Added validator address in the schema
