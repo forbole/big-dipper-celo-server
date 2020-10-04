@@ -163,6 +163,9 @@ const typeDefs = gql`
         nextCommission: Float!
         nextCommissionBlock: Int!
         slashingMultiplier: Float!
+        lockedGoldAmount: BigInt
+        votes: BigInt
+        votesAvailable: BigInt
     }
 
     type Validator{
@@ -228,6 +231,11 @@ const typeDefs = gql`
         ): BlockList!
         account(address: String!): Account
         validatorGroup(address:String!): ValidatorGroup
+        validatorGroups(
+            pageSize: Int
+            page: Int
+            sortBy: SortBy
+        ): ValidatorGroupList!
         validator(address:String!): Validator
         coinHistoryByDates(dateFrom: String, 
             dateTo: String): CoinHistoryByDates
@@ -259,6 +267,14 @@ const typeDefs = gql`
         totalCounts: Int!
         hasMore: Boolean!
         transactions: [Transaction]
+    }
+
+    type ValidatorGroupList{
+        pageSize: Int!
+        page: Int!
+        totalCounts: Int!
+        hasMore: Boolean!
+        validatorGroups: [ValidatorGroup]
     }
 `;
 

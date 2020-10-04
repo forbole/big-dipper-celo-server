@@ -2,6 +2,9 @@
 
 ## [UNRELEASED]
 * Implemented CoinHistoryByDates, CoinHistoryByNumOfDays in Schema and Resolvers
+* Implemented ValidatorGroups query in schema and resolvers
+* Stored total number of elected validators
+* Fixed 'totalBlance' to 'totalBalance' typo
 
 ## [v0.1.3]
 * Added validator address in the schema
