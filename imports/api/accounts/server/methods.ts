@@ -74,7 +74,7 @@ Meteor.methods({
     }
 
     account.balance = balance
-    account.totalBlance = data
+    account.totalBalance = data
 
     if (parseInt(balance) > 0) {
       // update or insert address if balance larger than 0
