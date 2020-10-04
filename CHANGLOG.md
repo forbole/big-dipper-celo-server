@@ -2,6 +2,8 @@
 
 ## [UNRELEASED]
 
+* Implemented ValidatorGroups query in schema and resolvers
+* Stored total number of elected validators
 * Fixed 'totalBlance' to 'totalBalance' typo
 
 ## [v0.1.3]

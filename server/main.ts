@@ -42,9 +42,9 @@ function updateTokenPrice() {
   });
 }
 
-function updateValidators() {
+function updateValidators(number: Number) {
   Meteor.clearInterval(timerValidators);
-  Meteor.call("validators.update", (error, result) => {
+  Meteor.call("validators.update", number, (error, result) => {
     if (error) {
       console.log(error);
     }
@@ -123,7 +123,7 @@ Meteor.startup(() => {
       if (result) {
         console.log("Contracts have been processed " + result);
         updateChainState(number);
-        updateValidators();
+        updateValidators(number);
         updateBlock(number);
         updateTokenPrice();
         updatePendingTransactions();
