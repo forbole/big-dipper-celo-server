@@ -7,8 +7,11 @@ import { ValidatorGroups } from "../validator-groups/validator-groups";
 import { Validators, ValidatorRecords } from "../validators/validators";
 import { Contracts } from "../contracts/contracts";
 import GraphQLJSON from "graphql-type-json";
-
+import moment from "moment";
+import numbro from "numbro";
 import PUB from "./subscriptions";
+
+const CELO = 1e18;
 
 export default {
   JSON: GraphQLJSON,
@@ -182,6 +185,60 @@ export default {
 
       return validatorSet
     },
+
+    coinHistoryByDates(_, { dateFrom = "22-08-2020", dateTo = "11-09-2020" }, context, info) {
+      
+      let celoTotal = Chain.findOne();
+      let fromDate = moment(`${dateFrom} 00:00`, "DD-MM-YYYY HH:mm").unix()
+      let toDate = moment(`${dateTo} 00:00`, "DD-MM-YYYY HH:mm").unix()
+
+      let url = `https://api.coingecko.com/api/v3/coins/celo-gold/market_chart/range?vs_currency=usd&from=${fromDate}&to=${toDate}`
+
+      let response = HTTP.get(url);
+      if (response.statusCode == 200) {
+        let data = JSON.parse(response.content)
+
+        let prices = [];
+        for (let c = 0; c < data.prices.length; c++) {
+          prices[c] = {
+            Time: moment(data.prices[c][0]).format("DD MMM hh:mm a"),
+            CELO: numbro(data.prices[c][1]).format("0.0000"),
+            Market_Cap: numbro((data.prices[c][1] * celoTotal.celoTotalSupply) / CELO).format("0.0000"),
+          }
+        }
+        let total_volumes = data.total_volumes
+
+        return { prices, total_volumes }
+      }
+    },
+
+    coinHistoryByNumOfDays(_, args, context, info) {
+
+      let celoTotal = Chain.findOne();
+
+      let url = `https://api.coingecko.com/api/v3/coins/celo-gold/market_chart?vs_currency=usd&days=${args.days}`
+
+      let response = HTTP.get(url);
+      if (response.statusCode == 200) {
+        let data = JSON.parse(response.content)
+
+        let coinPrices = data
+        let prices = [];
+        for (let c = 0; c < coinPrices.prices.length; c++) {
+          prices[c] = {
+            Time: moment(coinPrices.prices[c][0]).format("DD MMM hh:mm a"),
+            CELO: numbro(coinPrices.prices[c][1]).format("0.0000"),
+            Market_Cap: numbro((coinPrices.prices[c][1] * celoTotal.celoTotalSupply) / CELO).format("0.0000"),
+          }
+        }
+        let total_volumes = data.total_volumes
+
+        return { prices, total_volumes }
+      }
+    },
+
+
+    
     async downtime(_, { address, pageSize = 20, page = 1 }, context, info) {
       const totalCounts = ValidatorRecords.find({ signer: address }).count();
       const pipeline = [

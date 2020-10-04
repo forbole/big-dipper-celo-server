@@ -181,6 +181,18 @@ const typeDefs = gql`
         validatorGroup: ValidatorGroup
     }
 
+
+    type CoinHistoryByDates{
+        prices: JSON
+        market_caps: JSON 
+        total_volumes: JSON
+    }
+
+    type CoinHistoryByNumOfDays{
+        prices: JSON
+        total_volumes: JSON
+    }
+
     type Query {
         chain: Chain
         accountCount: Int!
@@ -225,7 +237,9 @@ const typeDefs = gql`
             sortBy: SortBy
         ): ValidatorGroupList!
         validator(address:String!): Validator
-        
+        coinHistoryByDates(dateFrom: String, 
+            dateTo: String): CoinHistoryByDates
+        coinHistoryByNumOfDays(days: Int): CoinHistoryByNumOfDays
     }
 
     type AccountList {
