@@ -1,6 +1,10 @@
 # CHANGELOG
 
 ## [UNRELEASED]
+* Implemented CoinHistoryByDates, CoinHistoryByNumOfDays in Schema and Resolvers
+* Implemented ValidatorGroups query in schema and resolvers
+* Stored total number of elected validators
+* Fixed 'totalBlance' to 'totalBalance' typo
 * Implemented `Proposal` and `Proposals` GraphQL schema and resolvers that to query list of proposals or individual proposal details 
 
 ## [v0.1.3]

@@ -191,6 +191,9 @@ const typeDefs = gql`
         nextCommission: Float!
         nextCommissionBlock: Int!
         slashingMultiplier: Float!
+        lockedGoldAmount: BigInt
+        votes: BigInt
+        votesAvailable: BigInt
     }
 
     type Validator{
@@ -204,6 +207,18 @@ const typeDefs = gql`
         signerAccount: Account
         signer: String!
         validatorGroup: ValidatorGroup
+    }
+
+
+    type CoinHistoryByDates{
+        prices: JSON
+        market_caps: JSON 
+        total_volumes: JSON
+    }
+
+    type CoinHistoryByNumOfDays{
+        prices: JSON
+        total_volumes: JSON
     }
 
     type Query {
@@ -244,7 +259,15 @@ const typeDefs = gql`
         ): BlockList!
         account(address: String!): Account
         validatorGroup(address:String!): ValidatorGroup
+        validatorGroups(
+            pageSize: Int
+            page: Int
+            sortBy: SortBy
+        ): ValidatorGroupList!
         validator(address:String!): Validator
+        coinHistoryByDates(dateFrom: String, 
+            dateTo: String): CoinHistoryByDates
+        coinHistoryByNumOfDays(days: Int): CoinHistoryByNumOfDays
         proposal(proposalNumber: Int): Proposal
         proposals(pageSize: Int
             page: Int
@@ -278,13 +301,21 @@ const typeDefs = gql`
         transactions: [Transaction]
     }
 
-     type ProposalList {
+    type ProposalList {
         cursor: Int!
         pageSize: Int!
         page: Int!
         totalCounts: Int!
         hasMore: Boolean!
         proposals: [Proposal]
+    }
+
+    type ValidatorGroupList{
+        pageSize: Int!
+        page: Int!
+        totalCounts: Int!
+        hasMore: Boolean!
+        validatorGroups: [ValidatorGroup]
     }
 `;
 
