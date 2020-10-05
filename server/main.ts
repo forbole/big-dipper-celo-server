@@ -10,7 +10,8 @@ let timer,
   timerChain,
   timerValidators,
   timerCoin,
-  timerTransactions: Number = 0;
+  timerProposals,
+  timerTransactions: number = 0;
 
 function updatePendingTransactions() {
   Meteor.clearInterval(timerTransactions);
@@ -35,14 +36,14 @@ function updateTokenPrice() {
     }
 
     if (result) {
-      // console.log("Updated block height to: "+number)
+      // console.log("Updated block height to: " + number)
     }
 
     timerCoin = Meteor.setInterval(updateTokenPrice, 30000);
   });
 }
 
-function updateValidators(number: Number) {
+function updateValidators(number: number) {
   Meteor.clearInterval(timerValidators);
   Meteor.call("validators.update", number, (error, result) => {
     if (error) {
@@ -50,7 +51,7 @@ function updateValidators(number: Number) {
     }
 
     if (result) {
-      // console.log("Updated block height to: "+number)
+      // console.log("Updated block height to: " + number)
     }
 
     timerValidators = Meteor.setInterval(updateValidators, 10000);
@@ -59,7 +60,7 @@ function updateValidators(number: Number) {
 
 // Get blocks from the server until the latest block height.
 // Continue checking every 10 seconds.
-function updateBlock(number: Number) {
+function updateBlock(number: number) {
   Meteor.clearInterval(timer);
   Meteor.call("blocks.getBlocks", number, (error, result) => {
     if (error) {
@@ -79,7 +80,7 @@ function updateBlock(number: Number) {
 }
 
 // Update chain latest status every 10 seconds.
-function updateChainState(number: Number) {
+function updateChainState(number: number) {
   Meteor.clearInterval(timerChain);
   Meteor.call("chain.updateChain", number, (error, result) => {
     if (error) {
@@ -93,6 +94,7 @@ function updateChainState(number: Number) {
     timerChain = Meteor.setInterval(() => {
       web3.eth.getBlockNumber().then((num) => {
         updateChainState(num);
+        getAllProposals();
       });
     }, 5000);
   });
@@ -112,14 +114,18 @@ function getContractABI() {
 
 
 function getAllProposals() {
-  Meteor.call("proposals.getProposals"), (error, result) => {
+  Meteor.clearInterval(timerProposals);
+  Meteor.call("proposals.getProposals", (error, result) => {
     if (error) {
       console.log(error);
     }
 
     if (result) {
-      console.log(result);
+      console.log("The Proposals have been updated: " + result);
     }
+
+    timerProposals = Meteor.setInterval(getAllProposals, 25000);
+
   });
 }
 
