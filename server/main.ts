@@ -79,19 +79,6 @@ function updateBlock(number: number) {
   });
 }
 
-function updateEpoch(latestHeight: Number) {
-  Meteor.call("epoch.update", latestHeight, (error, result) => {
-    if (error) {
-      console.log(error);
-    }
-
-    if (result) {
-      console.log("Updated epoch data");
-    }
-  })
-}
-
-
 // Update chain latest status every 10 seconds.
 function updateChainState(number: number) {
   Meteor.clearInterval(timerChain);
