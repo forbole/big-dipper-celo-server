@@ -88,6 +88,19 @@ Meteor.methods({
           block.hasSingers = true
           // const blockExtraData = parseBlockExtraData(block.extraData);
           // console.log(blockExtraData);
+
+          let lastBlockNumberForEpoch = await kit.getLastBlockNumberForEpoch(epochNumber)
+          if (parseInt(block.number) === lastBlockNumberForEpoch) {
+            Meteor.call("epoch.update", block.number, (error, result) => {
+              if (error) {
+                console.log(error);
+              }
+
+              if (result) {
+                console.log("Updated Epoch Data");
+              }
+            })
+          }
         }
         catch (e) {
           console.log(e)
