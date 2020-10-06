@@ -124,6 +124,34 @@ const typeDefs = gql`
         total: BigInt
         pending: BigInt
     }
+
+    type Proposal{
+        _id: String
+        proposalNumber: Int
+        address: String
+        blockHash: String
+        blockNumber: Int
+        event: String
+        executionEpoch: BigInt
+        expirationEpoch: BigInt
+        logIndex: Int
+        minDeposit: BigInt
+        proposalEpoch: BigInt
+        raw: JSON
+        referrendumEpoch: BigInt
+        removed: Boolean
+        returnValues: JSON
+        signature: String
+        status: String
+        totalVotesList: JSON
+        transactionHash: String
+        transactionIndex: Int
+        upvoteList: JSON
+        upvotes: BigInt
+        votes: JSON
+
+    }
+    
     interface ToWalletObject {
         address: String
     }
@@ -163,6 +191,9 @@ const typeDefs = gql`
         nextCommission: Float!
         nextCommissionBlock: Int!
         slashingMultiplier: Float!
+        lockedGoldAmount: BigInt
+        votes: BigInt
+        votesAvailable: BigInt
     }
 
     type Validator{
@@ -176,6 +207,17 @@ const typeDefs = gql`
         signerAccount: Account
         signer: String!
         validatorGroup: ValidatorGroup
+    }
+
+    type CoinHistoryByDates{
+        prices: JSON
+        market_caps: JSON 
+        total_volumes: JSON
+    }
+
+    type CoinHistoryByNumOfDays{
+        prices: JSON
+        total_volumes: JSON
     }
 
     type Epoch{
@@ -224,9 +266,20 @@ const typeDefs = gql`
         ): BlockList!
         account(address: String!): Account
         validatorGroup(address:String!): ValidatorGroup
+        validatorGroups(
+            pageSize: Int
+            page: Int
+            sortBy: SortBy
+        ): ValidatorGroupList!
         validator(address:String!): Validator
+        coinHistoryByDates(dateFrom: String, 
+            dateTo: String): CoinHistoryByDates
+        coinHistoryByNumOfDays(days: Int): CoinHistoryByNumOfDays
+        proposal(proposalNumber: Int): Proposal
+        proposals(pageSize: Int
+            page: Int
+            sortBy: SortBy): ProposalList!
         epoch: Epoch
-        
     }
 
     type AccountList {
@@ -254,6 +307,23 @@ const typeDefs = gql`
         totalCounts: Int!
         hasMore: Boolean!
         transactions: [Transaction]
+    }
+
+    type ProposalList {
+        cursor: Int!
+        pageSize: Int!
+        page: Int!
+        totalCounts: Int!
+        hasMore: Boolean!
+        proposals: [Proposal]
+    }
+
+    type ValidatorGroupList{
+        pageSize: Int!
+        page: Int!
+        totalCounts: Int!
+        hasMore: Boolean!
+        validatorGroups: [ValidatorGroup]
     }
 `;
 
