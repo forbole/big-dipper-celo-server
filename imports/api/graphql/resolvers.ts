@@ -6,6 +6,7 @@ import { Blocks } from "../blocks/blocks";
 import { ValidatorGroups } from "../validator-groups/validator-groups";
 import { Validators, ValidatorRecords } from "../validators/validators";
 import { Contracts } from "../contracts/contracts";
+import { Epoch } from "../epoch/epoch"
 import { Proposals } from "../governance/proposals"
 import GraphQLJSON from "graphql-type-json";
 import moment from "moment";
@@ -188,7 +189,7 @@ export default {
     },
 
     coinHistoryByDates(_, { dateFrom = "22-08-2020", dateTo = "11-09-2020" }, context, info) {
-      
+
       let celoTotal = Chain.findOne();
       let fromDate = moment(`${dateFrom} 00:00`, "DD-MM-YYYY HH:mm").unix()
       let toDate = moment(`${dateTo} 00:00`, "DD-MM-YYYY HH:mm").unix()
@@ -239,7 +240,7 @@ export default {
     },
 
 
-    
+
     async downtime(_, { address, pageSize = 20, page = 1 }, context, info) {
       const totalCounts = ValidatorRecords.find({ signer: address }).count();
       const pipeline = [
@@ -299,6 +300,10 @@ export default {
         cursor: blocks.length ? blocks[blocks.length - 1].number : null,
         hasMore: blocks.length ? blocks[blocks.length - 1].number != 1 : false,
       };
+    },
+
+    epoch() {
+      return Epoch.findOne();
     },
 
     proposal(_, args, context, info) {

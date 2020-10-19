@@ -209,7 +209,6 @@ const typeDefs = gql`
         validatorGroup: ValidatorGroup
     }
 
-
     type CoinHistoryByDates{
         prices: JSON
         market_caps: JSON 
@@ -219,6 +218,14 @@ const typeDefs = gql`
     type CoinHistoryByNumOfDays{
         prices: JSON
         total_volumes: JSON
+    }
+
+    type Epoch{
+        _id: String
+        epochNumber: Int!
+        epochSize: Int!
+        firstBlockNumberForEpoch: Int!
+        lastBlockNumberForEpoch: Int!
     }
 
     type Query {
@@ -272,6 +279,7 @@ const typeDefs = gql`
         proposals(pageSize: Int
             page: Int
             sortBy: SortBy): ProposalList!
+        epoch: Epoch
     }
 
     type AccountList {

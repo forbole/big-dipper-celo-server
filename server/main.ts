@@ -94,7 +94,6 @@ function updateChainState(number: number) {
     timerChain = Meteor.setInterval(() => {
       web3.eth.getBlockNumber().then((num) => {
         updateChainState(num);
-        getAllProposals();
       });
     }, 5000);
   });
