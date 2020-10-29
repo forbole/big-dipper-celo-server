@@ -8,23 +8,23 @@
     "visualize": "meteor --production --extra-packages bundle-visualizer"
   },
   "dependencies": {
-    "@babel/runtime": "^7.11.0",
+    "@babel/runtime": "^7.12.1",
     "@celo/celocli": "0.0.53",
-    "@celo/contractkit": "^0.4.11",
-    "@celo/utils": "^0.1.17",
-    "@types/meteor": "^1.4.48",
+    "@celo/contractkit": "^0.4.17",
+    "@celo/utils": "^0.1.21",
+    "@types/meteor": "^1.4.62",
     "abi-decoder": "^2.3.0",
     "apollo-client": "^2.6.10",
-    "apollo-server-express": "^2.16.1",
+    "apollo-server-express": "^2.18.2",
     "apollo-type-bigint-fix": "^0.1.2",
     "express": "^4.17.1",
-    "graphql": "^15.3.0",
+    "graphql": "^15.4.0",
     "graphql-type-json": "^0.3.2",
-    "meteor-node-stubs": "^1.0.0",
-    "numbro": "^2.3.1",
-    "react": "^16.13.0",
-    "react-dom": "^16.13.0",
-    "web3": "^1.2.11"
+    "meteor-node-stubs": "^1.0.1",
+    "numbro": "^2.3.2",
+    "react": "^16.14.0",
+    "react-dom": "^16.14.0",
+    "web3": "^1.3.0"
   },
   "meteor": {
     "mainModule": {
