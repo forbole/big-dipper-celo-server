@@ -7,6 +7,7 @@
 * Fixed 'totalBlance' to 'totalBalance' typo
 * Implemented `Proposal` and `Proposals` GraphQL schema and resolvers that to query list of proposals or individual proposal details 
 * Stored Epoch info, built resolvers and schema
+* Stored Elected Validators & Elected Validator Groups info and implemented schema and resolvers
 
 ## [v0.1.3]
 * Added validator address in the schema
