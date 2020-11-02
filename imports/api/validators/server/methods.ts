@@ -14,19 +14,16 @@ Meteor.methods({
         let lockedGold = await kit.contracts.getLockedGold()
 
         let epochNumber = await kit.getEpochNumberOfBlock(latestHeight)
-        let lastEpochNumber = epochNumber - 1
 
         let election = await kit.contracts.getElection()
 
-        let electedValidatorSet = await election.getElectedValidators(lastEpochNumber)
+        let electedValidatorSet = await election.getElectedValidators(epochNumber)
 
         // const epochVoterRewards = await election.getVoterRewards(
         //     "0x3c86b6a27a074c1c4cc904d8808a1c33078db4e6",
         //     lastEpochNumber,
         //     await election.getVoterShare("0x3c86b6a27a074c1c4cc904d8808a1c33078db4e6", latestHeight)
         // )
-       
-
         for (let i in validators) {
             let data: { [k: string]: any } = {}
             data = validators[i] 
