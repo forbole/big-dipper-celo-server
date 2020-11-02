@@ -3,7 +3,8 @@ import { newKit, ContractKit, CeloContract } from "@celo/contractkit"
 import { Proposals } from "../../governance/proposals"
 import BigNumber from 'bignumber.js'
 import { ProposalStage } from '@celo/contractkit/lib/wrappers/Governance';
-import fetch from 'cross-fetch'
+import fetch from 'cross-fetch';
+import { Election } from "../../governance/election";
 
 let kit = newKit(Meteor.settings.public.fornoAddress)
 let web3 = kit.web3;
@@ -156,5 +157,41 @@ Meteor.methods({
         })
 
         return proposalData
+    },
+
+
+    'election.update': async function (latestHeight: number) {
+
+        let validatorsData = await kit.contracts.getValidators()
+        let registeredValidatorGroups = await validatorsData.getRegisteredValidatorGroups()
+        let registeredValidators = await validatorsData.getRegisteredValidators()
+
+        let epochNumber = await kit.getEpochNumberOfBlock(latestHeight)
+        let lastEpochNumber = epochNumber - 1
+
+        let election = await kit.contracts.getElection()
+
+        let electedValidatorSet = await election.getElectedValidators(lastEpochNumber)
+
+        let electedGroup = [];
+
+        for (let c = 0; c < electedValidatorSet.length; c++) {
+            electedGroup[c] = electedValidatorSet[c].affiliation
+        }
+
+        let electedGroupSet;
+        for (let c = 0; c < electedValidatorSet.length; c++) {
+            electedGroupSet = Array.from(new Set(electedGroup))
+        }
+
+        try {
+            Election.upsert({}, { $set: { registeredValidators: registeredValidators.length, electedValidators: electedValidatorSet.length, registeredValidatorGroups: registeredValidatorGroups.length, electedValidatorGroups: electedGroupSet.length } })
+        }
+        catch (e) {
+            console.log("=== Error when upserting election ===")
+            console.log(e)
+        }
+
     }
 });
+

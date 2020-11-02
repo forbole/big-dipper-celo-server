@@ -228,6 +228,13 @@ const typeDefs = gql`
         lastBlockNumberForEpoch: Int!
     }
 
+     type Election{
+        electedValidatorGroups: Int!
+        electedValidators: Int!
+        registeredValidatorGroups: Int!
+        registeredValidators: Int!
+    }
+
     type Query {
         chain: Chain
         accountCount: Int!
@@ -280,6 +287,8 @@ const typeDefs = gql`
             page: Int
             sortBy: SortBy): ProposalList!
         epoch: Epoch
+        election: Election
+
     }
 
     type AccountList {
