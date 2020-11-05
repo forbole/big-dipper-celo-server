@@ -12,6 +12,7 @@ import GraphQLJSON from "graphql-type-json";
 import moment from "moment";
 import numbro from "numbro";
 import PUB from "./subscriptions";
+import { Election } from "../governance/election";
 
 const CELO = 1e18;
 
@@ -334,6 +335,9 @@ export default {
           : null,
         hasMore: proposals.length == pageSize,
       };
+    },
+    election() {
+      return Election.findOne();
     },
   },
   Block: {

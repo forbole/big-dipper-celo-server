@@ -79,6 +79,18 @@ function updateBlock(number: number) {
   });
 }
 
+function updateElection(number: Number) {
+  Meteor.call("election.update", number, (error, result) => {
+    if (error) {
+      console.log(error);
+    }
+
+    if (result) {
+      console.log("Updated election!");
+    }
+  })
+}
+
 // Update chain latest status every 10 seconds.
 function updateChainState(number: number) {
   Meteor.clearInterval(timerChain);
@@ -94,6 +106,7 @@ function updateChainState(number: number) {
     timerChain = Meteor.setInterval(() => {
       web3.eth.getBlockNumber().then((num) => {
         updateChainState(num);
+        updateElection(num);
       });
     }, 5000);
   });
