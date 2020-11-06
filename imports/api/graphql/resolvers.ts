@@ -16,6 +16,45 @@ import { Election } from "../governance/election";
 
 const CELO = 1e18;
 
+interface ContractProps {
+  _id?: string;
+}
+interface AccountProps {
+  txCount?: number;
+  _id?: string;
+  
+}
+
+interface AccountsProps {
+  length?: number;
+  forEach?(arg0: (account: any) => void);
+  txCount?: number;
+}
+
+interface BlockProps {
+  push?(block: any);
+  length?: number;
+  timestamp?: string;
+}
+interface ContractProps {
+  _id?: string;
+}
+
+interface TxProps{
+  length?: number;
+  blockNumber?: number;
+}
+
+interface ProposalsProps{
+length?: number;
+proposalNumber?: number;
+}
+
+interface RecordsProps{
+  forEach?(arg0: (record: any) => void);
+  
+}
+
 export default {
   JSON: GraphQLJSON,
   Subscription: {
@@ -48,7 +87,7 @@ export default {
       if (sortBy) {
         sortItems[sortBy.field] = sortBy.order === 'ASC' ? 1 : -1
       }
-      const transactions = Transactions.find(
+      const transactions: TxProps = Transactions.find(
         {},
         {
           sort: sortItems,
@@ -72,7 +111,7 @@ export default {
     },
     transactionsByAccount: async (_, { address, pageSize = 20, page = 1 }, { dataSources }) => {
       const totalCounts = Transactions.find({ $or: [{ to: address }, { from: address }] }).count();
-      const transactions = Transactions.find(
+      const transactions: TxProps = Transactions.find(
         { $or: [{ to: address }, { from: address }] },
         {
           sort: { blockNumber: -1 },
@@ -92,7 +131,7 @@ export default {
       };
     },
     account(_, args, context, info) {
-      const account = Meteor.call('accounts.getAccount', args.address);
+      const account: AccountProps = Meteor.call('accounts.getAccount', args.address);
       account.txCount = Transactions.find({ $or: [{ from: args.address }, { to: args.address }] }).count();
       return account;
     },
@@ -104,7 +143,7 @@ export default {
       }
 
       const totalCounts = Accounts.find({ balance: { $gt: 0 } }).count();
-      const accounts = Accounts.find(
+      const accounts: AccountsProps = Accounts.find(
         { balance: { $gt: 0 } },
         {
           sort: sortItems,
@@ -133,7 +172,7 @@ export default {
         sortItems[sortBy.field] = sortBy.order === 'ASC' ? 1 : -1
       }
 
-      const blocks = Blocks.find(
+      const blocks: BlockProps = Blocks.find(
         {},
         { sort: sortItems, limit: pageSize, skip: (page - 1) * pageSize }
       ).fetch();
@@ -271,9 +310,9 @@ export default {
           }
         }
       ]
-      const records = await ValidatorRecords.rawCollection().aggregate(pipeline).toArray()
+      const records: RecordsProps = await ValidatorRecords.rawCollection().aggregate(pipeline).toArray()
 
-      let blocks = new Array()
+      let blocks: BlockProps = new Array()
       records.forEach(record => {
         blocks.push(record.block)
       });
@@ -289,7 +328,7 @@ export default {
     },
     proposedBlocks(_, { address, pageSize = 20, page = 1 }, context, info) {
       const totalCounts = Blocks.find({ miner: address }).count()
-      const blocks = Blocks.find(
+      const blocks: BlockProps = Blocks.find(
         { miner: address },
         { sort: { number: -1 }, limit: pageSize, skip: (page - 1) * pageSize }
       ).fetch()
@@ -317,7 +356,7 @@ export default {
       if (sortBy) {
         sortItems[sortBy.field] = sortBy.order === 'ASC' ? 1 : -1
       }
-      const proposals = Proposals.find(
+      const proposals: ProposalsProps = Proposals.find(
         {},
         {
           sort: sortItems,
@@ -382,14 +421,15 @@ export default {
       return signerRecords
     }
   },
+  
   Transaction: {
     to(parent) {
       if (parent.value == "0") {
         // it's a contract call
-        let contract = Contracts.findOne({ address: parent.to });
+        let contract: ContractProps = Contracts.findOne({ address: parent.to });
         if (contract) {
           return {
-            _id: contract._id,
+            // _id: contract._id,
             address: parent.to,
             contract: contract
           }
@@ -402,9 +442,9 @@ export default {
       }
       else {
         // it's a native transfer
-        let account = Accounts.findOne({ address: parent.to });
+        let account: AccountProps = Accounts.findOne({ address: parent.to });
         return {
-          _id: account._id,
+          // _id: account._id,
           address: parent.to,
           account: account
         }
@@ -414,7 +454,7 @@ export default {
       return Accounts.findOne({ address: parent.from });
     },
     timestamp(parent) {
-      let block = Blocks.findOne({ number: parent.blockNumber });
+      let block: BlockProps = Blocks.findOne({ number: parent.blockNumber });
       if (block) {
         return block.timestamp;
       }

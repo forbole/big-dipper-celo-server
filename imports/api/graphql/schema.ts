@@ -17,7 +17,6 @@ const typeDefs = gql`
     }
 
     type Chain {
-        _id: String
         averageBlockTime: Float
         txCount: Int
         latestHeight: Int
@@ -35,6 +34,7 @@ const typeDefs = gql`
         transactionAdded: Transaction
         accountAdded: Account
         chainUpdated: Chain
+        epochUpdated: Epoch
     }
 
     type tokenPrice {
@@ -46,7 +46,6 @@ const typeDefs = gql`
     }
 
     type Block {
-        _id: String
         extraData: String!
         gasLimit: Int
         gasUsed: Int!
@@ -80,7 +79,6 @@ const typeDefs = gql`
     }
 
     type Transaction {
-        _id: String
         blockHash: String!
         blockNumber: Int!
         from: Account
@@ -105,7 +103,6 @@ const typeDefs = gql`
     }
 
     type Account {
-        _id: String
         address: String
         balance: BigInt
         totalBalance: TotalBalance
@@ -126,7 +123,6 @@ const typeDefs = gql`
     }
 
     type Proposal{
-        _id: String
         proposalNumber: Int
         address: String
         blockHash: String
@@ -161,26 +157,22 @@ const typeDefs = gql`
     }
 
     type ToWalletAccount implements ToWalletObject {
-        _id: String
         address: String
         account: Account
     }
 
     type ToWalletContract implements ToWalletObject {
-        _id: String
         address: String
         contract: Contract!
     }
 
     type Contract {
-        _id: String!
         address: String!
         name: String!
         ABI: JSON
     }
 
     type ValidatorGroup {
-        _id: String
         address: String!
         affiliates: [String]
         commission: Float!
@@ -197,7 +189,6 @@ const typeDefs = gql`
     }
 
     type Validator{
-        _id: String
         address: String!
         affiliation: String!
         blsPublicKey: String!
@@ -221,7 +212,6 @@ const typeDefs = gql`
     }
 
     type Epoch{
-        _id: String
         epochNumber: Int!
         epochSize: Int!
         firstBlockNumberForEpoch: Int!

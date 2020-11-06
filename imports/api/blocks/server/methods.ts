@@ -90,7 +90,8 @@ Meteor.methods({
           // console.log(blockExtraData);
 
           let lastBlockNumberForEpoch = await kit.getLastBlockNumberForEpoch(epochNumber)
-          if (parseInt(block.number) === lastBlockNumberForEpoch) {
+
+          // if (parseInt(block.number) === lastBlockNumberForEpoch) {
             Meteor.call("epoch.update", block.number, (error, result) => {
               if (error) {
                 console.log(error);
@@ -101,7 +102,7 @@ Meteor.methods({
               }
             })
           }
-        }
+        // }
         catch (e) {
           console.log(e)
         }
