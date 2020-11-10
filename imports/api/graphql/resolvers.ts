@@ -16,6 +16,48 @@ import { Election } from "../governance/election";
 
 const CELO = 1e18;
 
+interface ContractInterface {
+  _id?: string;
+}
+interface AccountInterface {
+  txCount?: number;
+  _id?: string;
+
+}
+
+interface AccountsInterface {
+  length?: number;
+  forEach?(arg0: (account: any) => void);
+  txCount?: number;
+}
+
+interface BlockInterface {
+  push?(block: any);
+  length?: number;
+  timestamp?: string;
+}
+interface ContractInterface {
+  _id?: string;
+}
+
+interface TxInterface {
+  length?: number;
+  blockNumber?: number;
+}
+
+interface ProposalsInterface {
+  length?: number;
+  proposalNumber?: number;
+}
+
+interface RecordsInterface {
+  forEach?(arg0: (record: any) => void);
+}
+
+interface CeloTotalInterface {
+  celoTotalSupply?: number
+}
+
 export default {
   JSON: GraphQLJSON,
   Subscription: {
@@ -48,7 +90,7 @@ export default {
       if (sortBy) {
         sortItems[sortBy.field] = sortBy.order === 'ASC' ? 1 : -1
       }
-      const transactions = Transactions.find(
+      const transactions: TxInterface = Transactions.find(
         {},
         {
           sort: sortItems,
@@ -72,7 +114,7 @@ export default {
     },
     transactionsByAccount: async (_, { address, pageSize = 20, page = 1 }, { dataSources }) => {
       const totalCounts = Transactions.find({ $or: [{ to: address }, { from: address }] }).count();
-      const transactions = Transactions.find(
+      const transactions: TxInterface = Transactions.find(
         { $or: [{ to: address }, { from: address }] },
         {
           sort: { blockNumber: -1 },
@@ -104,7 +146,7 @@ export default {
       }
 
       const totalCounts = Accounts.find({ balance: { $gt: 0 } }).count();
-      const accounts = Accounts.find(
+      const accounts: AccountsInterface = Accounts.find(
         { balance: { $gt: 0 } },
         {
           sort: sortItems,
@@ -133,7 +175,7 @@ export default {
         sortItems[sortBy.field] = sortBy.order === 'ASC' ? 1 : -1
       }
 
-      const blocks = Blocks.find(
+      const blocks: BlockInterface = Blocks.find(
         {},
         { sort: sortItems, limit: pageSize, skip: (page - 1) * pageSize }
       ).fetch();
@@ -205,7 +247,7 @@ export default {
 
     coinHistoryByDates(_, { dateFrom = "22-08-2020", dateTo = "11-09-2020" }, context, info) {
 
-      let celoTotal = Chain.findOne();
+      let celoTotal: CeloTotalInterface = Chain.findOne();
       let fromDate = moment(`${dateFrom} 00:00`, "DD-MM-YYYY HH:mm").unix()
       let toDate = moment(`${dateTo} 00:00`, "DD-MM-YYYY HH:mm").unix()
 
@@ -231,7 +273,7 @@ export default {
 
     coinHistoryByNumOfDays(_, args, context, info) {
 
-      let celoTotal = Chain.findOne();
+      let celoTotal: CeloTotalInterface = Chain.findOne();
 
       let url = `https://api.coingecko.com/api/v3/coins/celo-gold/market_chart?vs_currency=usd&days=${args.days}`
 
@@ -285,7 +327,14 @@ export default {
           }
         }
       ]
-      const records = await ValidatorRecords.rawCollection().aggregate(pipeline).toArray()
+
+      let records: RecordsInterface;
+      try {
+        records = await ValidatorRecords.rawCollection().aggregate(pipeline).toArray()
+      }
+      catch (error) {
+        console.log("Error when getting Validator Records " + error)
+      }
 
       let blocks = new Array()
       records.forEach(record => {
@@ -303,7 +352,7 @@ export default {
     },
     proposedBlocks(_, { address, pageSize = 20, page = 1 }, context, info) {
       const totalCounts = Blocks.find({ miner: address }).count()
-      const blocks = Blocks.find(
+      const blocks: BlockInterface = Blocks.find(
         { miner: address },
         { sort: { number: -1 }, limit: pageSize, skip: (page - 1) * pageSize }
       ).fetch()
@@ -331,7 +380,7 @@ export default {
       if (sortBy) {
         sortItems[sortBy.field] = sortBy.order === 'ASC' ? 1 : -1
       }
-      const proposals = Proposals.find(
+      const proposals: ProposalsInterface = Proposals.find(
         {},
         {
           sort: sortItems,
@@ -391,8 +440,14 @@ export default {
           }
         }
       ]
-      const signerRecords = await ValidatorRecords.rawCollection().aggregate(pipeline).toArray()
-      // console.log(signerRecords);
+
+      let signerRecords;
+      try {
+        signerRecords = await ValidatorRecords.rawCollection().aggregate(pipeline).toArray()
+      }
+      catch (error) {
+        console.log("Error when getting Signer Records " + error)
+      }
       return signerRecords
     }
   },
@@ -400,7 +455,7 @@ export default {
     to(parent) {
       if (parent.value == "0") {
         // it's a contract call
-        let contract = Contracts.findOne({ address: parent.to });
+        let contract: ContractInterface = Contracts.findOne({ address: parent.to });
         if (contract) {
           return {
             _id: contract._id,
@@ -416,7 +471,7 @@ export default {
       }
       else {
         // it's a native transfer
-        let account = Accounts.findOne({ address: parent.to });
+        let account: AccountInterface = Accounts.findOne({ address: parent.to });
         return {
           _id: account._id,
           address: parent.to,
@@ -428,7 +483,7 @@ export default {
       return Accounts.findOne({ address: parent.from });
     },
     timestamp(parent) {
-      let block = Blocks.findOne({ number: parent.blockNumber });
+      let block: BlockInterface = Blocks.findOne({ number: parent.blockNumber });
       if (block) {
         return block.timestamp;
       }

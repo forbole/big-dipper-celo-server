@@ -11,27 +11,64 @@ import PUB from "../../graphql/subscriptions"
 let kit = newKit(Meteor.settings.public.fornoAddress)
 let web3 = kit.web3;
 
+interface LatestBlockInterface {
+  number?: number;
+  timestamp?: number
+}
+
+interface RecordInterface {
+  blockNumber?: number;
+  signer?: string;
+  exist?: boolean;
+}
+
+interface BlockInterface {
+  hasSingers?: boolean
+  transactions?: any
+  blockTime?: number
+  hash: string;
+  parentHash: string;
+  nonce: any;
+  sha3Uncles: any;
+  logsBloom: string;
+  transactionRoot: string;
+  stateRoot: string;
+  receiptRoot: string;
+  miner: string;
+  extraData: string;
+  gasLimit: number;
+  gasUsed: number;
+  timestamp: any;
+  number: number;
+
+}
 Meteor.methods({
   "blocks.getBlocks": async function (targetHeight) {
     console.log(targetHeight)
     // this.unblock();
-    let latestBlockHeight = 0
-    let latestBlock = Blocks.findOne({}, { sort: { number: -1 }, limit: 1 })
+    let latestBlockHeight = 0;
+    let chainId;
+    let latestBlock: LatestBlockInterface = Blocks.findOne({}, { sort: { number: -1 }, limit: 1 })
     if (latestBlock) {
       latestBlockHeight = latestBlock.number
     }
 
     console.log("Last block in db: " + latestBlockHeight)
 
-    let chainId = await web3.eth.net.getId()
-    let lastBlock = latestBlock
+    try {
+      chainId = await web3.eth.net.getId()
+    }
+    catch (error) {
+      console.log("Error when getting Chain ID " + error)
+    }
+    let lastBlock: LatestBlockInterface = latestBlock;
 
     for (let i = latestBlockHeight + 1; i <= targetHeight; i++) {
       let blockTime = 0
       try {
         console.log("Processing block: " + i)
         // get block
-        let block: { [k: string]: any } = await web3.eth.getBlock(i)
+        let block: BlockInterface = await web3.eth.getBlock(i)
 
         if (!block) return i
 
@@ -78,7 +115,7 @@ Meteor.methods({
 
           const electionRC = new ElectionResultsCache(election, epochSize.toNumber())
           for (let v in validatorSet) {
-            let record: any = {
+            let record: RecordInterface = {
               blockNumber: block.number,
               signer: validatorSet[v].signer,
               exist: await electionRC.signedParent(validatorSet[v].signer, block)
@@ -90,7 +127,7 @@ Meteor.methods({
           // console.log(blockExtraData);
 
           let lastBlockNumberForEpoch = await kit.getLastBlockNumberForEpoch(epochNumber)
-          if (parseInt(block.number) === lastBlockNumberForEpoch) {
+          if (block.number === lastBlockNumberForEpoch) {
             Meteor.call("epoch.update", block.number, (error, result) => {
               if (error) {
                 console.log(error);
@@ -103,7 +140,7 @@ Meteor.methods({
           }
         }
         catch (e) {
-          console.log(e)
+          console.log("Error when getting Block Singer Records " + e)
         }
 
         // get transactions hash
@@ -126,7 +163,7 @@ Meteor.methods({
                   });
                 });
               } catch (e) {
-                console.log(e)
+                console.log("Error when processing transactions hash " + e)
               }
             }
           }
@@ -141,7 +178,7 @@ Meteor.methods({
 
         lastBlock = block
       } catch (e) {
-        console.log(e)
+        console.log("Error when processing Blocks  " + e)
       }
     }
 

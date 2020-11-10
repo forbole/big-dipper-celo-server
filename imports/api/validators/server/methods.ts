@@ -8,16 +8,22 @@ let kit = newKit(Meteor.settings.public.fornoAddress)
 
 Meteor.methods({
     'validators.update': async function (latestHeight: number) {
-        let valContract = await kit.contracts.getValidators()
-        let valGroups = await valContract.getRegisteredValidatorGroups()
-        let validators = await valContract.getRegisteredValidators()
-        let lockedGold = await kit.contracts.getLockedGold()
 
-        let epochNumber = await kit.getEpochNumberOfBlock(latestHeight)
+        let valContract, valGroups, validators, lockedGold, epochNumber, election, electedValidatorSet;
 
-        let election = await kit.contracts.getElection()
+        try {
+            valContract = await kit.contracts.getValidators()
+            valGroups = await valContract.getRegisteredValidatorGroups()
+            validators = await valContract.getRegisteredValidators()
+            lockedGold = await kit.contracts.getLockedGold()
+            epochNumber = await kit.getEpochNumberOfBlock(latestHeight)
+            election = await kit.contracts.getElection()
+            electedValidatorSet = await election.getElectedValidators(epochNumber)
+        }
+        catch (error) {
+            console.log("Error when getting Validators Contract " + error)
+        }
 
-        let electedValidatorSet = await election.getElectedValidators(epochNumber)
 
         // const epochVoterRewards = await election.getVoterRewards(
         //     "0x3c86b6a27a074c1c4cc904d8808a1c33078db4e6",
@@ -26,8 +32,8 @@ Meteor.methods({
         // )
         for (let i in validators) {
             let data: { [k: string]: any } = {}
-            data = validators[i] 
-            data.score = validators[i].score.toNumber() 
+            data = validators[i]
+            data.score = validators[i] && validators[i].score ? validators[i].score.toNumber() : 0;
             Meteor.call('accounts.update', validators[i].address);
             Meteor.call('accounts.update', validators[i].affiliation);
             Meteor.call('accounts.update', validators[i].signer);
@@ -46,12 +52,12 @@ Meteor.methods({
         for (let i in valGroups) {
             let data: { [k: string]: any } = {}
             data = valGroups[i]
-            data.commission = valGroups[i].commission.toNumber()
-            data.nextCommission = valGroups[i].nextCommission.toNumber()
-            data.nextCommissionBlock = valGroups[i].nextCommissionBlock.toNumber()
-            data.slashingMultiplier = valGroups[i].slashingMultiplier.toNumber()
-            data.lastSlashed = valGroups[i].lastSlashed.toNumber()
-            data.members = valGroups[i].members
+            data.commission = valGroups && valGroups[i] && valGroups[i].commission ? valGroups[i].commission.toNumber() : 0;
+            data.nextCommission = valGroups && valGroups[i] && valGroups[i].nextCommission ? valGroups[i].nextCommission.toNumber() : 0;
+            data.nextCommissionBlock = valGroups && valGroups[i] && valGroups[i].nextCommissionBlock ? valGroups[i].nextCommissionBlock.toNumber() : 0;
+            data.slashingMultiplier = valGroups && valGroups[i] && valGroups[i].slashingMultiplier ? valGroups[i].slashingMultiplier.toNumber() : 0;
+            data.lastSlashed = valGroups && valGroups[i] && valGroups[i].lastSlashed ? valGroups[i].lastSlashed.toNumber() : null;
+            data.members = valGroups && valGroups[i] && valGroups[i].members ? valGroups[i].members : null;
 
             for (let b in validators) {
                 if (data.address === validators[b].address) {
@@ -72,11 +78,24 @@ Meteor.methods({
                 }
             }
 
+            try {
+                data.lockedGoldAmount = (await lockedGold.getAccountTotalLockedGold(data.address)).toNumber()
+            }
+            catch (error) {
+                console.log("Error when getting Account Total Locked Gold " + error)
+            }
 
-            data.lockedGoldAmount = (await lockedGold.getAccountTotalLockedGold(data.address)).toNumber()
-            const votes = await election.getValidatorGroupVotes(data.address)
-            data.votes = votes.votes.toNumber()
-            data.votesAvailable = votes.votes.toNumber() + votes.capacity.toNumber()
+            let votes;
+
+            try {
+                votes = await election.getValidatorGroupVotes(data.address)
+            }
+            catch (error) {
+                console.log("Error when getting Validator Group Votes " + error)
+            }
+
+            data.votes = votes && votes.votes ? votes.votes.toNumber() : 0;
+            data.votesAvailable = votes && votes.votes && votes.capacity ? votes.votes.toNumber() + votes.capacity.toNumber() : 0;
 
 
             try {

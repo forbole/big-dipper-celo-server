@@ -3,6 +3,9 @@ import { newKit } from "@celo/contractkit"
 import { Accounts } from "../../accounts/accounts"
 
 import PUB from "../../graphql/subscriptions"
+import BigNumber from 'bignumber.js';
+
+// import AccountBalance  from '@celo/contractkit/lib/wrappers/Accounts'
 
 let kit = newKit(Meteor.settings.public.fornoAddress)
 let web3 = kit.web3
@@ -11,66 +14,77 @@ Meteor.methods({
   "accounts.update": async function (address) {
     console.log("Update wallet address: " + address)
     let data: { [c: string]: any } = {}
+    let balance, totalBalance;
+    try {
+      balance = parseFloat(await web3.eth.getBalance(address))
+      totalBalance = await kit.getTotalBalance(address)
+      data.gold = totalBalance && totalBalance.gold ? totalBalance.gold.toNumber() : 0;
+      data.lockedGold = totalBalance && totalBalance.lockedGold ? totalBalance.lockedGold.toNumber() : 0
+      data.usd = totalBalance && totalBalance.usd ? totalBalance.usd.toNumber() : 0;
+      data.total = totalBalance && totalBalance.total ? totalBalance.total.toNumber() : 0
+      data.pending = totalBalance && totalBalance.pending ? totalBalance.pending.toNumber() : 0;
+    }
+    catch (e) {
+      console.log("Error when getting account balance " + e)
+    }
 
-    let balance = parseFloat(await web3.eth.getBalance(address))
-    let totalBalance = await kit.getTotalBalance(address)
 
-    data.gold = totalBalance.gold.toNumber()
-    data.lockedGold = totalBalance.lockedGold.toNumber()
-    data.usd = totalBalance.usd.toNumber()
-    data.total = (totalBalance.total)?totalBalance.total.toNumber():0
-    data.pending = totalBalance.pending.toNumber()
 
-    let account:{ [k: string]: any }
-    account = Accounts.findOne({address:address})
-    let code:string
+    let account: { [k: string]: any }
+    account = Accounts.findOne({ address: address })
+    let code: string;
+    let lockedGold: { [c: string]: any } = {}
+    let accounts, lockedGolds;
 
-    if (account){
+    if (account) {
       code = account.code
     }
-    else{
+    else {
       account = {}
-      try{
+      try {
         code = await web3.eth.getCode(address)
       }
-      catch(e){
-        console.log(e)
+      catch (e) {
+        console.log("Error when getting Account Code " + e)
       }
     }
 
     account.code = code
 
-    let lockedGold: { [c: string]: any } = {}
-    let accounts = await kit.contracts.getAccounts()
-    let lockedGolds = await kit.contracts.getLockedGold()
 
-    try{
+    try {
+      accounts = await kit.contracts.getAccounts()
+      lockedGolds = await kit.contracts.getLockedGold()
+    }
+    catch (error) {
+      console.log("Error when getting Locked Gold " + error)
+    }
+
+    try {
       let lockedGoldSummary = await lockedGolds.getAccountSummary(address)
 
-      if (lockedGoldSummary){
+      if (lockedGoldSummary) {
         let pendingWithdrawalsTotals = (await lockedGolds.getPendingWithdrawalsTotalValue(address))
 
-        lockedGold.total = lockedGoldSummary.lockedGold.total
-        lockedGold.nonvoting = lockedGoldSummary.lockedGold.nonvoting
-        lockedGold.requirement = lockedGoldSummary.lockedGold.requirement
-        lockedGold.pendingWithdrawals = lockedGoldSummary.pendingWithdrawals
-        lockedGold.pendingWithdrawalsTotal = pendingWithdrawalsTotals
-  
-        // return lockedG;
+        lockedGold.total = lockedGoldSummary && lockedGoldSummary.lockedGold && lockedGoldSummary.lockedGold.total ? lockedGoldSummary.lockedGold.total : 0;
+        lockedGold.nonvoting = lockedGoldSummary && lockedGoldSummary.lockedGold && lockedGoldSummary.lockedGold.nonvoting ? lockedGoldSummary.lockedGold.nonvoting : 0;
+        lockedGold.requirement = lockedGoldSummary && lockedGoldSummary.lockedGold && lockedGoldSummary.lockedGold.requirement ? lockedGoldSummary.lockedGold.requirement : 0;
+        lockedGold.pendingWithdrawals = lockedGoldSummary && lockedGoldSummary.pendingWithdrawals ? lockedGoldSummary.pendingWithdrawals : 0;
+        lockedGold.pendingWithdrawalsTotal = pendingWithdrawalsTotals ? pendingWithdrawalsTotals : 0;
       }
     }
-    catch(e){
-      console.log("Error LockedGold.getAccountSummary")
+    catch (e) {
+      console.log("Error when getting Locked Gold Account Summary " + e)
     }
 
-    try{
+    try {
       let accountSummary = await accounts.getAccountSummary(address)
 
       account.lockedGold = lockedGold
       account.accountSummary = accountSummary
     }
-    catch(e){
-      console.log("Error Account.getAccountSummary")
+    catch (e) {
+      console.log("Error when getting Account Summary " + e)
     }
 
     account.balance = balance
@@ -81,7 +95,7 @@ Meteor.methods({
       Accounts.upsert(
         { address: address },
         { $set: account },
-        (error, result) => {
+        (error: any, result: any) => {
           PUB.pubsub.publish(PUB.ACCOUNT_ADDED, {
             accountAdded: { address: address, balance: balance, totalBalance: data },
           })
@@ -91,16 +105,16 @@ Meteor.methods({
   },
 
   "accounts.getAccount": async function (address: string) {
-      if (!address){
-        return "No address provided."
-      }
+    if (!address) {
+      return "No address provided."
+    }
 
-      let account = Accounts.findOne({address:address})
+    let account = Accounts.findOne({ address: address })
 
-      if (!account){
-        return "Account not found.";
-      }
+    if (!account) {
+      return "Account not found.";
+    }
 
-      return account
+    return account
   },
 });
