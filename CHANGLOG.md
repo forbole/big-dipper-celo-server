@@ -9,6 +9,7 @@
 * Stored Epoch info, built resolvers and schema
 * [#59] Stored Elected Validators & Elected Validator Groups info and implemented schema and resolvers
 * Added `electedValidators` & `membersAccount` to `ValidatorGroup` query
+* Added `try-catch` blocks for async methods, added Interfaces and fixed undefined errors 
 
 ## [v0.1.3]
 * Added validator address in the schema
