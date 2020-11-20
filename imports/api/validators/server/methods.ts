@@ -59,14 +59,16 @@ Meteor.methods({
                 }
             }
 
+            data.electedValidators = {}
 
             for (let d = 0; d < electedValidatorSet.length; d++) {
+                
                 let counter = 0
                 for (let e = 0; e < data.members.length; e++) {
                     if (electedValidatorSet[d].address === data.members[e]) {
                         data.electedValidators[counter] = electedValidatorSet[d].address
+                        counter++
                     }
-                    counter++
                 }
             }
 
