@@ -194,6 +194,7 @@ const typeDefs = gql`
         lockedGoldAmount: BigInt
         votes: BigInt
         votesAvailable: BigInt
+        electedValidators: Validator
     }
 
     type Validator{
@@ -272,14 +273,14 @@ const typeDefs = gql`
             page: Int
         ): BlockList!
         account(address: String!): Account
-        validatorGroup(address:String!): ValidatorGroup
+        validatorGroup(address:String name:String): ValidatorGroup
         validatorGroups(
             pageSize: Int
             page: Int
             sortBy: SortBy
         ): ValidatorGroupList!
-        validator(address:String!): Validator
-        coinHistoryByDates(dateFrom: String, 
+        validator(address:String name:String): Validator
+        coinHistoryByDates(dateFrom: String 
             dateTo: String): CoinHistoryByDates
         coinHistoryByNumOfDays(days: Int): CoinHistoryByNumOfDays
         proposal(proposalNumber: Int): Proposal
