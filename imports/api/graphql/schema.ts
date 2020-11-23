@@ -186,6 +186,7 @@ const typeDefs = gql`
         commission: Float!
         lastSlashed: Int!
         members: [Validator]
+        membersAccount: [Account]
         membersUpdated: Int!
         name: String!
         nextCommission: Float!
@@ -194,7 +195,7 @@ const typeDefs = gql`
         lockedGoldAmount: BigInt
         votes: BigInt
         votesAvailable: BigInt
-        electedValidators: Validator
+        electedValidators: JSON
     }
 
     type Validator{
@@ -273,7 +274,7 @@ const typeDefs = gql`
             page: Int
         ): BlockList!
         account(address: String!): Account
-        validatorGroup(address:String name:String): ValidatorGroup
+        validatorGroup(valGroupAddress:String name:String): ValidatorGroup
         validatorGroups(
             pageSize: Int
             page: Int

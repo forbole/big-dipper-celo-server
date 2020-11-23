@@ -150,8 +150,8 @@ export default {
       return Blocks.findOne({ number: args.number });
     },
     validatorGroup(_, args, context, info) {
-      if (args.address) {
-        return ValidatorGroups.findOne({ address: args.address });
+      if (args.valGroupAddress) {
+        return ValidatorGroups.findOne({ address: args.valGroupAddress });
 
       }
       else if (args.name) {
@@ -437,6 +437,9 @@ export default {
   ValidatorGroup: {
     members(parent) {
       return Validators.find({ address: { $in: parent.members } }).fetch();
+    },
+    membersAccount(parent) {
+      return Accounts.find({ address: { $in: parent.members } }).fetch();
     },
   },
   Validator: {
