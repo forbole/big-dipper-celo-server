@@ -168,15 +168,15 @@ export default {
         hasMore: accounts.length == pageSize,
       };
     },
-    blocks: async (_, { pageSize = 20, page = 1, sortBy = { field: "number", order: 'DESC' } }, { dataSources }) => {
-      const totalCounts = Blocks.find().count();
+    blocks: async (_, { pageSize = 20, page = 1, sortBy = { field: "number", order: 'DESC' }, fromBlock = 1 }, { dataSources }) => {
+      const totalCounts = Blocks.find().count();   
       const sortItems = {}
       if (sortBy) {
         sortItems[sortBy.field] = sortBy.order === 'ASC' ? 1 : -1
       }
 
       const blocks: BlockInterface = Blocks.find(
-        {},
+        { number: { $gte: fromBlock }},
         { sort: sortItems, limit: pageSize, skip: (page - 1) * pageSize }
       ).fetch();
       return {

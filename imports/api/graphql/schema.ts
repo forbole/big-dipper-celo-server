@@ -244,6 +244,7 @@ const typeDefs = gql`
             pageSize: Int
             page: Int
             sortBy: SortBy
+            fromBlock: Int
         ): BlockList! 
         transactions(
             pageSize: Int
