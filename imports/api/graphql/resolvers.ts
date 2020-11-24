@@ -150,7 +150,14 @@ export default {
       return Blocks.findOne({ number: args.number });
     },
     validatorGroup(_, args, context, info) {
-      return ValidatorGroups.findOne({ address: args.address });
+      if (args.valGroupAddress) {
+        return ValidatorGroups.findOne({ address: args.valGroupAddress });
+
+      }
+      else if (args.name) {
+        return ValidatorGroups.findOne({ name: args.name });
+
+      }
     },
 
     validatorGroups: async (_, { pageSize = 20, page = 1, sortBy = { field: "commission", order: 'DESC' } }, { dataSources }) => {
@@ -177,7 +184,14 @@ export default {
     },
 
     validator(_, args, context, info) {
-      return Validators.findOne({ address: args.address });
+      if(args.address){
+        return Validators.findOne({ address: args.address });
+      }
+      else if(args.name){
+        return Validators.findOne({ name: args.name });
+
+      }
+
     },
     currentValidatorSet(_, args, context, info) {
       let validators = Meteor.call('chain.getCurrentValidatorSet');
@@ -423,6 +437,9 @@ export default {
   ValidatorGroup: {
     members(parent) {
       return Validators.find({ address: { $in: parent.members } }).fetch();
+    },
+    membersAccount(parent) {
+      return Accounts.find({ address: { $in: parent.members } }).fetch();
     },
   },
   Validator: {
