@@ -32,8 +32,24 @@ function mergeObjects(object1, object2, object3) {
 
 Meteor.methods({
     "proposals.getProposals": async function () {
-        const governance = await kit._web3Contracts.getGovernance()
-        const events = await governance.getPastEvents('ProposalQueued', { fromBlock: 0 })
+
+        let governance, events, getGovernance, executedProposals, getUpvoters, getTotalVotes;
+
+        try {
+            governance = await kit._web3Contracts.getGovernance()
+        }
+        catch (error) {
+            console.log("Error when getting _web3Contracts Governance Contract " + error)
+        }
+
+        try {
+            events = await governance.getPastEvents('ProposalQueued', { fromBlock: 0 })
+        }
+        catch (error) {
+            console.log("Error when getting the Governance Past Events " + error)
+        }
+
+
         const proposalData = {
             proposal: {
             }
@@ -54,15 +70,36 @@ Meteor.methods({
                 proposalData.proposal[index + 1].upvoteList = []
         })
 
-        const getGovernance = await kit.contracts.getGovernance()
+        try {
+            getGovernance = await kit.contracts.getGovernance()
+        }
+        catch (error) {
+            console.log("Error when getting Governance Contract " + error)
+        }
+
 
         Object.keys(proposalData.proposal).forEach(async function (item: any, index: number) {
-            proposalRecord[item] = await getGovernance.getProposalRecord(item)
+            try {
+                proposalRecord[item] = await getGovernance.getProposalRecord(item)
+            }
+            catch (error) {
+                console.log("Error when getting Governance Proposal Record " + error)
+            }
 
             if (proposalRecord[item].stage === ProposalStage.Expiration) {
-                proposalData.proposal[item].minDeposit = (await getGovernance.minDeposit()).toNumber()
+                try {
+                    proposalData.proposal[item].minDeposit = (await getGovernance.minDeposit()).toNumber()
+                }
+                catch (error) {
+                    console.log("Error when getting Governance Min Deposit " + error)
+                }
 
-                const executedProposals = await governance.getPastEvents('ProposalExecuted', { fromBlock: 0 })
+                try {
+                    executedProposals = await governance.getPastEvents('ProposalExecuted', { fromBlock: 0 })
+                }
+                catch (error) {
+                    console.log("Error when getting Governance Executed Proposals " + error)
+                }
 
                 if (executedProposals.find((e) => new BigNumber(e.returnValues.proposalId).eq(item))) {
                     proposalData.proposal[item].status = "Approved"
@@ -71,9 +108,20 @@ Meteor.methods({
                     proposalData.proposal[item].status = "Rejected"
                 }
 
-                const getUpvoters: any[] = await governance.getPastEvents('ProposalUpvoted', { fromBlock: 0 })
 
-                const getTotalVotes: any[] = await governance.getPastEvents('ProposalVoted', { fromBlock: 0 })
+                try {
+                    getUpvoters = await governance.getPastEvents('ProposalUpvoted', { fromBlock: 0 })
+                }
+                catch (error) {
+                    console.log("Error when getting Governance Upvoted Proposals " + error)
+                }
+
+                try {
+                    getTotalVotes = await governance.getPastEvents('ProposalVoted', { fromBlock: 0 })
+                }
+                catch (error) {
+                    console.log("Error when getting Governance Voted Proposals " + error)
+                }
 
                 // Abstain -> value == 1 
                 // No -> value == 2
@@ -125,19 +173,33 @@ Meteor.methods({
                     proposalData.proposal[item].upvoteList = upvotersList
 
                 }
+                let duration;
+                try {
+                    duration = await getGovernance.stageDurations();
 
-                const duration = await getGovernance.stageDurations()
-                let proposalEpoch = new BigNumber(proposalData.proposal[item].returnValues.timestamp)
-                let referrendumEpoch = proposalEpoch.plus(duration.Approval)
-                let executionEpoch = referrendumEpoch.plus(duration.Referendum)
-                let expirationEpoch = executionEpoch.plus(duration.Execution)
+                }
+                catch (error) {
+                    console.log("Error when getting Governance Durations " + error);
+                }
 
-                proposalData.proposal[item].proposalEpoch = proposalEpoch.toNumber()
-                proposalData.proposal[item].referrendumEpoch = referrendumEpoch.toNumber()
-                proposalData.proposal[item].executionEpoch = executionEpoch.toNumber()
-                proposalData.proposal[item].expirationEpoch = expirationEpoch.toNumber()
+                let proposalEpoch = proposalData && proposalData.proposal[item] && proposalData.proposal[item].returnValues && proposalData.proposal[item].returnValues.timestamp ?
+                    new BigNumber(proposalData.proposal[item].returnValues.timestamp) : new BigNumber(0);
+                let referrendumEpoch = proposalEpoch && duration && duration.Approval ? proposalEpoch.plus(duration.Approval) : new BigNumber(0);
+                let executionEpoch = referrendumEpoch && duration && duration.Referendum ? referrendumEpoch.plus(duration.Referendum) : new BigNumber(0);
+                let expirationEpoch = executionEpoch && duration && duration.Execution ? executionEpoch.plus(duration.Execution) : new BigNumber(0);
 
-                proposalData.proposal[item].upvotes = (await getGovernance.getUpvotes(item)).toNumber()
+                proposalData.proposal[item].proposalEpoch = proposalEpoch ? proposalEpoch.toNumber() : 0;
+                proposalData.proposal[item].referrendumEpoch = referrendumEpoch ? referrendumEpoch.toNumber() : 0;
+                proposalData.proposal[item].executionEpoch = executionEpoch ? executionEpoch.toNumber() : 0;
+                proposalData.proposal[item].expirationEpoch = expirationEpoch ? expirationEpoch.toNumber() : 0;
+
+                try {
+                    proposalData.proposal[item].upvotes = (await getGovernance.getUpvotes(item)).toNumber()
+
+                }
+                catch (error) {
+                    console.log("Error when getting Governance Upvotess" + error)
+                }
 
 
                 Object.keys(proposalData.proposal).forEach(function (element) {
@@ -162,16 +224,25 @@ Meteor.methods({
 
     'election.update': async function (latestHeight: number) {
 
-        let validatorsData = await kit.contracts.getValidators()
-        let registeredValidatorGroups = await validatorsData.getRegisteredValidatorGroups()
-        let registeredValidators = await validatorsData.getRegisteredValidators()
+        let validatorsData, registeredValidatorGroups, registeredValidators, epochNumber, lastEpochNumber, election, electedValidatorSet;
 
-        let epochNumber = await kit.getEpochNumberOfBlock(latestHeight)
-        let lastEpochNumber = epochNumber - 1
+        try {
+            validatorsData = await kit.contracts.getValidators()
+            registeredValidatorGroups = await validatorsData.getRegisteredValidatorGroups()
+            registeredValidators = await validatorsData.getRegisteredValidators()
 
-        let election = await kit.contracts.getElection()
+            epochNumber = await kit.getEpochNumberOfBlock(latestHeight)
+            lastEpochNumber = epochNumber - 1
 
-        let electedValidatorSet = await election.getElectedValidators(lastEpochNumber)
+            election = await kit.contracts.getElection()
+
+            electedValidatorSet = await election.getElectedValidators(lastEpochNumber)
+
+        }
+        catch (error) {
+            console.log("Error while getting Validators Contract " + error)
+        }
+
 
         let electedGroup = [];
 
@@ -194,4 +265,5 @@ Meteor.methods({
 
     }
 });
+
 

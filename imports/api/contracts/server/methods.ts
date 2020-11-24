@@ -38,29 +38,34 @@ let web3 = kit.web3;
 Meteor.methods({
   "contract.getContractAddress": async function () {
     let contracts = {};
+    try {
+      contracts["Accounts"] = await kit.registry.addressFor(CeloContract.Accounts);
+      contracts["Attestations"] = await kit.registry.addressFor(CeloContract.Attestations);
+      contracts["BlockchainParameters"] = await kit.registry.addressFor(CeloContract.BlockchainParameters);
+      contracts["DoubleSigningSlasher"] = await kit.registry.addressFor(CeloContract.DoubleSigningSlasher);
+      contracts["DowntimeSlasher"] = await kit.registry.addressFor(CeloContract.DowntimeSlasher);
+      contracts["Election"] = await kit.registry.addressFor(CeloContract.Election);
+      contracts["EpochRewards"] = await kit.registry.addressFor(CeloContract.EpochRewards);
+      contracts["Escrow"] = await kit.registry.addressFor(CeloContract.Escrow);
+      contracts["Exchange"] = await kit.registry.addressFor(CeloContract.Exchange);
+      contracts["FeeCurrencyWhitelist"] = await kit.registry.addressFor(CeloContract.FeeCurrencyWhitelist);
+      contracts["Freezer"] = await kit.registry.addressFor(CeloContract.Freezer);
+      contracts["GasPriceMinimum"] = await kit.registry.addressFor(CeloContract.GasPriceMinimum);
+      contracts["GoldToken"] = await kit.registry.addressFor(CeloContract.GoldToken);
+      contracts["Governance"] = await kit.registry.addressFor(CeloContract.Governance);
+      contracts["LockedGold"] = await kit.registry.addressFor(CeloContract.LockedGold);
+      contracts["Random"] = await kit.registry.addressFor(CeloContract.Random);
+      contracts["Registry"] = await kit.registry.addressFor(CeloContract.Registry);
+      contracts["Reserve"] = await kit.registry.addressFor(CeloContract.Reserve);
+      contracts["SortedOracles"] = await kit.registry.addressFor(CeloContract.SortedOracles);
+      contracts["StableToken"] = await kit.registry.addressFor(CeloContract.StableToken);
+      contracts["TransferWhitelist"] = await kit.registry.addressFor(CeloContract.TransferWhitelist);
+      contracts["Validators"] = await kit.registry.addressFor(CeloContract.Validators);
 
-    contracts["Accounts"] = await kit.registry.addressFor(CeloContract.Accounts);
-    contracts["Attestations"] = await kit.registry.addressFor(CeloContract.Attestations);
-    contracts["BlockchainParameters"] = await kit.registry.addressFor(CeloContract.BlockchainParameters);
-    contracts["DoubleSigningSlasher"] = await kit.registry.addressFor(CeloContract.DoubleSigningSlasher);
-    contracts["DowntimeSlasher"] = await kit.registry.addressFor(CeloContract.DowntimeSlasher);
-    contracts["Election"] = await kit.registry.addressFor(CeloContract.Election);
-    contracts["EpochRewards"] = await kit.registry.addressFor(CeloContract.EpochRewards);
-    contracts["Escrow"] = await kit.registry.addressFor(CeloContract.Escrow);
-    contracts["Exchange"] = await kit.registry.addressFor(CeloContract.Exchange);
-    contracts["FeeCurrencyWhitelist"] = await kit.registry.addressFor(CeloContract.FeeCurrencyWhitelist);
-    contracts["Freezer"] = await kit.registry.addressFor(CeloContract.Freezer);
-    contracts["GasPriceMinimum"] = await kit.registry.addressFor(CeloContract.GasPriceMinimum);
-    contracts["GoldToken"] = await kit.registry.addressFor(CeloContract.GoldToken);
-    contracts["Governance"] = await kit.registry.addressFor(CeloContract.Governance);
-    contracts["LockedGold"] = await kit.registry.addressFor(CeloContract.LockedGold);
-    contracts["Random"] = await kit.registry.addressFor(CeloContract.Random);
-    contracts["Registry"] = await kit.registry.addressFor(CeloContract.Registry);
-    contracts["Reserve"] = await kit.registry.addressFor(CeloContract.Reserve);
-    contracts["SortedOracles"] = await kit.registry.addressFor(CeloContract.SortedOracles);
-    contracts["StableToken"] = await kit.registry.addressFor(CeloContract.StableToken);
-    contracts["TransferWhitelist"] = await kit.registry.addressFor(CeloContract.TransferWhitelist);
-    contracts["Validators"] = await kit.registry.addressFor(CeloContract.Validators);
+    }
+    catch (error) {
+      console.log("Error when getting Contract Address " + error)
+    }
 
     let contractABI = {};
     contractABI["Accounts"] = AccountsABI
@@ -108,13 +113,13 @@ Meteor.methods({
                   }
                 );
               } catch (e) {
-                console.log(e);
+                console.log("Error when saving the ABIs " + e);
               }
             });
           }
         );
       } catch (e) {
-        console.log(e);
+        console.log("Error when saving Contract Address " + e);
       }
     });
 

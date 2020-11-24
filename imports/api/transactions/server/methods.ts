@@ -12,35 +12,53 @@ let web3 = kit.web3;
 
 // console.log("=== current provider: %o", web3Provider);
 
+interface PendingTransactionsInterface {
+    [i: string]: any;
+    hash?: string;
+}
+
+interface ContractInterface {
+    [i: string]: any;
+    ABI?: any;
+
+}
+
 Meteor.methods({
-    'transactions.updatePending': async function(){
-        let pendingTransactions = Transactions.find({pending:true}).fetch();
-        for (let i in pendingTransactions){
-            let tx:{[k: string]: any} = await web3.eth.getTransaction(pendingTransactions[i].hash);
+    'transactions.updatePending': async function () {
+        let pendingTransactions: PendingTransactionsInterface = Transactions.find({ pending: true }).fetch();
+        for (let i in pendingTransactions) {
+            let tx: { [k: string]: any };
+            try {
+                tx = pendingTransactions[i] && pendingTransactions[i].hash ? await web3.eth.getTransaction(pendingTransactions[i].hash) : null;
+            }
+            catch (error) {
+                console.log("Error when updating Pending Transactions " + error)
+            }
+
             if (tx) {
-                console.log("Processing pending transaction: "+tx.hash);
+                console.log("Processing pending transaction: " + tx.hash);
                 // insert tx
-                try{
+                try {
                     Meteor.call('accounts.update', tx.from, (error, result) => {
                         if (error) {
-                            console.log(error)
+                            console.log("Error when processing Pending Transactions " + error)
                         }
                         if (result) {
                             console.log(result)
                         }
                     });
-                    
+
                     if (parseInt(tx.value) > 0) {
                         // this is a money transfer txn
                         // store the recepient account
                         // let balance = await web3.eth.getBalance(tx.to)
 
-                        if (tx.to){
+                        if (tx.to) {
                             Meteor.call('accounts.update', tx.to, (error, result) => {
-                                if (error){
-                                    console.log(error)
+                                if (error) {
+                                    console.log("Error when updating Account Transactions (Transfer) " + error)
                                 }
-                                if (result){
+                                if (result) {
                                     console.log(result)
                                 }
                             })
@@ -48,13 +66,13 @@ Meteor.methods({
 
                         tx.type = 'transfer';
                     }
-                    else{
+                    else {
                         // this is a contract call
                         // the tx address will be the contract address
 
-                        if (tx.input != "0x"){
+                        if (tx.input != "0x") {
                             // make sure it has input in the txn
-                            let contract = Contracts.findOne({address:tx.to});
+                            let contract: ContractInterface = Contracts.findOne({ address: tx.to });
                             if (!!contract && !!contract.ABI) {
                                 abiDecoder.addABI(contract.ABI);
                                 let decodedInput = abiDecoder.decodeMethod(tx.input);
@@ -62,17 +80,17 @@ Meteor.methods({
                                 //     && decodedInput && decodedInput.name
                                 //     && ((decodedInput.name == 'transfer') || (decodedInput.name == 'transferWithComment') || (decodedInput.name == 'transferFrom'))
                                 //     ){
-                                    // console.log("=== Contract Name: %o", contract.name);
-                                    // console.log("=== Function Name: %o", decodedInput.name);
-                                    // console.log("=== Input Params: %o", decodedInput.params);
-                                if (decodedInput && decodedInput.name){
-                                    for (let i in decodedInput.params){
-                                        if (decodedInput.params[i].type == 'address'){
+                                // console.log("=== Contract Name: %o", contract.name);
+                                // console.log("=== Function Name: %o", decodedInput.name);
+                                // console.log("=== Input Params: %o", decodedInput.params);
+                                if (decodedInput && decodedInput.name) {
+                                    for (let i in decodedInput.params) {
+                                        if (decodedInput.params[i].type == 'address') {
                                             Meteor.call('accounts.update', decodedInput.params[i].value, (error, result) => {
-                                                if (error){
-                                                    console.log(error)
+                                                if (error) {
+                                                    console.log("Error when updating Account Decoded Tx " + error)
                                                 }
-                                                if (result){
+                                                if (result) {
                                                     console.log(result)
                                                 }
                                             })
@@ -81,36 +99,36 @@ Meteor.methods({
                                 }
                                 // }
 
-                                if (decodedInput){
+                                if (decodedInput) {
                                     tx.decodedInput = decodedInput;
                                     tx.type = decodedInput.name;
                                 }
                             }
-                            else{
+                            else {
                                 tx.type = 'contractCall'
                             }
                         }
 
-                        if (tx.to){
+                        if (tx.to) {
                             Meteor.call('accounts.update', tx.to, (error, result) => {
-                                if (error){
-                                    console.log(error)
+                                if (error) {
+                                    console.log("Error when updating Account Transaction (Tx.to) " + error)
                                 }
-                                if (result){
+                                if (result) {
                                     console.log(result)
                                 }
-                            })    
+                            })
                         }
                     }
 
                     tx.pending = false;
-                    Transactions.update({ hash: tx.hash }, { $set: tx }, (error, result) => {
+                    Transactions.update({ hash: tx.hash }, { $set: tx }, (error: any, result: any) => {
                         PUB.pubsub.publish(PUB.TRANSACTION_ADDED, { transactionAdded: tx });
                     });
 
                 }
-                catch(e){
-                    console.log(e)
+                catch (e) {
+                    console.log("Error when trying to process Pending Transactions " + e)
                 }
             }
         }
