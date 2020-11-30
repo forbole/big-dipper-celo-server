@@ -198,6 +198,7 @@ const typeDefs = gql`
         electedValidators: JSON
         rewardsMultiplier: String!
         targetValidatorEpochPayment: String!
+        rewards: JSON
     }
 
     type Validator{
@@ -208,6 +209,8 @@ const typeDefs = gql`
         ecdsaPublicKey: String!
         name: String!
         score: Float!
+        attestationCompleted: Int!
+        attestationRequested: Int!
         signerAccount: Account
         signer: String!
         validatorGroup: ValidatorGroup
