@@ -126,22 +126,7 @@ Meteor.methods({
           // const blockExtraData = parseBlockExtraData(block.extraData);
           // console.log(blockExtraData);
 
-          let lastBlockNumberForEpoch = await kit.getLastBlockNumberForEpoch(epochNumber)
-          if (block.number === lastBlockNumberForEpoch) {
-            Meteor.call("epoch.update", block.number, (error, result) => {
-              if (error) {
-                console.log(error);
-              }
 
-              if (result) {
-                console.log("Updated Epoch Data");
-              }
-            })
-          }
-        }
-        catch (e) {
-          console.log("Error when getting Block Singer Records " + e)
-        }
 
         // get transactions hash
         if (block.transactions.length > 0) {
