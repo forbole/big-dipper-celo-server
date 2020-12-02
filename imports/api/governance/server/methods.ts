@@ -101,12 +101,18 @@ Meteor.methods({
                     console.log("Error when getting Governance Executed Proposals " + error)
                 }
 
-                if (executedProposals.find((e) => new BigNumber(e.returnValues.proposalId).eq(item))) {
-                    proposalData.proposal[item].status = "Approved"
+                try{
+                    if (executedProposals.find((e) => new BigNumber(e.returnValues.proposalId).eq(item))) {
+                        proposalData.proposal[item].status = "Approved"
+                    }
+                    else {
+                        proposalData.proposal[item].status = "Rejected"
+                    }
                 }
-                else {
-                    proposalData.proposal[item].status = "Rejected"
+                catch(e){
+                    console.log("Error when getting proposal status")
                 }
+               
 
 
                 try {
