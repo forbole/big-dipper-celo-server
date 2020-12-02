@@ -196,8 +196,6 @@ const typeDefs = gql`
         votes: BigInt
         votesAvailable: BigInt
         electedValidators: JSON
-        rewardsMultiplier: String!
-        targetValidatorEpochPayment: String!
         rewards: JSON
     }
 
