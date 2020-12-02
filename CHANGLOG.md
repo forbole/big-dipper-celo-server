@@ -11,7 +11,7 @@
 * Added `electedValidators` & `membersAccount` to `ValidatorGroup` query
 * Added `try-catch` blocks for async methods, added Interfaces and fixed undefined errors 
 * Added `fromBlock` to block query
-* [#43] Added validators rewards and attestations
+* [#43] Added validators rewards and attestations 
 
 ## [v0.1.3]
 * Added validator address in the schema
