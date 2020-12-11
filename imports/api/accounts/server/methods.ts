@@ -34,7 +34,7 @@ Meteor.methods({
     account = Accounts.findOne({ address: address })
     let code: string;
     let lockedGold: { [c: string]: any } = {}
-    let accounts, lockedGolds;
+    let accounts, lockedGolds, election;
 
     if (account) {
       code = account.code
@@ -55,6 +55,8 @@ Meteor.methods({
     try {
       accounts = await kit.contracts.getAccounts()
       lockedGolds = await kit.contracts.getLockedGold()
+      election = await kit.contracts.getElection()
+
     }
     catch (error) {
       console.log("Error when getting Locked Gold " + error)
@@ -85,6 +87,14 @@ Meteor.methods({
     }
     catch (e) {
       console.log("Error when getting Account Summary " + e)
+    }
+
+    try{
+      account.groupsVotedFor = await election.getGroupsVotedForByAccount(address)
+
+    }
+    catch (e) {
+      console.log("Error when getting Groups Voted For By Account " + e)
     }
 
     account.balance = balance
