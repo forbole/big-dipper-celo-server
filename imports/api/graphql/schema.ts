@@ -115,6 +115,7 @@ const typeDefs = gql`
         lockedGold: JSON
         attestation: JSON
         txCount: Int
+        groupsVotedFor: JSON
     }
 
     type TotalBalance {
