@@ -106,23 +106,23 @@ Meteor.methods({
 
         // get block singer records
         try {
-          const epochNumber = await kit.getEpochNumberOfBlock(block.number)
-          const election = await kit.contracts.getElection()
-          const validatorSet = await election.getElectedValidators(epochNumber)
-          const validators = await kit.contracts.getValidators()
-          const epochSize = await validators.getEpochSize()
+          // const epochNumber = await kit.getEpochNumberOfBlock(block.number)
+          // const election = await kit.contracts.getElection()
+          // const validatorSet = await election.getElectedValidators(epochNumber)
+          // const validators = await kit.contracts.getValidators()
+          // const epochSize = await validators.getEpochSize()
           // console.log(validatorSet)
 
-          const electionRC = new ElectionResultsCache(election, epochSize.toNumber())
-          for (let v in validatorSet) {
-            let record: RecordInterface = {
-              blockNumber: block.number,
-              signer: validatorSet[v].signer,
-              exist: await electionRC.signedParent(validatorSet[v].signer, block)
-            }
-            ValidatorRecords.insert(record);
-          }
-          block.hasSingers = true
+          // const electionRC = new ElectionResultsCache(election, epochSize.toNumber())
+          // for (let v in validatorSet) {
+          //   let record: RecordInterface = {
+          //     blockNumber: block.number,
+          //     signer: validatorSet[v].signer,
+          //     exist: await electionRC.signedParent(validatorSet[v].signer, block)
+          //   }
+          //   ValidatorRecords.insert(record);
+          // }
+          block.hasSingers = false
           // const blockExtraData = parseBlockExtraData(block.extraData);
           // console.log(blockExtraData);
 

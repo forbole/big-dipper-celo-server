@@ -61,7 +61,6 @@ function updateValidators(number: number) {
 // Get blocks from the server until the latest block height.
 // Continue checking every 10 seconds.
 function updateBlock(number: number) {
-  Meteor.clearInterval(timer);
   Meteor.call("blocks.getBlocks", number, (error, result) => {
     if (error) {
       console.log(error);
@@ -72,6 +71,7 @@ function updateBlock(number: number) {
     }
 
     timer = Meteor.setInterval(() => {
+      Meteor.clearInterval(timer);
       web3.eth.getBlockNumber().then((num) => {
         updateBlock(num);
       });
@@ -105,7 +105,6 @@ function updateEpoch(number: Number) {
 
 // Update chain latest status every 10 seconds.
 function updateChainState(number: number) {
-  Meteor.clearInterval(timerChain);
   Meteor.call("chain.updateChain", number, (error, result) => {
     if (error) {
       console.log(error);
@@ -116,6 +115,7 @@ function updateChainState(number: number) {
     }
 
     timerChain = Meteor.setInterval(() => {
+      Meteor.clearInterval(timerChain);
       web3.eth.getBlockNumber().then((num) => {
         updateChainState(num);
         updateElection(num);
