@@ -162,13 +162,19 @@ Meteor.methods({
         });
 
         lastBlock = block
-      } catch (e) {
+      }
+        catch (e) {
+          console.log("Error when processing Blocks  " + e)
+        } 
+    }
+      catch (e) {
         console.log("Error when processing Blocks  " + e)
       }
-    }
+     
+   
 
     return targetHeight
+    }
+  
   },
-
-
-});
+})
