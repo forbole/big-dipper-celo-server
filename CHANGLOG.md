@@ -13,6 +13,7 @@
 * Added `fromBlock` to block query
 * [#43] Added validators rewards and attestations 
 * Added `groupsVotedFor` in resolvers and schema
+* Hidden validators signature in blocks 
 
 ## [v0.1.3]
 * Added validator address in the schema
