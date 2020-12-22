@@ -65,10 +65,16 @@ Meteor.methods({
 
     for (let i = latestBlockHeight + 1; i <= targetHeight; i++) {
       let blockTime = 0
-      try {
+      let block: BlockInterface;
         console.log("Processing block: " + i)
+
+      try {
         // get block
-        let block: BlockInterface = await web3.eth.getBlock(i)
+         block  = await web3.eth.getBlock(i)
+       }
+      catch (e) {
+          console.log("Error when processing Blocks  " + e)
+        }
 
         if (!block) return i
 
@@ -105,28 +111,30 @@ Meteor.methods({
         chainState.latestHeight = block.number
 
         // get block singer records
-        try {
-          const epochNumber = await kit.getEpochNumberOfBlock(block.number)
-          const election = await kit.contracts.getElection()
-          const validatorSet = await election.getElectedValidators(epochNumber)
-          const validators = await kit.contracts.getValidators()
-          const epochSize = await validators.getEpochSize()
+        // try {
+        //   const epochNumber = await kit.getEpochNumberOfBlock(block.number)
+        //   const election = await kit.contracts.getElection()
+        //   const validatorSet = await election.getElectedValidators(epochNumber)
+          // const validators = await kit.contracts.getValidators()
+          // const epochSize = await validators.getEpochSize()
           // console.log(validatorSet)
 
-          const electionRC = new ElectionResultsCache(election, epochSize.toNumber())
-          for (let v in validatorSet) {
-            let record: RecordInterface = {
-              blockNumber: block.number,
-              signer: validatorSet[v].signer,
-              exist: await electionRC.signedParent(validatorSet[v].signer, block)
-            }
-            ValidatorRecords.insert(record);
-          }
+          // const electionRC = new ElectionResultsCache(election, epochSize.toNumber())
+          // for (let v in validatorSet) {
+          //   let record: RecordInterface = {
+          //     blockNumber: block.number,
+          //     signer: validatorSet[v].signer,
+          //     exist: await electionRC.signedParent(validatorSet[v].signer, block)
+          //   }
+          //   ValidatorRecords.insert(record);
+          // }
           block.hasSingers = true
           // const blockExtraData = parseBlockExtraData(block.extraData);
           // console.log(blockExtraData);
 
-
+            // } catch (e) {
+            //         console.log("Error when processing Blocks  " + e)
+            //       }
 
         // get transactions hash
         if (block.transactions.length > 0) {
@@ -162,9 +170,8 @@ Meteor.methods({
         });
 
         lastBlock = block
-      } catch (e) {
-        console.log("Error when processing Blocks  " + e)
-      }
+     
+   
     }
 
     return targetHeight
