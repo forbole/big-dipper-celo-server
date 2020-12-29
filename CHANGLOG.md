@@ -14,6 +14,7 @@
 * [#43] Added validators rewards and attestations 
 * Added `groupsVotedFor` in resolvers and schema
 * Hidden validators signature in blocks 
+* [#70] Removed `getAccountSummary` call causing overflow error and replaced it with `getAccountTotalLockedGold` and `getAccountNonvotingLockedGold` calls
 
 ## [v0.1.3]
 * Added validator address in the schema
