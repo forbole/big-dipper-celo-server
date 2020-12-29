@@ -3,9 +3,7 @@ import { newKit } from "@celo/contractkit"
 import { Accounts } from "../../accounts/accounts"
 
 import PUB from "../../graphql/subscriptions"
-import BigNumber from 'bignumber.js';
 
-// import AccountBalance  from '@celo/contractkit/lib/wrappers/Accounts'
 
 let kit = newKit(Meteor.settings.public.fornoAddress)
 let web3 = kit.web3
@@ -62,21 +60,19 @@ Meteor.methods({
       console.log("Error when getting Locked Gold " + error)
     }
 
-    try {
-      let lockedGoldSummary = await lockedGolds.getAccountSummary(address)
 
-      if (lockedGoldSummary) {
-        let pendingWithdrawalsTotals = (await lockedGolds.getPendingWithdrawalsTotalValue(address))
-
-        lockedGold.total = lockedGoldSummary && lockedGoldSummary.lockedGold && lockedGoldSummary.lockedGold.total ? lockedGoldSummary.lockedGold.total : 0;
-        lockedGold.nonvoting = lockedGoldSummary && lockedGoldSummary.lockedGold && lockedGoldSummary.lockedGold.nonvoting ? lockedGoldSummary.lockedGold.nonvoting : 0;
-        lockedGold.requirement = lockedGoldSummary && lockedGoldSummary.lockedGold && lockedGoldSummary.lockedGold.requirement ? lockedGoldSummary.lockedGold.requirement : 0;
-        lockedGold.pendingWithdrawals = lockedGoldSummary && lockedGoldSummary.pendingWithdrawals ? lockedGoldSummary.pendingWithdrawals : 0;
-        lockedGold.pendingWithdrawalsTotal = pendingWithdrawalsTotals ? pendingWithdrawalsTotals : 0;
-      }
+    try{
+     lockedGold.total = await lockedGolds.getAccountTotalLockedGold(address) 
     }
-    catch (e) {
-      console.log("Error when getting Locked Gold Account Summary " + e)
+    catch (error){
+      console.log("Error when saving Locked Gold Total " + error)
+    }
+
+    try{
+       lockedGold.nonvoting = await lockedGolds.getAccountNonvotingLockedGold(address) 
+    }
+    catch (error){
+        console.log("Error when getting Locked Nonvoting Gold Total " + error)
     }
 
     try {
