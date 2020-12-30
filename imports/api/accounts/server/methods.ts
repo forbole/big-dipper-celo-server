@@ -10,6 +10,7 @@ let web3 = kit.web3
 
 Meteor.methods({
   "accounts.update": async function (address) {
+    this.unblock()
     console.log("Update wallet address: " + address)
     let data: { [c: string]: any } = {}
     let balance, totalBalance;
@@ -111,6 +112,7 @@ Meteor.methods({
   },
 
   "accounts.getAccount": async function (address: string) {
+    this.unblock()
     if (!address) {
       return "No address provided."
     }

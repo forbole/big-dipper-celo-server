@@ -45,7 +45,7 @@ interface BlockInterface {
 Meteor.methods({
   "blocks.getBlocks": async function (targetHeight) {
     console.log(targetHeight)
-    // this.unblock();
+    this.unblock();
     let latestBlockHeight = 0;
     let chainId;
     let latestBlock: LatestBlockInterface = Blocks.findOne({}, { sort: { number: -1 }, limit: 1 })

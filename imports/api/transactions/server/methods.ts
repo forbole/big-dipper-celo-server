@@ -25,6 +25,7 @@ interface ContractInterface {
 
 Meteor.methods({
     'transactions.updatePending': async function () {
+        this.unblock()
         let pendingTransactions: PendingTransactionsInterface = Transactions.find({ pending: true }).fetch();
         for (let i in pendingTransactions) {
             let tx: { [k: string]: any };

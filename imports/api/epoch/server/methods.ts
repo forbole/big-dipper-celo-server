@@ -6,6 +6,7 @@ let kit = newKit(Meteor.settings.public.fornoAddress)
 
 Meteor.methods({
     'epoch.update': async function (latestHeight: number) {
+        this.unblock()
         try {
             let epochSize = await kit.getEpochSize()
             let epochNumber = await kit.getEpochNumberOfBlock(latestHeight)
