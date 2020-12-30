@@ -11,7 +11,7 @@ let kit = newKit(Meteor.settings.public.fornoAddress)
 
 Meteor.methods({
     'validators.update': async function (latestHeight: number) {
-
+        this.unblock()
         let valContract, valGroups, validators, lockedGold, epochNumber, election, electedValidatorSet, attestation, blockNum;
        
         try {

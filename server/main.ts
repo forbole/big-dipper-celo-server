@@ -149,7 +149,7 @@ function getAllProposals() {
       console.log("The Proposals have been updated: " + result);
     }
 
-    timerProposals = Meteor.setInterval(getAllProposals, 25000);
+    timerProposals = Meteor.setInterval(getAllProposals, 300000);
 
   });
 }
