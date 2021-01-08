@@ -28,6 +28,8 @@ const typeDefs = gql`
         epochSize: Int
         cUSDTotalSupply: BigInt
         celoTotalSupply: BigInt
+        firstBlockNumberForEpoch: Int
+        lastBlockNumberForEpoch: Int
     }
 
     type Subscription {
@@ -226,13 +228,6 @@ const typeDefs = gql`
         total_volumes: JSON
     }
 
-    type Epoch{
-        _id: String
-        epochNumber: Int!
-        epochSize: Int!
-        firstBlockNumberForEpoch: Int!
-        lastBlockNumberForEpoch: Int!
-    }
 
      type Election{
         electedValidatorGroups: Int!
@@ -293,7 +288,6 @@ const typeDefs = gql`
         proposals(pageSize: Int
             page: Int
             sortBy: SortBy): ProposalList!
-        epoch: Epoch
         election: Election
 
     }
