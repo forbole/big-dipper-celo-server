@@ -6,7 +6,6 @@ import { Blocks } from "../blocks/blocks";
 import { ValidatorGroups } from "../validator-groups/validator-groups";
 import { Validators, ValidatorRecords } from "../validators/validators";
 import { Contracts } from "../contracts/contracts";
-import { Epoch } from "../epoch/epoch"
 import { Proposals } from "../governance/proposals"
 import GraphQLJSON from "graphql-type-json";
 import moment from "moment";
@@ -364,10 +363,6 @@ export default {
         cursor: blocks.length ? blocks[blocks.length - 1].number : null,
         hasMore: blocks.length ? blocks[blocks.length - 1].number != 1 : false,
       };
-    },
-
-    epoch() {
-      return Epoch.findOne();
     },
 
     proposal(_, args, context, info) {
