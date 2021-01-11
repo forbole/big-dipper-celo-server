@@ -32,7 +32,9 @@ function mergeObjects(object1, object2, object3) {
 
 Meteor.methods({
     "proposals.getProposals": async function () {
+        this.unblock()
 
+        console.log("Start proposals.getProposals")
         let governance, events, getGovernance, executedProposals, getUpvoters, getTotalVotes;
 
         try {
@@ -229,7 +231,7 @@ Meteor.methods({
 
 
     'election.update': async function (latestHeight: number) {
-
+        this.unblock()
         let validatorsData, registeredValidatorGroups, registeredValidators, epochNumber, lastEpochNumber, election, electedValidatorSet;
 
         try {

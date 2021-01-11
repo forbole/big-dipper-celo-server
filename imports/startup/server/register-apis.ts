@@ -6,5 +6,3 @@ import "../../api/validators/server/methods";
 import "../../api/accounts/server/methods";
 import "../../api/contracts/server/methods";
 import "../../api/governance/server/methods";
-import "../../api/epoch/server/methods";
-

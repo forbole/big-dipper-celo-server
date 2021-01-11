@@ -17,6 +17,8 @@ Meteor.methods({
             const epochNumber = await kit.getEpochNumberOfBlock(height);
             const validators = await kit.contracts.getValidators();
             const epochSize = await validators.getEpochSize();
+            const firstBlockNumberForEpoch = await kit.getFirstBlockNumberForEpoch(epochNumber);
+            const lastBlockNumberForEpoch = await kit.getLastBlockNumberForEpoch(epochNumber);
             const goldToken = await kit.contracts.getGoldToken();
             const stableToken = await kit.contracts.getStableToken();
             Chain.upsert({ chainId: chainId }, {
@@ -24,6 +26,8 @@ Meteor.methods({
                     walletCount: Accounts.find().count(),
                     epochNumber: epochNumber,
                     epochSize: epochSize.toNumber(),
+                    firstBlockNumberForEpoch: firstBlockNumberForEpoch,
+                    lastBlockNumberForEpoch: lastBlockNumberForEpoch,
                     celoTotalSupply: (await goldToken.totalSupply()).toNumber(),
                     cUSDTotalSupply: (await stableToken.totalSupply()).toNumber()
                 }
