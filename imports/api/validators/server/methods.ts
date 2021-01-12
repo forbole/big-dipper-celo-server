@@ -34,20 +34,20 @@ Meteor.methods({
             data = validators[i]
             data.score = validators[i] && validators[i].score ? validators[i].score.toNumber() : 0;
             try{
-                let attestationCompleted = await (attestation.getPastEvents('AttestationCompleted', {
+                let attestationCompleted = await (attestation?.getPastEvents('AttestationCompleted', {
                     fromBlock: 0,
                     filter: {
                         issuer: validators[i].address,
                     }
                 }))
-                let attestationRequested = await (attestation.getPastEvents('AttestationIssuerSelected', {
+                let attestationRequested = await (attestation?.getPastEvents('AttestationIssuerSelected', {
                     fromBlock: 0,
                     filter: {
                         issuer: validators[i].address,
                     }
                 }))
-                data.attestationCompleted = attestationCompleted.length 
-                data.attestationRequested = attestationRequested.length 
+                data.attestationCompleted = attestationCompleted?.length 
+                data.attestationRequested = attestationRequested?.length 
             }
             catch(e){
                 console.log("Error when saving Attestation Completed and Requested " + e)
@@ -91,7 +91,7 @@ Meteor.methods({
                 let validatorEpochPaymentDistributed;
                
                 try{
-                    validatorEpochPaymentDistributed = valContract ? await valContract.getPastEvents('ValidatorEpochPaymentDistributed', {
+                    validatorEpochPaymentDistributed = valContract ? await valContract?.getPastEvents('ValidatorEpochPaymentDistributed', {
                         fromBlock: blockNum,
                         toBlock: blockNum,
                         filter: {
