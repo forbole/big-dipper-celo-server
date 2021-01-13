@@ -59,7 +59,7 @@ Meteor.methods({
                      
                 let decodedInput = abiDecoder.decodeMethod(getTransaction.input);
                 proposalData[c] = proposalQueuedEvent[c];
-                proposalData[c].proposalId = proposalQueuedEvent[c]?.returnValues?.proposalId;
+                proposalData[c].proposalId = parseInt(proposalQueuedEvent[c]?.returnValues?.proposalId);
 
                 proposalData[c].input = decodedInput;
             }
@@ -215,7 +215,7 @@ Meteor.methods({
         Object.keys(proposalData).forEach(function (element) {
             try {
                 Proposals.upsert(
-                    { proposalId: proposalData[element].returnValues.proposalId },
+                    { proposalId: parseInt(proposalData[element].returnValues.proposalId) },
                     {
                         $set: proposalData[element],
                     }
