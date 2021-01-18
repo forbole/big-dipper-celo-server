@@ -52,16 +52,16 @@ Meteor.methods({
         try {
             proposalQueuedEvent = await governance.getPastEvents('ProposalQueued', { fromBlock: 0 })
 
-            for(let c in proposalQueuedEvent){
+            for(let c = 1; c <= Object.keys(proposalQueuedEvent).length; c++){
                 let getTransaction =  await web3.eth.getTransaction(proposalQueuedEvent[c].transactionHash);
                 let contract = Contracts.findOne({ address: proposalQueuedEvent[c].address });
-                abiDecoder.addABI(contract.ABI);
+                abiDecoder.addABI(contract?.ABI);
                      
                 let decodedInput = abiDecoder.decodeMethod(getTransaction.input);
-                proposalData[c] = proposalQueuedEvent[c];
-                proposalData[c].proposalId = parseInt(proposalQueuedEvent[c]?.returnValues?.proposalId);
+                proposalData[c-1] = proposalQueuedEvent[c];
+                proposalData[c-1].proposalId = parseInt(proposalQueuedEvent[c]?.returnValues?.proposalId) < 7 ? parseInt(proposalQueuedEvent[c]?.returnValues?.proposalId) - 1 : parseInt(proposalQueuedEvent[c]?.returnValues?.proposalId);
 
-                proposalData[c].input = decodedInput;
+                proposalData[c-1].input = decodedInput;
             }
         }
         catch (error) {
@@ -73,8 +73,8 @@ Meteor.methods({
             getGovernance = await kit.contracts.getGovernance()
              
             for(let d = 0; d < proposalData.length; d++){
-                if(d+1 == proposalData[d].returnValues.proposalId){
-                    proposalRec[d] = await getGovernance.getProposalRecord(d+1)
+                if(d+2 == proposalData[d].returnValues.proposalId){
+                    proposalRec[d] = await getGovernance.getProposalRecord(d+2)
                     proposalData[d].stage = proposalRec[d].stage;
                 }
             }
@@ -215,7 +215,7 @@ Meteor.methods({
         Object.keys(proposalData).forEach(function (element) {
             try {
                 Proposals.upsert(
-                    { proposalId: parseInt(proposalData[element].returnValues.proposalId) },
+                    { transactionHash: (proposalData[element].transactionHash) },
                     {
                         $set: proposalData[element],
                     }
