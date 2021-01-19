@@ -39,7 +39,6 @@ Meteor.methods({
 
         let governance, events, getGovernance, executedProposals, getUpvoters, getTotalVotes;
         let proposalQueuedEvent = {};
-        // let saveTxDetails = [];
         let proposalRec = [];
         let proposalData = [];
 
@@ -174,7 +173,7 @@ Meteor.methods({
 
    
         for (let s = 0; s < getUpvoters.length; s++) {
-            if (getUpvoters[s].returnValues.proposalId === item) {
+            if (parseInt(getUpvoters[s].returnValues.proposalId) === item+2) {
                 upvotersList[counter] = getUpvoters[s],
                     counter++
             }
