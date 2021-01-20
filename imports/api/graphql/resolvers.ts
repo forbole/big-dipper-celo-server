@@ -366,7 +366,7 @@ export default {
     },
 
     proposal(_, args, context, info) {
-      return Proposals.findOne({ proposalId: args.proposalId });
+      return Proposals.findOne({ proposalId: args.proposalNumber });
     },
 
     proposals: async (_, { pageSize = 20, page = 1, sortBy = { field: "proposalId", order: 'DESC' } }, { dataSources }) => {
