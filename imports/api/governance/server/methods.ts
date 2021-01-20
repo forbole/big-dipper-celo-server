@@ -135,19 +135,19 @@ Meteor.methods({
         // Yes ->  value == 3
         for (let s = 0; s < getTotalVotes.length; s++) {
         
-            if (getTotalVotes[s].returnValues.proposalId == item+1 && getTotalVotes[s].returnValues.value == 1) {
+            if (getTotalVotes[s].returnValues.proposalId == item+2 && getTotalVotes[s].returnValues.value == 1) {
                 votedAbstain += parseFloat(getTotalVotes[s].returnValues.weight),
                     votedAbstainList[counterAbstain] = getTotalVotes[s],
                     votedAbstainList[counterAbstain]["voteType"] = "Abstain",
                     counterAbstain++
             }
-        else if (getTotalVotes[s].returnValues.proposalId == item+1 && getTotalVotes[s].returnValues.value == 2) {
+        else if (getTotalVotes[s].returnValues.proposalId == item+2 && getTotalVotes[s].returnValues.value == 2) {
                 votedNo += parseFloat(getTotalVotes[s].returnValues.weight),
                     votedNoList[counterNo] = getTotalVotes[s],
                     votedNoList[counterNo]["voteType"] = "No",
                     counterNo++
             }
-        else if (getTotalVotes[s].returnValues.proposalId == item+1 && getTotalVotes[s].returnValues.value == 3) {
+        else if (getTotalVotes[s].returnValues.proposalId == item+2 && getTotalVotes[s].returnValues.value == 3) {
                 votedYes += parseFloat(getTotalVotes[s].returnValues.weight),
                     votedYesList[counterYes] = getTotalVotes[s],
                     votedYesList[counterYes]["voteType"] = "Yes",
