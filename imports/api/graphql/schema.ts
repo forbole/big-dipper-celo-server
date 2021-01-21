@@ -135,14 +135,10 @@ const typeDefs = gql`
         blockHash: String
         blockNumber: Int
         event: String
-        executionEpoch: BigInt
-        expirationEpoch: BigInt
         input: JSON
         logIndex: Int
         minDeposit: BigInt
-        proposalEpoch: BigInt
         raw: JSON
-        referrendumEpoch: BigInt
         removed: Boolean
         returnValues: JSON
         signature: String
@@ -154,6 +150,13 @@ const typeDefs = gql`
         upvoteList: JSON
         upvotes: BigInt
         votes: JSON
+        submittedTime: Int
+        approvalPhaseTime: Int
+        votingPhaseStartTime: Int 
+        votingPhaseEndTime: Int
+        executionPhaseStartTime: Int
+        executionPhaseEndTime: Int
+
 
     }
     
