@@ -189,17 +189,22 @@ Meteor.methods({
         catch (error) {
             console.log("Error when getting Governance Durations " + error);
         }
+   
+        let submittedTime = new BigNumber(proposalData[item]?.returnValues?.timestamp).toNumber()
 
-        let proposalEpoch = proposalData[item]?.returnValues?.timestamp ?
-            new BigNumber(proposalData[item]?.returnValues?.timestamp) : new BigNumber(0);
-        let referrendumEpoch = proposalEpoch && duration && duration.Approval ? proposalEpoch.plus(duration.Approval) : new BigNumber(0);
-        let executionEpoch = referrendumEpoch && duration && duration.Referendum ? referrendumEpoch.plus(duration.Referendum) : new BigNumber(0);
-        let expirationEpoch = executionEpoch && duration && duration.Execution ? executionEpoch.plus(duration.Execution) : new BigNumber(0);
+        let approvalPhaseTime =  new BigNumber(submittedTime).plus(duration?.Approval).toNumber();
 
-        proposalData[item].proposalEpoch = proposalEpoch ? proposalEpoch.toNumber() : 0;
-        proposalData[item].referrendumEpoch = referrendumEpoch ? referrendumEpoch.toNumber() : 0;
-        proposalData[item].executionEpoch = executionEpoch ? executionEpoch.toNumber() : 0;
-        proposalData[item].expirationEpoch = expirationEpoch ? expirationEpoch.toNumber() : 0;
+        let votingPhaseEndTime = new BigNumber(approvalPhaseTime).plus(duration.Referendum).toNumber();
+        let votingPhaseStartTime = new BigNumber(votingPhaseEndTime).minus(duration?.Approval * 5).toNumber();
+        let executionPhaseStartTime = new BigNumber(votingPhaseEndTime).toNumber();
+        let executionPhaseEndTime = new BigNumber(votingPhaseEndTime).plus(duration?.Execution).toNumber();
+
+        proposalData[item].submittedTime = submittedTime ? submittedTime : 0;
+        proposalData[item].approvalPhaseTime = approvalPhaseTime ? approvalPhaseTime : 0;
+        proposalData[item].votingPhaseStartTime = votingPhaseStartTime ? votingPhaseStartTime: 0;
+        proposalData[item].votingPhaseEndTime = votingPhaseEndTime ? votingPhaseEndTime : 0;
+        proposalData[item].executionPhaseStartTime = executionPhaseStartTime ? executionPhaseStartTime: 0;
+        proposalData[item].executionPhaseEndTime = executionPhaseEndTime ? executionPhaseEndTime: 0;
 
         try {
             proposalData[item].upvotes = (await getGovernance.getUpvotes(item)).toNumber()
