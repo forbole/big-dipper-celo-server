@@ -90,13 +90,12 @@ interface BlockInterface {
             }
             ValidatorRecords.insert(record);
         }
-        block.hasSingers = true
-        }
+        Blocks.update({ number: block.number }, {$set: { hasSingers: true}});
+      }
         catch(e){
             console.log("Error when processing Validator Record")
         }
-          
-        }
+}
 
 Meteor.methods({
   "blocks.getBlocks": async function (targetHeight) {
