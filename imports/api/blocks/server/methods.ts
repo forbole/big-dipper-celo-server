@@ -47,7 +47,8 @@ Meteor.methods({
     console.log(targetHeight)
     this.unblock();
     let latestBlockHeight = 0;
-    let chainId;
+    let chainId, epochNumber, election, validatorSet, validators, epochSize
+
     let latestBlock: LatestBlockInterface = Blocks.findOne({}, { sort: { number: -1 }, limit: 1 })
     if (latestBlock) {
       latestBlockHeight = latestBlock.number
@@ -78,9 +79,7 @@ Meteor.methods({
 
         if (!block) return i
 
-        // console.log(block);
         if (lastBlock) {
-          // console.log(block);
           blockTime = block.timestamp - lastBlock.timestamp
         }
 
@@ -110,32 +109,60 @@ Meteor.methods({
 
         chainState.latestHeight = block.number
 
+
         // get block singer records
-        // try {
-        //   const epochNumber = await kit.getEpochNumberOfBlock(block.number)
-        //   const election = await kit.contracts.getElection()
-        //   const validatorSet = await election.getElectedValidators(epochNumber)
-          // const validators = await kit.contracts.getValidators()
-          // const epochSize = await validators.getEpochSize()
-          // console.log(validatorSet)
+        try {
+            epochNumber = await kit.getEpochNumberOfBlock(block.number)
+        } 
+        catch (e) {
+            console.log("Error when processing Epoch Number  " + e)
+        }
 
-          // const electionRC = new ElectionResultsCache(election, epochSize.toNumber())
-          // for (let v in validatorSet) {
-          //   let record: RecordInterface = {
-          //     blockNumber: block.number,
-          //     signer: validatorSet[v].signer,
-          //     exist: await electionRC.signedParent(validatorSet[v].signer, block)
-          //   }
-          //   ValidatorRecords.insert(record);
-          // }
-          block.hasSingers = true
-          // const blockExtraData = parseBlockExtraData(block.extraData);
-          // console.log(blockExtraData);
+        try {
+           election = await kit.contracts.getElection()
+        } 
+        catch (e) {
+            console.log("Error when processing Election Contract Details " + e)
+        }
 
-            // } catch (e) {
-            //         console.log("Error when processing Blocks  " + e)
-            //       }
+        try {
+           validatorSet = await election.getElectedValidators(epochNumber)
+        } 
+        catch (e) {
+            console.log("Error when processing Elected Validators Set  " + e)
+        }
 
+        try {
+           validators = await kit.contracts.getValidators()
+        } 
+        catch (e) {
+            console.log("Error when processing Validators   " + e)
+        }
+
+        try {
+           epochSize = await validators.getEpochSize()
+        } 
+        catch (e) {
+            console.log("Error when processing Epoch Size  " + e)
+        }
+
+        const electionRC = new ElectionResultsCache(election, epochSize.toNumber())
+        try{
+          for (let v in validatorSet) {
+            let record: RecordInterface = {
+              blockNumber: block.number,
+              signer: validatorSet[v].signer,
+              exist: await electionRC.signedParent(validatorSet[v].signer, block)
+            }
+            ValidatorRecords.insert(record);
+        }
+        block.hasSingers = true
+        }
+        catch(e){
+            console.log("Error when processing Validator Record")
+        }
+          
+          
         // get transactions hash
         if (block.transactions.length > 0) {
           for (let j = 0; j < block.transactions.length; j++) {
@@ -163,7 +190,6 @@ Meteor.methods({
           chainState.txCount += block.transactions.length
         }
 
-        // console.log(chainState)
         Chain.upsert({ chainId: chainId }, { $set: chainState })
         Blocks.insert(block, (error, result) => {
           PUB.pubsub.publish(PUB.BLOCK_ADDED, { blockAdded: block })
