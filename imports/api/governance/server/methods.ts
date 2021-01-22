@@ -214,22 +214,21 @@ Meteor.methods({
             console.log("Error when getting Governance Upvotess" + error)
         }
 
+        const bulkProposals = Proposals.rawCollection().initializeUnorderedBulkOp();
+        bulkProposals.find({transactionHash: proposalData[item].transactionHash}).upsert().updateOne({$set:proposalData[item]});
+        
+        if (bulkProposals.length > 0){
+            bulkProposals.execute((err, result) => {
+                if (err){
+                    console.log(err);
+                }
+                if (result){
+                    console.log("Proposals saved!")
+                }
+            });
+        }
+
     }
-
-        Object.keys(proposalData).forEach(function (element) {
-            try {
-                Proposals.upsert(
-                    { transactionHash: (proposalData[element].transactionHash) },
-                    {
-                        $set: proposalData[element],
-                    }
-
-                )
-            } catch (e) {
-                console.log(e);
-            }
-        });
-
         return proposalData
     },
 
