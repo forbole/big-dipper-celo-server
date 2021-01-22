@@ -40,14 +40,70 @@ interface BlockInterface {
   gasUsed: number;
   timestamp: any;
   number: number;
-
 }
+
+ const getBlockSignersRecords = async (block) => {
+        let  epochNumber, election, validatorSet, validators, epochSize
+        // get block singer records
+        try {
+            epochNumber = await kit.getEpochNumberOfBlock(block.number)
+        } 
+        catch (e) {
+            console.log("Error when processing Epoch Number  " + e)
+        }
+
+        try {
+           election = await kit.contracts.getElection()
+        } 
+        catch (e) {
+            console.log("Error when processing Election Contract Details " + e)
+        }
+
+        try {
+           validatorSet = await election.getElectedValidators(epochNumber)
+        } 
+        catch (e) {
+            console.log("Error when processing Elected Validators Set  " + e)
+        }
+
+        try {
+           validators = await kit.contracts.getValidators()
+        } 
+        catch (e) {
+            console.log("Error when processing Validators   " + e)
+        }
+
+        try {
+           epochSize = await validators.getEpochSize()
+        } 
+        catch (e) {
+            console.log("Error when processing Epoch Size  " + e)
+        }
+
+        const electionRC = new ElectionResultsCache(election, epochSize.toNumber())
+        try{
+          for (let v in validatorSet) {
+            let record: RecordInterface = {
+              blockNumber: block.number,
+              signer: validatorSet[v].signer,
+              exist: await electionRC.signedParent(validatorSet[v].signer, block)
+            }
+            ValidatorRecords.insert(record);
+        }
+        block.hasSingers = true
+        }
+        catch(e){
+            console.log("Error when processing Validator Record")
+        }
+          
+        }
+
 Meteor.methods({
   "blocks.getBlocks": async function (targetHeight) {
     console.log(targetHeight)
     this.unblock();
     let latestBlockHeight = 0;
-    let chainId, epochNumber, election, validatorSet, validators, epochSize
+    let chainId;
 
     let latestBlock: LatestBlockInterface = Blocks.findOne({}, { sort: { number: -1 }, limit: 1 })
     if (latestBlock) {
@@ -109,60 +165,9 @@ Meteor.methods({
 
         chainState.latestHeight = block.number
 
+        // get block signers
+        getBlockSignersRecords(block)
 
-        // get block singer records
-        try {
-            epochNumber = await kit.getEpochNumberOfBlock(block.number)
-        } 
-        catch (e) {
-            console.log("Error when processing Epoch Number  " + e)
-        }
-
-        try {
-           election = await kit.contracts.getElection()
-        } 
-        catch (e) {
-            console.log("Error when processing Election Contract Details " + e)
-        }
-
-        try {
-           validatorSet = await election.getElectedValidators(epochNumber)
-        } 
-        catch (e) {
-            console.log("Error when processing Elected Validators Set  " + e)
-        }
-
-        try {
-           validators = await kit.contracts.getValidators()
-        } 
-        catch (e) {
-            console.log("Error when processing Validators   " + e)
-        }
-
-        try {
-           epochSize = await validators.getEpochSize()
-        } 
-        catch (e) {
-            console.log("Error when processing Epoch Size  " + e)
-        }
-
-        const electionRC = new ElectionResultsCache(election, epochSize.toNumber())
-        try{
-          for (let v in validatorSet) {
-            let record: RecordInterface = {
-              blockNumber: block.number,
-              signer: validatorSet[v].signer,
-              exist: await electionRC.signedParent(validatorSet[v].signer, block)
-            }
-            ValidatorRecords.insert(record);
-        }
-        block.hasSingers = true
-        }
-        catch(e){
-            console.log("Error when processing Validator Record")
-        }
-          
-          
         // get transactions hash
         if (block.transactions.length > 0) {
           for (let j = 0; j < block.transactions.length; j++) {
