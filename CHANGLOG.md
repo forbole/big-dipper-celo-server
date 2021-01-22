@@ -17,6 +17,7 @@
 * [#70] Removed `getAccountSummary` call causing overflow error and replaced it with `getAccountTotalLockedGold` and `getAccountNonvotingLockedGold` calls
 * Moved `firstBlockNumberForEpoch` & `lastBlockNumberForEpoch` calls to `chain.updateChain` method
 * Added back validators signatures in blocks 
+* Added async funtion `getBlockSignersRecords` that stores validators signatures
 
 ## [v0.1.3]
 * Added validator address in the schema
