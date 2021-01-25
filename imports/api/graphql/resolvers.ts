@@ -366,10 +366,10 @@ export default {
     },
 
     proposal(_, args, context, info) {
-      return Proposals.findOne({ proposalNumber: args.proposalNumber });
+      return Proposals.findOne({ proposalId: args.proposalNumber });
     },
 
-    proposals: async (_, { pageSize = 20, page = 1, sortBy = { field: "proposalNumber", order: 'DESC' } }, { dataSources }) => {
+    proposals: async (_, { pageSize = 20, page = 1, sortBy = { field: "proposalId", order: 'DESC' } }, { dataSources }) => {
       const totalCounts = Proposals.find().count();
       const sortItems = {}
       if (sortBy) {
@@ -389,7 +389,7 @@ export default {
         proposals,
         totalCounts: totalCounts,
         cursor: proposals.length
-          ? proposals[proposals.length - 1].proposalNumber
+          ? proposals[proposals.length - 1].proposalId
           : null,
         hasMore: proposals.length == pageSize,
       };
