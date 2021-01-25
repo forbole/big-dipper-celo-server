@@ -54,7 +54,7 @@ const decodeInput = async (proposalData, proposalQueuedEvent) => {
 
 const saveProposalVotes = (proposalData, getTotalVotes) => {
         for(let item = 0; item < proposalData.length; item++){
-             let votedAbstain = 0
+        let votedAbstain = 0
         let votedNo = 0
         let votedYes = 0
         let votedAbstainList = {}
@@ -63,9 +63,6 @@ const saveProposalVotes = (proposalData, getTotalVotes) => {
         let counterAbstain = 0
         let counterNo = 0
         let counterYes = 0;
-        let duration;
-        let upvotersList = {};
-        let counter = 0;
 
         // Abstain -> value == 1 
         // No -> value == 2
@@ -199,8 +196,6 @@ Meteor.methods({
 
         try {
             getGovernance = await kit.contracts.getGovernance()
-            // getProposalStage(proposalData, getGovernance);
-
         }
         catch (error) {
             console.log("Error when getting Governance Contract " + error)
@@ -208,8 +203,6 @@ Meteor.methods({
 
         try {
             duration = await getGovernance.stageDurations();
-            // saveProposalDurations(proposalData,duration);
-
         }
         catch (error) {
             console.log("Error when getting Governance Durations " + error);
@@ -246,26 +239,23 @@ Meteor.methods({
 
 
         for(let item = 0; item < proposalData.length; item++){
-   
 
-        const bulkProposals = Proposals.rawCollection().initializeUnorderedBulkOp();
-        bulkProposals.find({transactionHash: proposalData[item]?.transactionHash}).upsert().updateOne({$set: proposalData[item]});
-        
-        if (bulkProposals.length > 0){
-            bulkProposals.execute((err, result) => {
-                if (err){
-                    console.log("Error when saving proposals " + err);
-                }
-                if (result){
-                    // console.log("Proposals saved!")
-                }
-            });
-        }
+            const bulkProposals = Proposals.rawCollection().initializeUnorderedBulkOp();
+            bulkProposals.find({transactionHash: proposalData[item]?.transactionHash}).upsert().updateOne({$set: proposalData[item]});
+            
+            if (bulkProposals.length > 0){
+                bulkProposals.execute((err, result) => {
+                    if (err){
+                        console.log("Error when saving proposals " + err);
+                    }
+                    if (result){
+                        console.log("Proposals saved!")
+                    }
+                });
+            }
 
     }
-
         return proposalData
-        
     },
 
 
