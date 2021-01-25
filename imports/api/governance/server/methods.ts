@@ -32,7 +32,6 @@ function mergeObjects(object1, object2, object3) {
 }
 
 const decodeInput = async (proposalData, proposalQueuedEvent) => {
-    // console.log(Object.keys(proposalQueuedEvent).length)
         for(let c = 1; c <= Object.keys(proposalQueuedEvent).length; c++){
             try{
                 let getTransaction =  await web3.eth.getTransaction((proposalQueuedEvent[c]?.transactionHash));
@@ -46,7 +45,7 @@ const decodeInput = async (proposalData, proposalQueuedEvent) => {
                 proposalData[c-1].input = decodedInput;
             }
             catch(e){
-                console.log("Error when decoding proposal input for " + c + " " + e)
+                console.log(`Error when decoding input for proposal ${c} ` + e)
             }
         
 }}
@@ -54,7 +53,6 @@ const decodeInput = async (proposalData, proposalQueuedEvent) => {
 
 
 const saveProposalVotes = (proposalData, getTotalVotes) => {
-    // console.log(proposalData.length)
         for(let item = 0; item < proposalData.length; item++){
              let votedAbstain = 0
         let votedNo = 0
@@ -129,10 +127,7 @@ const saveUpvoteList = (proposalData, getUpvoters) => {
 };
 
 const saveProposalDurations = (proposalData,duration) => {
-    // console.log(proposalData.length)
         for(let item = 0; item < proposalData.length; item++){
-        // let duration;
-        
         let submittedTime = new BigNumber(proposalData[item]?.returnValues?.timestamp).toNumber()
 
         let approvalPhaseTime =  new BigNumber(submittedTime).plus(duration?.Approval).toNumber();
@@ -155,19 +150,20 @@ const getProposalStage = async (proposalData, getGovernance,executedProposals) =
         let proposalRec = [];
         let status;
 
-        
-        
         for(let d = 0; d < proposalData.length; d++){
             if(proposalData[d].returnValues.proposalId == d+2){
                 proposalRec[d] = await getGovernance.getProposalRecord(d+2)
-                // if(proposalRec[d].stage === ProposalStage.Expiration){
+                if(proposalRec[d].stage === ProposalStage.Expiration){
                      if (executedProposals.find((e) => new BigNumber(e.returnValues.proposalId).eq(proposalData[d].returnValues.proposalId))) {
-                status = "Approved"
-            }
+                        status = "Approved"
+                    }
+                    else {
+                        status = "Rejected"
+                    }  
+                }
                 else {
-                status = "Rejected"
-            }  
-                // }
+                    status = "Referendum"
+                }
              
                 Proposals.update({ proposalId: d+2},{$set: {stage: proposalRec[d].stage, status: status}});
         }
@@ -214,7 +210,6 @@ Meteor.methods({
             duration = await getGovernance.stageDurations();
             // saveProposalDurations(proposalData,duration);
 
-
         }
         catch (error) {
             console.log("Error when getting Governance Durations " + error);
@@ -223,7 +218,6 @@ Meteor.methods({
 
         try {
             executedProposals = await governance.getPastEvents('ProposalExecuted', { fromBlock: 0 });
-            // getProposalStatus(proposalData, executedProposals);
         }
         catch (error) {
             console.log("Error when getting Governance Executed Proposals " + error);
@@ -260,7 +254,7 @@ Meteor.methods({
         if (bulkProposals.length > 0){
             bulkProposals.execute((err, result) => {
                 if (err){
-                    console.log(err);
+                    console.log("Error when saving proposals " + err);
                 }
                 if (result){
                     // console.log("Proposals saved!")
