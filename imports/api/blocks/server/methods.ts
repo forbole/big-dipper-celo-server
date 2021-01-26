@@ -127,36 +127,38 @@ Meteor.methods({
       try {
         // get block
          block  = await web3.eth.getBlock(i)
-       }
+      }
       catch (e) {
           console.log("Error when processing Blocks  " + e)
-        }
+      }
 
-        if (!block) return i
+      if (!block) return i
 
-        if (lastBlock) {
+      if (lastBlock) {
           blockTime = block.timestamp - lastBlock.timestamp
-        }
+      }
 
-        // calculate block time
-        block.blockTime = blockTime
+       // calculate block time
+      block.blockTime = blockTime
 
-        block.hasSingers = false
+      block.hasSingers = false
 
-        let chainState: { [k: string]: any } = Chain.findOne({
+      let chainState: { [k: string]: any } = Chain.findOne({
           chainId: chainId,
-        });
+      });
 
-        if (chainState) {
+
+
+      if (chainState) {
 
           // make sure averageBlockTime and txCount exist before calculation
 
-          if (!chainState.averageBlockTime) chainState.averageBlockTime = 0
-          if (!chainState.txCount) chainState.txCount = 0
-
+      if (!chainState.averageBlockTime) chainState.averageBlockTime = 0
+      if (!chainState.txCount) chainState.txCount = 0
           chainState.averageBlockTime = (chainState.averageBlockTime * (i - 1) + blockTime) / i
           chainState.latestHeight = block.number
-        } else {
+        } 
+      else {
           chainState = {}
           chainState.averageBlockTime = 0
           chainState.txCount = 0

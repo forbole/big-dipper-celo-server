@@ -14,26 +14,27 @@ Meteor.methods({
     console.log("Update wallet address: " + address)
     let data: { [c: string]: any } = {}
     let balance, totalBalance;
+    let code: string;
+    let lockedGold: { [c: string]: any } = {};
+    let account: { [k: string]: any };
+    let accounts, lockedGolds, election;
+
     try {
       balance = parseFloat(await web3.eth.getBalance(address))
       totalBalance = await kit.getTotalBalance(address)
-      data.gold = totalBalance && totalBalance.gold ? totalBalance.gold.toNumber() : 0;
-      data.lockedGold = totalBalance && totalBalance.lockedGold ? totalBalance.lockedGold.toNumber() : 0
-      data.usd = totalBalance && totalBalance.usd ? totalBalance.usd.toNumber() : 0;
-      data.total = totalBalance && totalBalance.total ? totalBalance.total.toNumber() : 0
-      data.pending = totalBalance && totalBalance.pending ? totalBalance.pending.toNumber() : 0;
     }
     catch (e) {
       console.log("Error when getting account balance " + e)
     }
 
+      data.gold = totalBalance && totalBalance.gold ? totalBalance.gold.toNumber() : 0;
+      data.lockedGold = totalBalance && totalBalance.lockedGold ? totalBalance.lockedGold.toNumber() : 0
+      data.usd = totalBalance && totalBalance.usd ? totalBalance.usd.toNumber() : 0;
+      data.total = totalBalance && totalBalance.total ? totalBalance.total.toNumber() : 0
+      data.pending = totalBalance && totalBalance.pending ? totalBalance.pending.toNumber() : 0;
 
 
-    let account: { [k: string]: any }
     account = Accounts.findOne({ address: address })
-    let code: string;
-    let lockedGold: { [c: string]: any } = {}
-    let accounts, lockedGolds, election;
 
     if (account) {
       code = account.code
@@ -50,17 +51,26 @@ Meteor.methods({
 
     account.code = code
 
-
     try {
       accounts = await kit.contracts.getAccounts()
-      lockedGolds = await kit.contracts.getLockedGold()
-      election = await kit.contracts.getElection()
+    }
+    catch (error) {
+      console.log("Error when getting Accounts " + error)
+    }
 
+    try {
+      lockedGolds = await kit.contracts.getLockedGold()
     }
     catch (error) {
       console.log("Error when getting Locked Gold " + error)
     }
 
+    try {
+      election = await kit.contracts.getElection()
+    }
+    catch (error) {
+      console.log("Error when getting Election " + error)
+    }
 
     try{
      lockedGold.total = await lockedGolds.getAccountTotalLockedGold(address) 
@@ -78,7 +88,6 @@ Meteor.methods({
 
     try {
       let accountSummary = await accounts.getAccountSummary(address)
-
       account.lockedGold = lockedGold
       account.accountSummary = accountSummary
     }
