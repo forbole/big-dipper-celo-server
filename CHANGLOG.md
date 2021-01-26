@@ -17,6 +17,7 @@
 * [#70] Removed `getAccountSummary` call causing overflow error and replaced it with `getAccountTotalLockedGold` and `getAccountNonvotingLockedGold` calls
 * Moved `firstBlockNumberForEpoch` & `lastBlockNumberForEpoch` calls to `chain.updateChain` method
 * Added back validators signatures in blocks 
+* Added async function `getBlockSignersRecords` to store validators signatures
 * [#71] Added `input params (descriptionURL)`, `votingPhaseTime`, `executionPhaseTime` info to proposals stored in db and fixed error showing empty data on some proposals
 
 ## [v0.1.3]
