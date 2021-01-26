@@ -55,7 +55,7 @@ function updateValidators(number: number) {
       // console.log("Updated validators at height: " + number)
     }
 
-    timerValidators = Meteor.setInterval(updateValidators, 10000);
+    timerValidators = Meteor.setInterval(updateValidators, 30000);
   });
 }
 
