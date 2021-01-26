@@ -5,10 +5,11 @@ import BigNumber from 'bignumber.js'
 import { ProposalStage } from '@celo/contractkit/lib/wrappers/Governance';
 import fetch from 'cross-fetch';
 import { Election } from "../../governance/election";
+import * as abiDecoder from 'abi-decoder';
+import { Contracts } from '../../contracts/contracts';
 
 let kit = newKit(Meteor.settings.public.fornoAddress)
 let web3 = kit.web3;
-
 
 function mergeObjects(object1, object2, object3) {
 
@@ -30,33 +31,29 @@ function mergeObjects(object1, object2, object3) {
     return mergedObject;
 }
 
-Meteor.methods({
-    "proposals.getProposals": async function () {
-        this.unblock()
+const decodeInput = async (proposalData, proposalQueuedEvent) => {
+        for(let c = 1; c <= Object.keys(proposalQueuedEvent).length; c++){
+            try{
+                let getTransaction =  await web3.eth.getTransaction((proposalQueuedEvent[c]?.transactionHash));
+                let contract = Contracts.findOne({ address: proposalQueuedEvent[c].address });
+                abiDecoder.addABI(contract?.ABI);
+                        
+                let decodedInput = abiDecoder.decodeMethod(getTransaction.input);
+                proposalData[c-1] = proposalQueuedEvent[c];
+                proposalData[c-1].proposalId = parseInt(proposalQueuedEvent[c]?.returnValues?.proposalId) < 7 ? parseInt(proposalQueuedEvent[c]?.returnValues?.proposalId) - 1 : parseInt(proposalQueuedEvent[c]?.returnValues?.proposalId);
 
-        console.log("Start proposals.getProposals")
-        let governance, events, getGovernance, executedProposals, getUpvoters, getTotalVotes;
-
-        try {
-            governance = await kit._web3Contracts.getGovernance()
-        }
-        catch (error) {
-            console.log("Error when getting _web3Contracts Governance Contract " + error)
-        }
-
-        try {
-            events = await governance.getPastEvents('ProposalQueued', { fromBlock: 0 })
-        }
-        catch (error) {
-            console.log("Error when getting the Governance Past Events " + error)
-        }
-
-
-        const proposalData = {
-            proposal: {
+                proposalData[c-1].input = decodedInput;
             }
-        }
-        const proposalRecord = {};
+            catch(e){
+                console.log(`Error when decoding input for proposal ${c} ` + e)
+            }
+        
+}}
+
+
+
+const saveProposalVotes = (proposalData, getTotalVotes) => {
+        for(let item = 0; item < proposalData.length; item++){
         let votedAbstain = 0
         let votedNo = 0
         let votedYes = 0
@@ -67,10 +64,135 @@ Meteor.methods({
         let counterNo = 0
         let counterYes = 0;
 
-        events.forEach(function (item, index) {
-            proposalData.proposal[index + 1] = item,
-                proposalData.proposal[index + 1].upvoteList = []
-        })
+        // Abstain -> value == 1 
+        // No -> value == 2
+        // Yes ->  value == 3
+        for (let s = 0; s < getTotalVotes.length; s++) {
+        
+            if (getTotalVotes[s].returnValues.proposalId == item+2 && getTotalVotes[s].returnValues.value == 1) {
+                votedAbstain += parseFloat(getTotalVotes[s].returnValues.weight),
+                    votedAbstainList[counterAbstain] = getTotalVotes[s],
+                    votedAbstainList[counterAbstain]["voteType"] = "Abstain",
+                    counterAbstain++
+            }
+        else if (getTotalVotes[s].returnValues.proposalId == item+2 && getTotalVotes[s].returnValues.value == 2) {
+                votedNo += parseFloat(getTotalVotes[s].returnValues.weight),
+                    votedNoList[counterNo] = getTotalVotes[s],
+                    votedNoList[counterNo]["voteType"] = "No",
+                    counterNo++
+            }
+        else if (getTotalVotes[s].returnValues.proposalId == item+2 && getTotalVotes[s].returnValues.value == 3) {
+                votedYes += parseFloat(getTotalVotes[s].returnValues.weight),
+                    votedYesList[counterYes] = getTotalVotes[s],
+                    votedYesList[counterYes]["voteType"] = "Yes",
+                    counterYes++
+            }
+            let allVotesTotal = mergeObjects(votedNoList, votedYesList, votedAbstainList)
+            let totalVotesList = {
+                Abstain: votedAbstainList,
+                No: votedNoList,
+                Yes: votedYesList,
+                All: allVotesTotal
+            }
+            let totalVotesValue = votedAbstain + votedNo + votedYes
+            let totalVotes = {
+                Abstain: votedAbstain,
+                No: votedNo,
+                Yes: votedYes,
+                Total: totalVotesValue
+            }
+            proposalData[item].votes = totalVotes
+            proposalData[item].totalVotesList = totalVotesList
+        }
+    }
+};
+
+const saveUpvoteList = (proposalData, getUpvoters) => {
+    for(let item = 0; item < proposalData.length; item++){
+    let upvotersList = {};
+    let counter = 0;
+    
+    for (let s = 0; s < getUpvoters.length; s++) {
+        if (parseInt(getUpvoters[s].returnValues.proposalId) === item+2) {
+            upvotersList[counter] = getUpvoters[s],
+                counter++
+        }
+        proposalData[item].upvoteList = upvotersList
+
+    }
+  }
+};
+
+const saveProposalDurations = (proposalData,duration) => {
+        for(let item = 0; item < proposalData.length; item++){
+        let submittedTime = new BigNumber(proposalData[item]?.returnValues?.timestamp).toNumber()
+
+        let approvalPhaseTime =  new BigNumber(submittedTime).plus(duration?.Approval).toNumber();
+
+        let votingPhaseEndTime = new BigNumber(approvalPhaseTime).plus(duration.Referendum).toNumber();
+        let votingPhaseStartTime = new BigNumber(votingPhaseEndTime).minus(duration?.Approval * 5).toNumber();
+        let executionPhaseStartTime = new BigNumber(votingPhaseEndTime).toNumber();
+        let executionPhaseEndTime = new BigNumber(votingPhaseEndTime).plus(duration?.Execution).toNumber();
+
+        proposalData[item].submittedTime = submittedTime ? submittedTime : 0;
+        proposalData[item].approvalPhaseTime = approvalPhaseTime ? approvalPhaseTime : 0;
+        proposalData[item].votingPhaseStartTime = votingPhaseStartTime ? votingPhaseStartTime: 0;
+        proposalData[item].votingPhaseEndTime = votingPhaseEndTime ? votingPhaseEndTime : 0;
+        proposalData[item].executionPhaseStartTime = executionPhaseStartTime ? executionPhaseStartTime: 0;
+        proposalData[item].executionPhaseEndTime = executionPhaseEndTime ? executionPhaseEndTime: 0;
+    }
+};
+
+const getProposalStage = async (proposalData, getGovernance,executedProposals) => {
+        let proposalRec = [];
+        let status;
+
+        for(let d = 0; d < proposalData.length; d++){
+            if(proposalData[d].returnValues.proposalId == d+2){
+                proposalRec[d] = await getGovernance.getProposalRecord(d+2)
+                if(proposalRec[d].stage === ProposalStage.Expiration){
+                     if (executedProposals.find((e) => new BigNumber(e.returnValues.proposalId).eq(proposalData[d].returnValues.proposalId))) {
+                        status = "Approved"
+                    }
+                    else {
+                        status = "Rejected"
+                    }  
+                }
+                else {
+                    status = "Referendum"
+                }
+             
+                Proposals.update({ proposalId: d+2},{$set: {stage: proposalRec[d].stage, status: status}});
+        }
+    }
+}
+
+
+Meteor.methods({
+    "proposals.getProposals": async function () {
+        this.unblock()
+   
+        console.log("Start proposals.getProposals")
+
+        let governance, getGovernance, executedProposals, getUpvoters, getTotalVotes, duration;
+        let proposalQueuedEvent = {};
+        let proposalData = [];
+
+        try {
+            governance = await kit._web3Contracts.getGovernance()
+        }
+        catch (error) {
+            console.log("Error when getting _web3Contracts Governance Contract " + error)
+        }
+
+        try {
+            proposalQueuedEvent = await governance.getPastEvents('ProposalQueued', { fromBlock: 0 })
+            decodeInput(proposalData, proposalQueuedEvent); 
+        }
+        catch (error) {
+            console.log("Error when getting the Governance Past Events " + error)
+        }
+
 
         try {
             getGovernance = await kit.contracts.getGovernance()
@@ -79,153 +201,60 @@ Meteor.methods({
             console.log("Error when getting Governance Contract " + error)
         }
 
+        try {
+            duration = await getGovernance.stageDurations();
+        }
+        catch (error) {
+            console.log("Error when getting Governance Durations " + error);
+        }
+   
 
-        Object.keys(proposalData.proposal).forEach(async function (item: any, index: number) {
-            try {
-                proposalRecord[item] = await getGovernance.getProposalRecord(item)
+        try {
+            executedProposals = await governance.getPastEvents('ProposalExecuted', { fromBlock: 0 });
+        }
+        catch (error) {
+            console.log("Error when getting Governance Executed Proposals " + error);
+        }
+
+        try {
+            getUpvoters = await governance.getPastEvents('ProposalUpvoted', { fromBlock: 0 });
+            saveUpvoteList(proposalData, getUpvoters);
+
             }
-            catch (error) {
-                console.log("Error when getting Governance Proposal Record " + error)
+        catch (error) {
+            console.log("Error when getting Governance Upvoted Proposals " + error);
             }
 
-            if (proposalRecord[item].stage === ProposalStage.Expiration) {
-                try {
-                    proposalData.proposal[item].minDeposit = (await getGovernance.minDeposit()).toNumber()
-                }
-                catch (error) {
-                    console.log("Error when getting Governance Min Deposit " + error)
-                }
+        try {
+            getTotalVotes = await governance.getPastEvents('ProposalVoted', { fromBlock: 0 });
+            saveProposalVotes(proposalData, getTotalVotes);
 
-                try {
-                    executedProposals = await governance.getPastEvents('ProposalExecuted', { fromBlock: 0 })
-                }
-                catch (error) {
-                    console.log("Error when getting Governance Executed Proposals " + error)
-                }
+            }
+        catch (error) {
+            console.log("Error when getting Governance Voted Proposals " + error);
+            }
 
-                try{
-                    if (executedProposals.find((e) => new BigNumber(e.returnValues.proposalId).eq(item))) {
-                        proposalData.proposal[item].status = "Approved"
+            saveProposalDurations(proposalData,duration);
+            getProposalStage(proposalData, getGovernance,executedProposals);
+
+
+        for(let item = 0; item < proposalData.length; item++){
+
+            const bulkProposals = Proposals.rawCollection().initializeUnorderedBulkOp();
+            bulkProposals.find({transactionHash: proposalData[item]?.transactionHash}).upsert().updateOne({$set: proposalData[item]});
+            
+            if (bulkProposals.length > 0){
+                bulkProposals.execute((err, result) => {
+                    if (err){
+                        console.log("Error when saving proposals " + err);
                     }
-                    else {
-                        proposalData.proposal[item].status = "Rejected"
-                    }
-                }
-                catch(e){
-                    console.log("Error when getting proposal status")
-                }
-               
-
-
-                try {
-                    getUpvoters = await governance.getPastEvents('ProposalUpvoted', { fromBlock: 0 })
-                }
-                catch (error) {
-                    console.log("Error when getting Governance Upvoted Proposals " + error)
-                }
-
-                try {
-                    getTotalVotes = await governance.getPastEvents('ProposalVoted', { fromBlock: 0 })
-                }
-                catch (error) {
-                    console.log("Error when getting Governance Voted Proposals " + error)
-                }
-
-                // Abstain -> value == 1 
-                // No -> value == 2
-                // Yes ->  value == 3
-                for (let s = 0; s < getTotalVotes.length; s++) {
-                    if (getTotalVotes[s].returnValues.proposalId == item && getTotalVotes[s].returnValues.value == 1) {
-                        votedAbstain += parseFloat(getTotalVotes[s].returnValues.weight),
-                            votedAbstainList[counterAbstain] = getTotalVotes[s],
-                            votedAbstainList[counterAbstain]["voteType"] = "Abstain",
-                            counterAbstain++
-                    }
-                    else if (getTotalVotes[s].returnValues.proposalId == item && getTotalVotes[s].returnValues.value == 2) {
-                        votedNo += parseFloat(getTotalVotes[s].returnValues.weight),
-                            votedNoList[counterNo] = getTotalVotes[s],
-                            votedNoList[counterNo]["voteType"] = "No",
-                            counterNo++
-                    }
-                    else if (getTotalVotes[s].returnValues.proposalId == item && getTotalVotes[s].returnValues.value == 3) {
-                        votedYes += parseFloat(getTotalVotes[s].returnValues.weight),
-                            votedYesList[counterYes] = getTotalVotes[s],
-                            votedYesList[counterYes]["voteType"] = "Yes",
-                            counterYes++
-                    }
-                    let allVotesTotal = mergeObjects(votedNoList, votedYesList, votedAbstainList)
-                    let totalVotesList = {
-                        Abstain: votedAbstainList,
-                        No: votedNoList,
-                        Yes: votedYesList,
-                        All: allVotesTotal
-                    }
-                    let totalVotesValue = votedAbstain + votedNo + votedYes
-                    let totalVotes = {
-                        Abstain: votedAbstain,
-                        No: votedNo,
-                        Yes: votedYes,
-                        Total: totalVotesValue
-                    }
-                    proposalData.proposal[item].votes = totalVotes
-                    proposalData.proposal[item].totalVotesList = totalVotesList
-                }
-
-                let upvotersList = {};
-                let counter = 0;
-                for (let s = 0; s < getUpvoters.length; s++) {
-                    if (getUpvoters[s].returnValues.proposalId === item) {
-                        upvotersList[counter] = getUpvoters[s],
-                            counter++
-                    }
-                    proposalData.proposal[item].upvoteList = upvotersList
-
-                }
-                let duration;
-                try {
-                    duration = await getGovernance.stageDurations();
-
-                }
-                catch (error) {
-                    console.log("Error when getting Governance Durations " + error);
-                }
-
-                let proposalEpoch = proposalData && proposalData.proposal[item] && proposalData.proposal[item].returnValues && proposalData.proposal[item].returnValues.timestamp ?
-                    new BigNumber(proposalData.proposal[item].returnValues.timestamp) : new BigNumber(0);
-                let referrendumEpoch = proposalEpoch && duration && duration.Approval ? proposalEpoch.plus(duration.Approval) : new BigNumber(0);
-                let executionEpoch = referrendumEpoch && duration && duration.Referendum ? referrendumEpoch.plus(duration.Referendum) : new BigNumber(0);
-                let expirationEpoch = executionEpoch && duration && duration.Execution ? executionEpoch.plus(duration.Execution) : new BigNumber(0);
-
-                proposalData.proposal[item].proposalEpoch = proposalEpoch ? proposalEpoch.toNumber() : 0;
-                proposalData.proposal[item].referrendumEpoch = referrendumEpoch ? referrendumEpoch.toNumber() : 0;
-                proposalData.proposal[item].executionEpoch = executionEpoch ? executionEpoch.toNumber() : 0;
-                proposalData.proposal[item].expirationEpoch = expirationEpoch ? expirationEpoch.toNumber() : 0;
-
-                try {
-                    proposalData.proposal[item].upvotes = (await getGovernance.getUpvotes(item)).toNumber()
-
-                }
-                catch (error) {
-                    console.log("Error when getting Governance Upvotess" + error)
-                }
-
-
-                Object.keys(proposalData.proposal).forEach(function (element) {
-                    try {
-                        Proposals.upsert(
-                            { proposalNumber: parseFloat(proposalData.proposal[element].returnValues.proposalId) },
-                            {
-                                $set: proposalData.proposal[element],
-                            }
-
-                        )
-                    } catch (e) {
-                        console.log(e);
+                    if (result){
+                        console.log("Proposals saved!")
                     }
                 });
             }
-        })
 
+    }
         return proposalData
     },
 
@@ -273,5 +302,3 @@ Meteor.methods({
 
     }
 });
-
-
