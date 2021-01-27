@@ -124,7 +124,7 @@ const saveTxDetails = (block, chainState) => {
         // Get transactions hash
         if (block.transactions.length > 0) {
           for (let j = 0; j < block.transactions.length; j++) {
-            // console.log("Add pending transaction: " + block.transactions[j])
+            console.log("Add pending transaction: " + block.transactions[j])
             let tx = {
               hash: block.transactions[j],
               pending: true,
@@ -132,7 +132,7 @@ const saveTxDetails = (block, chainState) => {
               blockHash: block.hash,
             };
             if (tx) {
-              // console.log("Processing transaction: " + tx.hash)
+              console.log("Processing transaction: " + tx.hash)
               // Insert tx details
               try {
                 Transactions.insert(tx, (error, result) => {
