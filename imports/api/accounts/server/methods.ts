@@ -27,15 +27,16 @@ Meteor.methods({
       console.log("Error when getting account balance " + e)
     }
 
-      data.gold = totalBalance && totalBalance.gold ? totalBalance.gold.toNumber() : 0;
-      data.lockedGold = totalBalance && totalBalance.lockedGold ? totalBalance.lockedGold.toNumber() : 0
-      data.usd = totalBalance && totalBalance.usd ? totalBalance.usd.toNumber() : 0;
-      data.total = totalBalance && totalBalance.total ? totalBalance.total.toNumber() : 0
-      data.pending = totalBalance && totalBalance.pending ? totalBalance.pending.toNumber() : 0;
+    data.gold = totalBalance?.gold ? totalBalance?.gold.toNumber() : 0;
+    data.lockedGold = totalBalance?.lockedGold ? totalBalance?.lockedGold.toNumber() : 0
+    data.usd = totalBalance?.usd ? totalBalance?.usd.toNumber() : 0;
+    data.total = totalBalance?.total ? totalBalance?.total.toNumber() : 0
+    data.pending = totalBalance?.pending ? totalBalance?.pending.toNumber() : 0;
 
 
     account = Accounts.findOne({ address: address })
 
+    // Get account code (x0)
     if (account) {
       code = account.code
     }
@@ -48,9 +49,9 @@ Meteor.methods({
         console.log("Error when getting Account Code " + e)
       }
     }
-
     account.code = code
 
+    // Get accounts info
     try {
       accounts = await kit.contracts.getAccounts()
     }
