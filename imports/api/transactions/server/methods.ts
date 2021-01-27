@@ -21,7 +21,7 @@ interface ContractInterface {
 }
 
 
-const pendingTransactions = (tx) => {
+const updatePendingTransactions = (tx) => {
     Meteor.call('accounts.update', tx?.from, (error, result) => {
         if (error) {
             console.log("Error when processing Pending Transactions " + error)
@@ -64,7 +64,6 @@ const decodeTransaction = (tx) => {
                     }
                 }
             }
-            // }
 
             if (decodedInput) {
                 tx.decodedInput = decodedInput;
@@ -93,7 +92,7 @@ Meteor.methods({
                 console.log("Processing pending transaction: " + tx.hash);
                 // insert tx
                 try {
-                   pendingTransactions(tx)
+                   updatePendingTransactions(tx)
                    
                     if (parseInt(tx.value) > 0) {
                         // this is a money transfer txn
