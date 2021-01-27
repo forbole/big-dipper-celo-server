@@ -21,10 +21,16 @@ Meteor.methods({
 
     try {
       balance = parseFloat(await web3.eth.getBalance(address))
-      totalBalance = await kit.getTotalBalance(address)
     }
     catch (e) {
       console.log("Error when getting account balance " + e)
+    }
+
+    try {
+      totalBalance = await kit.getTotalBalance(address)
+    }
+    catch (e) {
+      console.log("Error when getting account total balance " + e)
     }
 
     data.gold = totalBalance?.gold ? totalBalance?.gold.toNumber() : 0;
@@ -55,41 +61,41 @@ Meteor.methods({
     try {
       accounts = await kit.contracts.getAccounts()
     }
-    catch (error) {
-      console.log("Error when getting Accounts " + error)
+    catch (e) {
+      console.log("Error when getting Accounts " + e)
     }
 
     try {
       lockedGolds = await kit.contracts.getLockedGold()
     }
-    catch (error) {
-      console.log("Error when getting Locked Gold " + error)
+    catch (e) {
+      console.log("Error when getting Locked Gold " + e)
     }
 
     try {
       election = await kit.contracts.getElection()
     }
-    catch (error) {
-      console.log("Error when getting Election " + error)
+    catch (e) {
+      console.log("Error when getting Election " + e)
     }
 
     try{
      lockedGold.total = await lockedGolds.getAccountTotalLockedGold(address) 
     }
-    catch (error){
-      console.log("Error when saving Locked Gold Total " + error)
+    catch (e){
+      console.log("Error when saving Locked Gold Total " + e)
     }
 
     try{
        lockedGold.nonvoting = await lockedGolds.getAccountNonvotingLockedGold(address) 
     }
-    catch (error){
-        console.log("Error when getting Locked Nonvoting Gold Total " + error)
+    catch (e){
+        console.log("Error when getting Locked Nonvoting Gold Total " + e)
     }
+    account.lockedGold = lockedGold
 
     try {
       let accountSummary = await accounts.getAccountSummary(address)
-      account.lockedGold = lockedGold
       account.accountSummary = accountSummary
     }
     catch (e) {
@@ -98,7 +104,6 @@ Meteor.methods({
 
     try{
       account.groupsVotedFor = await election.getGroupsVotedForByAccount(address)
-
     }
     catch (e) {
       console.log("Error when getting Groups Voted For By Account " + e)
@@ -124,13 +129,13 @@ Meteor.methods({
   "accounts.getAccount": async function (address: string) {
     this.unblock()
     if (!address) {
-      return "No address provided."
+      return "No address provided. "
     }
 
     let account = Accounts.findOne({ address: address })
 
     if (!account) {
-      return "Account not found.";
+      return "Account not found. ";
     }
 
     return account
