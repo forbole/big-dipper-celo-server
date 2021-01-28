@@ -112,7 +112,7 @@ const electedValidators = (electedValidatorSet, data) => {
 
 const validatorGroupsDetails = async (valGroups, validators, epochNumber, valContract, electedValidatorSet, lockedGold, election) => {   
 
-            for (let i in valGroups) {
+        for (let i in valGroups) {
                 
             let data: { [k: string]: any } = {}
             let votes; 
@@ -212,7 +212,9 @@ Meteor.methods({
         }
 
         try {
-            electedValidatorSet = await election.getElectedValidators(epochNumber)      
+            if(epochNumber > 0){
+                electedValidatorSet = await election.getElectedValidators(epochNumber)      
+            }
         }
         catch (error) {
             console.log("Error when getting Elected Validators Set  " + error)

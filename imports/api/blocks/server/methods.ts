@@ -82,7 +82,9 @@ const chainStatus = (chainState, block, blockTime, latestBlockHeight, targetHeig
         }
 
         try {
-           validatorSet = await election.getElectedValidators(epochNumber)
+          if(epochNumber > 0){
+            validatorSet = await election.getElectedValidators(epochNumber)
+          }
         } 
         catch (e) {
             console.log("Error when processing Elected Validators Set  " + e)
@@ -111,9 +113,9 @@ const chainStatus = (chainState, block, blockTime, latestBlockHeight, targetHeig
               exist: await electionRC.signedParent(validatorSet[v].signer, block)
             }
             ValidatorRecords.insert(record);
+          }
+          Blocks.update({ number: block.number }, {$set: { hasSingers: true}});
         }
-        Blocks.update({ number: block.number }, {$set: { hasSingers: true}});
-      }
         catch(e){
             console.log("Error when processing Validator Record")
         }
