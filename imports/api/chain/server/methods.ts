@@ -128,8 +128,21 @@ Meteor.methods({
     },
     
     'chain.getCurrentValidatorSet': async function () {
-        const validators = await kit.contracts.getValidators();
-        const validatorSet = await validators.currentValidatorAccountsSet();
+        let validators, validatorSet;
+
+        try{
+            validators = await kit.contracts.getValidators();
+        }
+        catch(e){
+            console.log("Error when getting Validators contract " + e)
+        }
+        try{
+            validatorSet = await validators.currentValidatorAccountsSet();
+        }
+        catch(e){
+            console.log("Error when getting current Validator Accounts Set " + e)
+        }
+
         return validatorSet;
     }
 })
