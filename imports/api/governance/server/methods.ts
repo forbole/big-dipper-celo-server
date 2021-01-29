@@ -7,7 +7,6 @@ import fetch from 'cross-fetch';
 import { Election } from "../../governance/election";
 import * as abiDecoder from 'abi-decoder';
 import { Contracts } from '../../contracts/contracts';
-import _ from 'lodash';
 
 let kit = newKit(Meteor.settings.public.fornoAddress)
 let web3 = kit.web3;
