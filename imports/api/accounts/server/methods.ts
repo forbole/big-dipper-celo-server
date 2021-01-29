@@ -14,27 +14,35 @@ Meteor.methods({
     console.log("Update wallet address: " + address)
     let data: { [c: string]: any } = {}
     let balance, totalBalance;
+    let code: string;
+    let lockedGold: { [c: string]: any } = {};
+    let account: { [k: string]: any };
+    let accounts, lockedGolds, election;
+
     try {
       balance = parseFloat(await web3.eth.getBalance(address))
-      totalBalance = await kit.getTotalBalance(address)
-      data.gold = totalBalance && totalBalance.gold ? totalBalance.gold.toNumber() : 0;
-      data.lockedGold = totalBalance && totalBalance.lockedGold ? totalBalance.lockedGold.toNumber() : 0
-      data.usd = totalBalance && totalBalance.usd ? totalBalance.usd.toNumber() : 0;
-      data.total = totalBalance && totalBalance.total ? totalBalance.total.toNumber() : 0
-      data.pending = totalBalance && totalBalance.pending ? totalBalance.pending.toNumber() : 0;
     }
     catch (e) {
       console.log("Error when getting account balance " + e)
     }
 
+    try {
+      totalBalance = await kit.getTotalBalance(address)
+    }
+    catch (e) {
+      console.log("Error when getting account total balance " + e)
+    }
+
+    data.gold = totalBalance?.gold ? totalBalance?.gold.toNumber() : 0;
+    data.lockedGold = totalBalance?.lockedGold ? totalBalance?.lockedGold.toNumber() : 0
+    data.usd = totalBalance?.usd ? totalBalance?.usd.toNumber() : 0;
+    data.total = totalBalance?.total ? totalBalance?.total.toNumber() : 0
+    data.pending = totalBalance?.pending ? totalBalance?.pending.toNumber() : 0;
 
 
-    let account: { [k: string]: any }
     account = Accounts.findOne({ address: address })
-    let code: string;
-    let lockedGold: { [c: string]: any } = {}
-    let accounts, lockedGolds, election;
 
+    // Get account code (x0)
     if (account) {
       code = account.code
     }
@@ -47,39 +55,47 @@ Meteor.methods({
         console.log("Error when getting Account Code " + e)
       }
     }
-
     account.code = code
 
-
+    // Get accounts info
     try {
       accounts = await kit.contracts.getAccounts()
+    }
+    catch (e) {
+      console.log("Error when getting Accounts " + e)
+    }
+
+    try {
       lockedGolds = await kit.contracts.getLockedGold()
+    }
+    catch (e) {
+      console.log("Error when getting Locked Gold " + e)
+    }
+
+    try {
       election = await kit.contracts.getElection()
-
     }
-    catch (error) {
-      console.log("Error when getting Locked Gold " + error)
+    catch (e) {
+      console.log("Error when getting Election " + e)
     }
-
 
     try{
      lockedGold.total = await lockedGolds.getAccountTotalLockedGold(address) 
     }
-    catch (error){
-      console.log("Error when saving Locked Gold Total " + error)
+    catch (e){
+      console.log("Error when saving Locked Gold Total " + e)
     }
 
     try{
        lockedGold.nonvoting = await lockedGolds.getAccountNonvotingLockedGold(address) 
     }
-    catch (error){
-        console.log("Error when getting Locked Nonvoting Gold Total " + error)
+    catch (e){
+        console.log("Error when getting Locked Nonvoting Gold Total " + e)
     }
+    account.lockedGold = lockedGold
 
     try {
       let accountSummary = await accounts.getAccountSummary(address)
-
-      account.lockedGold = lockedGold
       account.accountSummary = accountSummary
     }
     catch (e) {
@@ -88,7 +104,6 @@ Meteor.methods({
 
     try{
       account.groupsVotedFor = await election.getGroupsVotedForByAccount(address)
-
     }
     catch (e) {
       console.log("Error when getting Groups Voted For By Account " + e)
@@ -114,13 +129,13 @@ Meteor.methods({
   "accounts.getAccount": async function (address: string) {
     this.unblock()
     if (!address) {
-      return "No address provided."
+      return "No address provided. "
     }
 
     let account = Accounts.findOne({ address: address })
 
     if (!account) {
-      return "Account not found.";
+      return "Account not found. ";
     }
 
     return account

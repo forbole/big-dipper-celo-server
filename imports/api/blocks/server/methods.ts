@@ -42,9 +42,31 @@ interface BlockInterface {
   number: number;
 }
 
- const getBlockSignersRecords = async (block) => {
+// Query the current Chain status and update with the latest values 
+const chainStatus = (chainState, block, blockTime, latestBlockHeight, targetHeight) => {
+  for (let i = latestBlockHeight + 1; i <= targetHeight; i++) {
+
+      if (chainState) {
+          chainState.averageBlockTime = chainState?.averageBlockTime && blockTime ? (chainState.averageBlockTime * (i - 1) + blockTime) / i : 0;
+          chainState.latestHeight = block?.number ? block.number : 0;
+          chainState.txCount = chainState?.txCount ? chainState.txCount : 0;
+      } 
+      else {
+          chainState = {}
+          chainState.averageBlockTime = 0
+          chainState.txCount = 0
+        }
+
+        chainState.latestHeight = block.number
+
+      }
+  }
+
+
+// Query and store record of all signatures in every block in ValidatorRecords collection
+ const blockSignersRecords = async (block) => {
         let  epochNumber, election, validatorSet, validators, epochSize
-        // get block singer records
+  
         try {
             epochNumber = await kit.getEpochNumberOfBlock(block.number)
         } 
@@ -60,7 +82,9 @@ interface BlockInterface {
         }
 
         try {
-           validatorSet = await election.getElectedValidators(epochNumber)
+          if(epochNumber > 0){
+            validatorSet = await election.getElectedValidators(epochNumber)
+          }
         } 
         catch (e) {
             console.log("Error when processing Elected Validators Set  " + e)
@@ -89,85 +113,17 @@ interface BlockInterface {
               exist: await electionRC.signedParent(validatorSet[v].signer, block)
             }
             ValidatorRecords.insert(record);
+          }
+          Blocks.update({ number: block.number }, {$set: { hasSingers: true}});
         }
-        Blocks.update({ number: block.number }, {$set: { hasSingers: true}});
-      }
         catch(e){
             console.log("Error when processing Validator Record")
         }
 }
 
-Meteor.methods({
-  "blocks.getBlocks": async function (targetHeight) {
-    console.log(targetHeight)
-    this.unblock();
-    let latestBlockHeight = 0;
-    let chainId;
-
-    let latestBlock: LatestBlockInterface = Blocks.findOne({}, { sort: { number: -1 }, limit: 1 })
-    if (latestBlock) {
-      latestBlockHeight = latestBlock.number
-    }
-
-    console.log("Last block in db: " + latestBlockHeight)
-
-    try {
-      chainId = await web3.eth.net.getId()
-    }
-    catch (error) {
-      console.log("Error when getting Chain ID " + error)
-    }
-    let lastBlock: LatestBlockInterface = latestBlock;
-
-    for (let i = latestBlockHeight + 1; i <= targetHeight; i++) {
-      let blockTime = 0
-      let block: BlockInterface;
-        console.log("Processing block: " + i)
-
-      try {
-        // get block
-         block  = await web3.eth.getBlock(i)
-       }
-      catch (e) {
-          console.log("Error when processing Blocks  " + e)
-        }
-
-        if (!block) return i
-
-        if (lastBlock) {
-          blockTime = block.timestamp - lastBlock.timestamp
-        }
-
-        // calculate block time
-        block.blockTime = blockTime
-
-        block.hasSingers = false
-
-        let chainState: { [k: string]: any } = Chain.findOne({
-          chainId: chainId,
-        });
-
-        if (chainState) {
-
-          // make sure averageBlockTime and txCount exist before calculation
-
-          if (!chainState.averageBlockTime) chainState.averageBlockTime = 0
-          if (!chainState.txCount) chainState.txCount = 0
-
-          chainState.averageBlockTime = (chainState.averageBlockTime * (i - 1) + blockTime) / i
-          chainState.latestHeight = block.number
-        } else {
-          chainState = {}
-          chainState.averageBlockTime = 0
-          chainState.txCount = 0
-        }
-
-        chainState.latestHeight = block.number
-
-        // get block signers
-        getBlockSignersRecords(block)
-
-        // get transactions hash
+// Query the transaction hash in each block and save it in Transactions collection 
+const saveTxDetails = (block, chainState) => {
+        // Get transactions hash
         if (block.transactions.length > 0) {
           for (let j = 0; j < block.transactions.length; j++) {
             console.log("Add pending transaction: " + block.transactions[j])
@@ -179,7 +135,7 @@ Meteor.methods({
             };
             if (tx) {
               console.log("Processing transaction: " + tx.hash)
-              // insert tx
+              // Insert tx details
               try {
                 Transactions.insert(tx, (error, result) => {
                   PUB.pubsub.publish(PUB.TRANSACTION_ADDED, {
@@ -187,21 +143,78 @@ Meteor.methods({
                   });
                 });
               } catch (e) {
-                console.log("Error when processing transactions hash " + e)
+                console.log(`Error when processing transaction with hash ${tx.hash} ` + e)
               }
             }
           }
-          chainState.txCount += block.transactions.length
+          return chainState.txCount += block.transactions.length
         }
+}
 
-        Chain.upsert({ chainId: chainId }, { $set: chainState })
-        Blocks.insert(block, (error, result) => {
-          PUB.pubsub.publish(PUB.BLOCK_ADDED, { blockAdded: block })
-        });
+Meteor.methods({
+  "blocks.getBlocks": async function (targetHeight) {
+    this.unblock();
+    let latestBlockHeight: number = 0;
+    let chainId: number;
+    let blockTime = 0
+    let block: BlockInterface;
 
-        lastBlock = block
-     
-   
+    let latestBlock: LatestBlockInterface = Blocks.findOne({}, { sort: { number: -1 }, limit: 1 })
+    if (latestBlock) {
+      latestBlockHeight = latestBlock.number
+    }
+    console.log("Last block in db: " + latestBlockHeight)
+
+    try {
+      chainId = await web3.eth.net.getId()
+    }
+    catch (error) {
+      console.log("Error when getting Chain ID " + error)
+    }
+
+    
+    let lastBlock: LatestBlockInterface = latestBlock;
+
+    for (let i = latestBlockHeight + 1; i <= targetHeight; i++) {
+        console.log("Processing block: " + i)
+
+      try {
+        // Get block
+         block  = await web3.eth.getBlock(i)
+      }
+      catch (e) {
+          console.log(`Error when getting Block ${i} details `   + e)
+      }
+
+      if (!block) return i
+
+      if (lastBlock) {
+          blockTime = block.timestamp - lastBlock.timestamp
+      }
+
+      let chainState: { [k: string]: any } = Chain.findOne({
+        chainId: chainId,
+      });
+
+      // Calculate block time
+      block.blockTime = blockTime
+      // Set initial hasSigners value to false
+      block.hasSingers = false
+
+      // Update Chain Status
+      chainStatus(chainState, block, blockTime, latestBlockHeight, targetHeight)
+      // Update the record for all signers in the latest block
+      blockSignersRecords(block)
+      // Save latest block tx details 
+      saveTxDetails(block, chainState) 
+
+      Chain.upsert({ chainId: chainId }, { $set: chainState })
+      Blocks.insert(block, (error, result) => {
+        PUB.pubsub.publish(PUB.BLOCK_ADDED, { blockAdded: block })
+      });
+
+      // Seve the latest height block in lastBlock variable before processing new block height
+      lastBlock = block
     }
 
     return targetHeight

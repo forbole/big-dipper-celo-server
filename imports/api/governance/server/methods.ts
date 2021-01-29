@@ -11,26 +11,7 @@ import { Contracts } from '../../contracts/contracts';
 let kit = newKit(Meteor.settings.public.fornoAddress)
 let web3 = kit.web3;
 
-function mergeObjects(object1, object2, object3) {
-
-    let mergedObject = {}
-    let counter = 0;
-    for (let c in object1) {
-        mergedObject[counter] = object1[c],
-            counter++
-    }
-    for (let d in object2) {
-        mergedObject[counter] = object2[d],
-            counter++
-    }
-
-    for (let e in object3) {
-        mergedObject[counter] = object3[e],
-            counter++
-    }
-    return mergedObject;
-}
-
+// Decode tx input to obtain descriptionURL
 const decodeInput = async (proposalData, proposalQueuedEvent) => {
         for(let c = 1; c <= Object.keys(proposalQueuedEvent).length; c++){
             try{
@@ -51,18 +32,19 @@ const decodeInput = async (proposalData, proposalQueuedEvent) => {
 }}
 
 
-
+// Save list and total number of votes received during Referendum Phase
 const saveProposalVotes = (proposalData, getTotalVotes) => {
         for(let item = 0; item < proposalData.length; item++){
         let votedAbstain = 0
         let votedNo = 0
         let votedYes = 0
-        let votedAbstainList = {}
-        let votedNoList = {}
-        let votedYesList = {}
+        let votedAbstainList = []
+        let votedNoList = []
+        let votedYesList = []
         let counterAbstain = 0
         let counterNo = 0
         let counterYes = 0;
+        let votes = [];
 
         // Abstain -> value == 1 
         // No -> value == 2
@@ -71,29 +53,30 @@ const saveProposalVotes = (proposalData, getTotalVotes) => {
         
             if (getTotalVotes[s].returnValues.proposalId == item+2 && getTotalVotes[s].returnValues.value == 1) {
                 votedAbstain += parseFloat(getTotalVotes[s].returnValues.weight),
-                    votedAbstainList[counterAbstain] = getTotalVotes[s],
-                    votedAbstainList[counterAbstain]["voteType"] = "Abstain",
-                    counterAbstain++
+                votedAbstainList[counterAbstain] = getTotalVotes[s],
+                votedAbstainList[counterAbstain]["voteType"] = "Abstain",
+                counterAbstain++
             }
-        else if (getTotalVotes[s].returnValues.proposalId == item+2 && getTotalVotes[s].returnValues.value == 2) {
+            else if (getTotalVotes[s].returnValues.proposalId == item+2 && getTotalVotes[s].returnValues.value == 2) {
                 votedNo += parseFloat(getTotalVotes[s].returnValues.weight),
-                    votedNoList[counterNo] = getTotalVotes[s],
-                    votedNoList[counterNo]["voteType"] = "No",
-                    counterNo++
+                votedNoList[counterNo] = getTotalVotes[s],
+                votedNoList[counterNo]["voteType"] = "No",
+                counterNo++
             }
-        else if (getTotalVotes[s].returnValues.proposalId == item+2 && getTotalVotes[s].returnValues.value == 3) {
+            else if (getTotalVotes[s].returnValues.proposalId == item+2 && getTotalVotes[s].returnValues.value == 3) {
                 votedYes += parseFloat(getTotalVotes[s].returnValues.weight),
-                    votedYesList[counterYes] = getTotalVotes[s],
-                    votedYesList[counterYes]["voteType"] = "Yes",
-                    counterYes++
+                votedYesList[counterYes] = getTotalVotes[s],
+                votedYesList[counterYes]["voteType"] = "Yes",
+                counterYes++
             }
-            let allVotesTotal = mergeObjects(votedNoList, votedYesList, votedAbstainList)
+            let allVotesTotal = [...votedYesList, ...votedAbstainList, ...votedNoList]
             let totalVotesList = {
                 Abstain: votedAbstainList,
                 No: votedNoList,
                 Yes: votedYesList,
                 All: allVotesTotal
             }
+
             let totalVotesValue = votedAbstain + votedNo + votedYes
             let totalVotes = {
                 Abstain: votedAbstain,
@@ -107,6 +90,7 @@ const saveProposalVotes = (proposalData, getTotalVotes) => {
     }
 };
 
+// Save list of upvotes received when the proposal was in the queue
 const saveUpvoteList = (proposalData, getUpvoters) => {
     for(let item = 0; item < proposalData.length; item++){
     let upvotersList = {};
@@ -123,15 +107,24 @@ const saveUpvoteList = (proposalData, getUpvoters) => {
   }
 };
 
+// Save proposals duration for each phase 
 const saveProposalDurations = (proposalData,duration) => {
         for(let item = 0; item < proposalData.length; item++){
         let submittedTime = new BigNumber(proposalData[item]?.returnValues?.timestamp).toNumber()
 
+        // Approval phase lasts 1 day and if the proposal is not approved in this window, it is considered expired.
         let approvalPhaseTime =  new BigNumber(submittedTime).plus(duration?.Approval).toNumber();
 
+        // Referendum Phase (voting) lasts five days
+        // Calculate day 5 of Referendum Phase
         let votingPhaseEndTime = new BigNumber(approvalPhaseTime).plus(duration.Referendum).toNumber();
+        // Calculate day 1 of Referendum Phase
         let votingPhaseStartTime = new BigNumber(votingPhaseEndTime).minus(duration?.Approval * 5).toNumber();
+
+        // Execution Phase lasts maximum of three days
+        // Calculate day 1 of Execution Phase
         let executionPhaseStartTime = new BigNumber(votingPhaseEndTime).toNumber();
+        // Calculate day 3 of Execution Phase
         let executionPhaseEndTime = new BigNumber(votingPhaseEndTime).plus(duration?.Execution).toNumber();
 
         proposalData[item].submittedTime = submittedTime ? submittedTime : 0;
@@ -143,6 +136,7 @@ const saveProposalDurations = (proposalData,duration) => {
     }
 };
 
+// Save proposal stage and status 
 const getProposalStage = async (proposalData, getGovernance,executedProposals) => {
         let proposalRec = [];
         let status;
@@ -161,8 +155,13 @@ const getProposalStage = async (proposalData, getGovernance,executedProposals) =
                 else {
                     status = "Referendum"
                 }
-             
-                Proposals.update({ proposalId: d+2},{$set: {stage: proposalRec[d].stage, status: status}});
+
+                try{
+                        Proposals.update({ proposalId: d+2},{$set: {stage: proposalRec[d].stage, status: status}});
+                }
+                catch(e){
+                    console.log("Error when updating Proposal Stage and Status " + e)
+                }
         }
     }
 }
@@ -218,24 +217,22 @@ Meteor.methods({
 
         try {
             getUpvoters = await governance.getPastEvents('ProposalUpvoted', { fromBlock: 0 });
-            saveUpvoteList(proposalData, getUpvoters);
-
-            }
+        }
         catch (error) {
             console.log("Error when getting Governance Upvoted Proposals " + error);
-            }
+        }
 
         try {
             getTotalVotes = await governance.getPastEvents('ProposalVoted', { fromBlock: 0 });
-            saveProposalVotes(proposalData, getTotalVotes);
-
-            }
+        }
         catch (error) {
             console.log("Error when getting Governance Voted Proposals " + error);
-            }
-
-            saveProposalDurations(proposalData,duration);
-            getProposalStage(proposalData, getGovernance,executedProposals);
+        }
+        
+        saveUpvoteList(proposalData, getUpvoters);
+        saveProposalVotes(proposalData, getTotalVotes);
+        saveProposalDurations(proposalData,duration);
+        getProposalStage(proposalData, getGovernance,executedProposals);
 
 
         for(let item = 0; item < proposalData.length; item++){
@@ -254,40 +251,67 @@ Meteor.methods({
                 });
             }
 
-    }
+        }
         return proposalData
     },
 
 
     'election.update': async function (latestHeight: number) {
         this.unblock()
-        let validatorsData, registeredValidatorGroups, registeredValidators, epochNumber, lastEpochNumber, election, electedValidatorSet;
+        let validatorsData, registeredValidatorGroups, registeredValidators, epochNumber, lastEpochNumber, election, electedValidatorSet, electedGroupSet
+        let electedGroup = [];
 
         try {
             validatorsData = await kit.contracts.getValidators()
-            registeredValidatorGroups = await validatorsData.getRegisteredValidatorGroups()
-            registeredValidators = await validatorsData.getRegisteredValidators()
-
-            epochNumber = await kit.getEpochNumberOfBlock(latestHeight)
-            lastEpochNumber = epochNumber - 1
-
-            election = await kit.contracts.getElection()
-
-            electedValidatorSet = await election.getElectedValidators(lastEpochNumber)
-
         }
         catch (error) {
-            console.log("Error while getting Validators Contract " + error)
+            console.log("Error when getting Validators Contract " + error)
+        }
+
+        try {
+            registeredValidatorGroups = await validatorsData.getRegisteredValidatorGroups()
+        }
+        catch (error) {
+            console.log("Error when getting registered Validator Groups " + error)
+        }
+
+        try {
+            registeredValidators = await validatorsData.getRegisteredValidators()
+        }
+        catch (error) {
+            console.log("Error when getting registered Validators " + error)
+        }
+
+        try {
+            epochNumber = await kit.getEpochNumberOfBlock(latestHeight)
+            lastEpochNumber = epochNumber - 1
+        }
+        catch (error) {
+            console.log("Error when getting Epoch Number " + error)
+        }
+
+        try {
+            election = await kit.contracts.getElection()
+        }
+        catch (error) {
+            console.log("Error when getting Election Contract " + error)
+        }
+
+        try {
+            if(lastEpochNumber > 0){
+                electedValidatorSet = await election.getElectedValidators(lastEpochNumber)
+            }
+        }
+        catch (error) {
+            console.log("Error when getting Elected Validators Set " + error)
         }
 
 
-        let electedGroup = [];
 
         for (let c = 0; c < electedValidatorSet.length; c++) {
             electedGroup[c] = electedValidatorSet[c].affiliation
         }
 
-        let electedGroupSet;
         for (let c = 0; c < electedValidatorSet.length; c++) {
             electedGroupSet = Array.from(new Set(electedGroup))
         }
@@ -299,6 +323,5 @@ Meteor.methods({
             console.log("=== Error when upserting election ===")
             console.log(e)
         }
-
     }
 });
