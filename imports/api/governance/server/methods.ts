@@ -3,10 +3,10 @@ import { newKit, ContractKit, CeloContract } from "@celo/contractkit"
 import { Proposals } from "../../governance/proposals"
 import BigNumber from 'bignumber.js'
 import { ProposalStage } from '@celo/contractkit/lib/wrappers/Governance';
-import fetch from 'cross-fetch';
 import { Election } from "../../governance/election";
 import * as abiDecoder from 'abi-decoder';
 import { Contracts } from '../../contracts/contracts';
+import { Blocks } from "../../blocks/blocks";
 
 let kit = newKit(Meteor.settings.public.fornoAddress)
 let web3 = kit.web3;
@@ -97,9 +97,12 @@ const saveUpvoteList = (proposalData, getUpvoters) => {
     let counter = 0;
     
     for (let s = 0; s < getUpvoters.length; s++) {
+        let blockDetails;
         if (parseInt(getUpvoters[s].returnValues.proposalId) === item+2) {
             upvotersList[counter] = getUpvoters[s],
-                counter++
+            blockDetails = Blocks.findOne({ hash: upvotersList[counter].blockHash });
+            upvotersList[counter].timestamp = blockDetails.timestamp;
+            counter++
         }
         proposalData[item].upvoteList = upvotersList
 

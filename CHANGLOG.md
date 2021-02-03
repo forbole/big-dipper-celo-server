@@ -20,6 +20,7 @@
 * Added async function `getBlockSignersRecords` to store validators signatures
 * [#71] Added `input params (descriptionURL)`, `votingPhaseTime`, `executionPhaseTime` info to proposals stored in db and fixed error showing empty data on some proposals
 * [#75] Moved code logic into separate functions
+* Added upvotes timestamp 
 
 ## [v0.1.3]
 * Added validator address in the schema
