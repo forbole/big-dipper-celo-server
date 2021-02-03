@@ -82,9 +82,9 @@ const chainStatus = (chainState, block, blockTime, latestBlockHeight, targetHeig
         }
 
         try {
-          if(epochNumber > 0){
+          // if(epochNumber > 0){
             validatorSet = await election.getElectedValidators(epochNumber)
-          }
+          // }
         } 
         catch (e) {
             console.log("Error when processing Elected Validators Set  " + e)
