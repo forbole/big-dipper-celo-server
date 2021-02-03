@@ -43,7 +43,7 @@ Meteor.methods({
         account = Accounts.findOne({ address: address })
     }
     catch(e){
-      console.log("Account not found " + e)
+        console.log("Account not found " + e)
     }
 
     // Get account code (x0)
