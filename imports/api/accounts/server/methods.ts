@@ -39,8 +39,12 @@ Meteor.methods({
     data.total = totalBalance?.total ? totalBalance?.total.toNumber() : 0
     data.pending = totalBalance?.pending ? totalBalance?.pending.toNumber() : 0;
 
-
-    account = Accounts.findOne({ address: address })
+    try{
+        account = Accounts.findOne({ address: address })
+    }
+    catch(e){
+      console.log("Account not found " + e)
+    }
 
     // Get account code (x0)
     if (account) {
