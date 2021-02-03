@@ -241,7 +241,13 @@ Meteor.methods({
         for(let item = 0; item < proposalData.length; item++){
 
             const bulkProposals = Proposals.rawCollection().initializeUnorderedBulkOp();
-            bulkProposals.find({transactionHash: proposalData[item]?.transactionHash}).upsert().updateOne({$set: proposalData[item]});
+            
+            try{
+                bulkProposals.find({transactionHash: proposalData[item]?.transactionHash}).upsert().updateOne({$set: proposalData[item]});
+            }
+            catch(e){
+                console.log("Error when gettung bulk proposals " + e)
+            }
             
             if (bulkProposals.length > 0){
                 bulkProposals.execute((err, result) => {

@@ -117,26 +117,37 @@ Meteor.methods({
     account.totalBalance = data
 
     if (parseInt(balance) > 0) {
-      // update or insert address if balance larger than 0
-      Accounts.upsert(
-        { address: address },
-        { $set: account },
-        (error: any, result: any) => {
-          PUB.pubsub.publish(PUB.ACCOUNT_ADDED, {
-            accountAdded: { address: address, balance: balance, totalBalance: data },
-          })
-        }
-      );
+      try{
+        // update or insert address if balance larger than 0
+        Accounts.upsert(
+          { address: address },
+          { $set: account },
+          (error: any, result: any) => {
+            PUB.pubsub.publish(PUB.ACCOUNT_ADDED, {
+              accountAdded: { address: address, balance: balance, totalBalance: data },
+            })
+          }
+        );
+      }
+      catch(e){
+        console.log("Error when updating Accounts " + e)
+      }
     }
   },
 
   "accounts.getAccount": async function (address: string) {
     this.unblock()
+    let account;
     if (!address) {
       return "No address provided. "
     }
-
-    let account = Accounts.findOne({ address: address })
+    
+    try{
+      account = Accounts.findOne({ address: address })
+    }
+    catch(e){
+      console.log("Accounts not found " + e)
+    }
 
     if (!account) {
       return "Account not found. ";

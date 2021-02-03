@@ -86,9 +86,9 @@ const validatorRewards = async (data, valContract, epochNumber) => {
                 catch(e){
                     console.log("Error when obtaining validator rewards " + e)
                 }
-               try{
-                ValidatorGroups.upsert({ address: data.address },{$set: {rewards: rewardsData[t]}});
 
+               try{
+                    ValidatorGroups.upsert({ address: data.address },{$set: {rewards: rewardsData[t]}});
                }
                catch(e){
                    console.log("Error when updating Validator Groups rewards ")
