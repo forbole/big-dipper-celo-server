@@ -86,8 +86,13 @@ const validatorRewards = async (data, valContract, epochNumber) => {
                 catch(e){
                     console.log("Error when obtaining validator rewards " + e)
                 }
-               
-                ValidatorGroups.update({ address: data.address },{$set: {rewards: rewardsData[t]}});
+               try{
+                ValidatorGroups.upsert({ address: data.address },{$set: {rewards: rewardsData[t]}});
+
+               }
+               catch(e){
+                   console.log("Error when updating Validator Groups rewards ")
+               }
         }
 
         }
@@ -105,7 +110,7 @@ const electedValidators = (electedValidatorSet, data) => {
                     }
                 }
             }
-            return electedValidatorSet
+            return data.electedValidators
         }
        
 }
@@ -124,7 +129,7 @@ const validatorGroupsDetails = async (valGroups, validators, epochNumber, valCon
             data.slashingMultiplier = valGroups && valGroups[i] && valGroups[i].slashingMultiplier ? valGroups[i].slashingMultiplier.toNumber() : 0;
             data.lastSlashed = valGroups && valGroups[i] && valGroups[i].lastSlashed ? valGroups[i].lastSlashed.toNumber() : null;
             data.members = valGroups && valGroups[i] && valGroups[i].members ? valGroups[i].members : null;
-            data.electedValidators = {};
+            // data.electedValidators = {};
 
 
             // Get Validator Score 
@@ -132,7 +137,7 @@ const validatorGroupsDetails = async (valGroups, validators, epochNumber, valCon
             // Get Validator Total Rewards Value
             validatorRewards(data, valContract, epochNumber);
             // Get list of Elected Validators for current epoch
-            electedValidators(electedValidatorSet, data);
+            data.electedValidators = electedValidators(electedValidatorSet, data);
 
           
             try {
@@ -212,9 +217,9 @@ Meteor.methods({
         }
 
         try {
-            if(epochNumber > 0){
+            // if(epochNumber > 0){
                 electedValidatorSet = await election.getElectedValidators(epochNumber)      
-            }
+            // }
         }
         catch (error) {
             console.log("Error when getting Elected Validators Set  " + error)
