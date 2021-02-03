@@ -129,7 +129,7 @@ const validatorGroupsDetails = async (valGroups, validators, epochNumber, valCon
             data.slashingMultiplier = valGroups && valGroups[i] && valGroups[i].slashingMultiplier ? valGroups[i].slashingMultiplier.toNumber() : 0;
             data.lastSlashed = valGroups && valGroups[i] && valGroups[i].lastSlashed ? valGroups[i].lastSlashed.toNumber() : null;
             data.members = valGroups && valGroups[i] && valGroups[i].members ? valGroups[i].members : null;
-            // data.electedValidators = {};
+            // data.electedValidators = {}; 
 
 
             // Get Validator Score 
