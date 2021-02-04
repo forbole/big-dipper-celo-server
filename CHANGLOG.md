@@ -22,7 +22,8 @@
 * [#75] Moved code logic into separate functions
 * Added upvotes timestamp 
 * Updated README.md
-* Added `try-catch` block when querying the coin price 
+* Added `try-catch` block when querying the coin price
+* Updated to Meteor 2.0 
 
 ## [v0.1.3]
 * Added validator address in the schema
