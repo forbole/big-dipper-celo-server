@@ -163,7 +163,12 @@ const getProposalStage = async (proposalData, getGovernance,executedProposals) =
 
         for(let d = 0; d < proposalData.length; d++){
             if(proposalData[d].returnValues.proposalId == d+2){
-                proposalRec[d] = await getGovernance.getProposalRecord(d+2)
+                try{
+                    proposalRec[d] = await getGovernance.getProposalRecord(d+2)
+                }
+                catch(e){
+                    console.log("Error when getting proposal Record " + e )
+                }
                 if(proposalRec[d].stage === ProposalStage.Expiration){
                      if (executedProposals.find((e) => new BigNumber(e.returnValues.proposalId).eq(proposalData[d].returnValues.proposalId))) {
                         status = "Approved"

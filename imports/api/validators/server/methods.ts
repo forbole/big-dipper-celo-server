@@ -57,7 +57,13 @@ const validatorScore = (validators, data) => {
 
 const validatorRewards = async (data, valContract, epochNumber) => {
         let rewardsData: { [index: string]: any } = {}
-        const blockNumber = await kit.getLastBlockNumberForEpoch(epochNumber - 1);
+        let blockNumber: number;
+        try{
+            blockNumber = await kit.getLastBlockNumberForEpoch(epochNumber - 1);
+        }
+        catch(e){
+            console.log("Error when getting last block number for epoch " + e)
+        }
         if(blockNumber > 0){
             for(let t in data.members){
                 let validatorEpochPaymentDistributed;
