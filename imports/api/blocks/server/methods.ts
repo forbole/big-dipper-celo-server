@@ -158,8 +158,16 @@ Meteor.methods({
     let chainId: number;
     let blockTime = 0
     let block: BlockInterface;
+    let latestBlock: LatestBlockInterface 
+    let chainState: { [k: string]: any }
+    
+    try{
+      latestBlock = Blocks.findOne({}, { sort: { number: -1 }, limit: 1 })
+    }
+    catch(e){
+      console.log("Error when getting latest block height " + e)
+    }
 
-    let latestBlock: LatestBlockInterface = Blocks.findOne({}, { sort: { number: -1 }, limit: 1 })
     if (latestBlock) {
       latestBlockHeight = latestBlock.number
     }
@@ -192,9 +200,14 @@ Meteor.methods({
           blockTime = block.timestamp - lastBlock.timestamp
       }
 
-      let chainState: { [k: string]: any } = Chain.findOne({
-        chainId: chainId,
-      });
+
+      try {
+          chainState = Chain.findOne({chainId: chainId});
+      }
+      catch (error) {
+      console.log("Error when getting Chain State " + error)
+      }
+       
 
       // Calculate block time
       block.blockTime = blockTime
@@ -208,10 +221,21 @@ Meteor.methods({
       // Save latest block tx details 
       saveTxDetails(block, chainState) 
 
-      Chain.upsert({ chainId: chainId }, { $set: chainState })
-      Blocks.insert(block, (error, result) => {
-        PUB.pubsub.publish(PUB.BLOCK_ADDED, { blockAdded: block })
-      });
+      try{
+        Chain.upsert({ chainId: chainId }, { $set: chainState })
+      }
+      catch(e){
+        console.log("Error when updaing Chain state ")
+      }
+
+      try{
+        Blocks.insert(block, (error, result) => {
+          PUB.pubsub.publish(PUB.BLOCK_ADDED, { blockAdded: block })
+        });      
+      }
+      catch(e){
+        console.log("Error when updating Block (block added) " + e)
+      }
 
       // Seve the latest height block in lastBlock variable before processing new block height
       lastBlock = block

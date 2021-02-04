@@ -44,8 +44,15 @@ const updateTransactions = (tx) => {
 };
 
 const decodeTransaction = (tx) => {
-        // make sure it has input in the txn
-        let contract: ContractInterface = Contracts.findOne({ address: tx.to });
+        let contract: ContractInterface
+        try{
+            // make sure it has input in the txn
+            contract = Contracts.findOne({ address: tx.to });
+        }
+        catch(e){
+            console.log("Error when looking for contract in DB " + e)
+        }
+      
         if (!!contract && !!contract.ABI) {
             abiDecoder.addABI(contract.ABI);
             let decodedInput = abiDecoder.decodeMethod(tx.input);
@@ -78,7 +85,13 @@ const decodeTransaction = (tx) => {
 Meteor.methods({
     'transactions.updatePending': async function () {
         this.unblock()
-        let pendingTransactions: PendingTransactionsInterface = Transactions.find({ pending: true }).fetch();
+        let pendingTransactions: PendingTransactionsInterface
+        try{
+             pendingTransactions = Transactions.find({ pending: true }).fetch();
+        }
+        catch(e){
+            console.log("Error when updating pending transactions " + e)
+        }
         for (let i in pendingTransactions) {
             let tx: { [k: string]: any };
             try {

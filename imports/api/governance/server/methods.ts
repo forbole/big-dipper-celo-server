@@ -99,9 +99,14 @@ const saveUpvoteList = (proposalData, getUpvoters) => {
     for (let s = 0; s < getUpvoters.length; s++) {
         let blockDetails;
         if (parseInt(getUpvoters[s].returnValues.proposalId) === item+2) {
-            upvotersList[counter] = getUpvoters[s],
-            blockDetails = Blocks.findOne({ hash: upvotersList[counter].blockHash });
-            upvotersList[counter].timestamp = blockDetails.timestamp;
+            upvotersList[counter] = getUpvoters[s]
+            try{
+                blockDetails = Blocks.findOne({ hash: upvotersList[counter].blockHash });
+            }
+            catch(e){
+                console.log("Error" + e)
+            }
+            upvotersList[counter].timestamp = blockDetails?.timestamp;
             counter++
         }
         proposalData[item].upvoteList = upvotersList
@@ -308,7 +313,7 @@ Meteor.methods({
 
         try {
             // if(lastEpochNumber > 0){
-                electedValidatorSet = await election.getElectedValidators(lastEpochNumber)
+                electedValidatorSet = await election.getElectedValidators(epochNumber)
             // }
         }
         catch (error) {
