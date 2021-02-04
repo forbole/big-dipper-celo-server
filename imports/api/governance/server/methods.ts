@@ -14,9 +14,21 @@ let web3 = kit.web3;
 // Decode tx input to obtain descriptionURL
 const decodeInput = async (proposalData, proposalQueuedEvent) => {
         for(let c = 1; c <= Object.keys(proposalQueuedEvent).length; c++){
+            let getTransaction;
+            let contract;
+            
             try{
-                let getTransaction =  await web3.eth.getTransaction((proposalQueuedEvent[c]?.transactionHash));
-                let contract = Contracts.findOne({ address: proposalQueuedEvent[c].address });
+                getTransaction =  await web3.eth.getTransaction((proposalQueuedEvent[c]?.transactionHash));
+            }
+            catch(e){
+                console.log("Error when getting transaction for decoding " + e)
+            }
+            try{
+                 contract = Contracts.findOne({ address: proposalQueuedEvent[c].address });            }
+            catch(e){
+                console.log("Error when getting contract for decoding " + e)
+            }
+            try{
                 abiDecoder.addABI(contract?.ABI);
                         
                 let decodedInput = abiDecoder.decodeMethod(getTransaction.input);
