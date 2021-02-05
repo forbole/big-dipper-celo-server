@@ -7,6 +7,7 @@ import { ElectionResultsCache } from "@celo/celocli/lib/utils/election"
 import { ValidatorRecords } from "../../validators/validators"
 
 import PUB from "../../graphql/subscriptions"
+import BigNumber from 'bignumber.js'
 
 let kit = newKit(Meteor.settings.public.fornoAddress)
 let web3 = kit.web3;
@@ -117,7 +118,7 @@ const chainStatus = (chainState, block, blockTime, latestBlockHeight, targetHeig
           Blocks.update({ number: block.number }, {$set: { hasSingers: true}});
         }
         catch(e){
-            console.log("Error when processing Validator Record")
+            console.log("Error when processing Validator Record " + e)
         }
 }
 
@@ -158,6 +159,7 @@ Meteor.methods({
     let chainId: number;
     let blockTime = 0
     let block: BlockInterface;
+    let blockchainParams; 
 
     let latestBlock: LatestBlockInterface = Blocks.findOne({}, { sort: { number: -1 }, limit: 1 })
     if (latestBlock) {
@@ -171,8 +173,14 @@ Meteor.methods({
     catch (error) {
       console.log("Error when getting Chain ID " + error)
     }
-
     
+    try {
+      blockchainParams = await kit.contracts.getBlockchainParameters();
+    }
+    catch (error) {
+      console.log("Error when getting blockchain params " + error)
+    }
+
     let lastBlock: LatestBlockInterface = latestBlock;
 
     for (let i = latestBlockHeight + 1; i <= targetHeight; i++) {
@@ -196,11 +204,19 @@ Meteor.methods({
         chainId: chainId,
       });
 
-      // Calculate block time
+       // Calculate block time
       block.blockTime = blockTime
       // Set initial hasSigners value to false
       block.hasSingers = false
 
+      try {
+        let getGasLimit = await blockchainParams.getBlockGasLimit()
+        block.gasLimit =  new BigNumber(getGasLimit).toNumber();
+      }
+      catch (error) {
+        console.log("Error when getting Gas Limit " + error)
+      }
+      
       // Update Chain Status
       chainStatus(chainState, block, blockTime, latestBlockHeight, targetHeight)
       // Update the record for all signers in the latest block
