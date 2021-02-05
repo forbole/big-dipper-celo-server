@@ -25,6 +25,7 @@
 * Added `try-catch` block when querying the coin price
 * Updated to Meteor 2.0 
 * [#82] Replaced `HTTP` package in Meteor with `fetch` package
+* Updated blocks `gasLimit` value
 
 ## [v0.1.3]
 * Added validator address in the schema
