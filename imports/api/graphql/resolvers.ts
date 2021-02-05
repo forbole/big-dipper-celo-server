@@ -12,6 +12,7 @@ import moment from "moment";
 import numbro from "numbro";
 import PUB from "./subscriptions";
 import { Election } from "../governance/election";
+import fetch from 'node-fetch'
 
 const CELO = 1e18;
 
@@ -244,69 +245,64 @@ export default {
       return validatorSet
     },
 
-    coinHistoryByDates(_, { dateFrom = "22-08-2020", dateTo = "11-09-2020" }, context, info) {
+    async coinHistoryByDates(_, { dateFrom = "22-08-2020", dateTo = "11-09-2020" }, context, info) {
 
       let celoTotal: CeloTotalInterface = Chain.findOne();
       let fromDate = moment(`${dateFrom} 00:00`, "DD-MM-YYYY HH:mm").unix()
       let toDate = moment(`${dateTo} 00:00`, "DD-MM-YYYY HH:mm").unix()
-      let url;
-      try{
-          url  =  `https://api.coingecko.com/api/v3/coins/celo-gold/market_chart/range?vs_currency=usd&from=${fromDate}&to=${toDate}`
-      }
-      catch(e){
-          console.log("Error when getting coin history by dates " + e)
-      }
-      
+      const url =  `https://api.coingecko.com/api/v3/coins/celo-gold/market_chart/range?vs_currency=usd&from=${fromDate}&to=${toDate}`
 
-      let response = HTTP.get(url);
-      if (response.statusCode == 200) {
-        let data = JSON.parse(response.content)
+
+      const priceHistory = await fetch(url).then(function (response) {
+            if (response.ok) {
+                return response.json();
+            }
+        })
+        .catch(function (e) {
+            return console.log('Error when getting Coin Price History by Dates ' + e);
+        });
 
         let prices = [];
-        for (let c = 0; c < data.prices.length; c++) {
+        for (let c = 0; c < priceHistory?.prices.length; c++) {
           prices[c] = {
-            Time: moment(data.prices[c][0]).format("DD MMM hh:mm a"),
-            CELO: numbro(data.prices[c][1]).format("0.0000"),
-            Market_Cap: numbro((data.prices[c][1] * celoTotal.celoTotalSupply) / CELO).format("0.0000"),
+            Time: moment(priceHistory?.prices[c][0]).format("DD MMM hh:mm a"),
+            CELO: numbro(priceHistory?.prices[c][1]).format("0.0000"),
+            Market_Cap: numbro((priceHistory?.prices[c][1] * celoTotal?.celoTotalSupply) / CELO).format("0.0000"),
           }
         }
-        let total_volumes = data.total_volumes
+        let total_volumes = priceHistory?.total_volumes
 
         return { prices, total_volumes }
-      }
     },
 
-    coinHistoryByNumOfDays(_, args, context, info) {
+    async coinHistoryByNumOfDays(_, args, context, info) {
 
       let celoTotal: CeloTotalInterface = Chain.findOne();
-      let url;
-      try{
-          url  = `https://api.coingecko.com/api/v3/coins/celo-gold/market_chart?vs_currency=usd&days=${args.days}`
-      }
-      catch(e){
-          console.log("Error when getting coin history by number of days " + e)
-      }
+      const url  = `https://api.coingecko.com/api/v3/coins/celo-gold/market_chart?vs_currency=usd&days=${args.days}`
+      
+      const priceHistory = await fetch(url)
+        .then(function (response) {
+            if (response.ok) {
+                return response.json();
+            }
+        })
+        .catch(function (e) {
+            return console.log('Error when getting Coin Price History by Number of Days ' + e);
+        });
 
-      let response = HTTP.get(url);
-      if (response.statusCode == 200) {
-        let data = JSON.parse(response.content)
-
-        let coinPrices = data
         let prices = [];
-        for (let c = 0; c < coinPrices.prices.length; c++) {
-          prices[c] = {
-            Time: moment(coinPrices.prices[c][0]).format("DD MMM hh:mm a"),
-            CELO: numbro(coinPrices.prices[c][1]).format("0.0000"),
-            Market_Cap: numbro((coinPrices.prices[c][1] * celoTotal.celoTotalSupply) / CELO).format("0.0000"),
-          }
+        let total_volumes
+        for (let c = 0; c < priceHistory?.prices.length; c++) {
+            prices[c] = {
+              Time: moment(priceHistory?.prices[c][0]).format("DD MMM hh:mm a"),
+              CELO: numbro(priceHistory?.prices[c][1]).format("0.0000"),
+              Market_Cap: numbro((priceHistory?.prices[c][1] * celoTotal?.celoTotalSupply) / CELO).format("0.0000"),
+            }
         }
-        let total_volumes = data.total_volumes
+        total_volumes = priceHistory?.total_volumes
 
         return { prices, total_volumes }
-      }
     },
-
-
 
     async downtime(_, { address, pageSize = 20, page = 1 }, context, info) {
       const totalCounts = ValidatorRecords.find({ signer: address }).count();
