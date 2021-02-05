@@ -66,10 +66,11 @@ const chainStatus = (chainState, block, blockTime, latestBlockHeight, targetHeig
 
 // Query and store record of all signatures in every block in ValidatorRecords collection
  const blockSignersRecords = async (block) => {
-        let  epochNumber, election, validatorSet, validators, epochSize
+        let  epochNumber, election, validatorSet, validators, epochSize, lastEpochNumber
   
         try {
             epochNumber = await kit.getEpochNumberOfBlock(block.number)
+            lastEpochNumber = epochNumber - 1;
         } 
         catch (e) {
             console.log("Error when processing Epoch Number  " + e)
@@ -83,9 +84,9 @@ const chainStatus = (chainState, block, blockTime, latestBlockHeight, targetHeig
         }
 
         try {
-          if(epochNumber > 0){
-            validatorSet = await election.getElectedValidators(epochNumber)
-          }
+          // if(epochNumber > 0){
+            validatorSet = await election.getElectedValidators(lastEpochNumber)
+          // }
         } 
         catch (e) {
             console.log("Error when processing Elected Validators Set  " + e)
