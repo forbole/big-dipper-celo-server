@@ -52,6 +52,7 @@ const typeDefs = gql`
         extraData: String!
         gasLimit: Int
         gasUsed: Int!
+        gasLimit: Int
         hash: String!
         logsBloom: String!
         miner: Validator
