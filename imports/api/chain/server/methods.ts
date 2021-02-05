@@ -1,10 +1,10 @@
 import { Meteor } from 'meteor/meteor';
-import { HTTP } from 'meteor/http';
 import { Chain } from '../../chain/chain';
 import { Accounts } from '../../accounts/accounts';
 import { newKit } from '@celo/contractkit';
 
 import PUB from '../../graphql/subscriptions';
+import fetch from 'node-fetch'
 
 let kit = newKit(Meteor.settings.public.fornoAddress);
 let web3 = kit.web3;
@@ -104,31 +104,35 @@ Meteor.methods({
             console.log("Error when updating the coin price " + e)
         }
 
-        let response = HTTP.get(url);
-        try {
-            if (response.statusCode == 200) {
-                let chainId: number;
-                try{
-                    chainId = await web3.eth.net.getId();
-                }
-                catch(e){
-                    console.log("Error when processing chainId " + e)
-                }
-                Chain.upsert({ chainId: chainId }, {
-                    $set: {
-                        tokenPrice: {
-                            usd: response?.data['celo-gold']?.usd,
-                            usdMarketCap: response?.data['celo-gold']?.usd_market_cap,
-                            usd24hVol: response?.data['celo-gold']?.usd_24h_vol,
-                            usd24hChange: response?.data['celo-gold']?.usd_24h_change,
-                            lastUpdatedAt: response?.data['celo-gold']?.last_updated_at
-                        }
+        try{
+            let response = await fetch(url)
+                .then(function (response) {
+                    if (response.ok) {
+                        response.json().then(async (data) => {
+                            let chainId: number;
+                            try{
+                                chainId = await web3.eth.net.getId();
+                            }
+                            catch(e){
+                                console.log("Error when processing chainId " + e)
+                            }
+                            Chain.upsert({ chainId: chainId }, {
+                                $set: {
+                                    tokenPrice: {
+                                        usd: data['celo-gold']?.usd,
+                                        usdMarketCap: data['celo-gold']?.usd_market_cap,
+                                        usd24hVol: data['celo-gold']?.usd_24h_vol,
+                                        usd24hChange: data['celo-gold']?.usd_24h_change,
+                                        lastUpdatedAt: data['celo-gold']?.last_updated_at
+                                    }
+                                }
+                            }, (error: any, result: any) => {
+                                const chainState = Chain.findOne({ chainId: chainId });
+                                PUB.pubsub.publish(PUB.CHAIN_UPDATED, { chainUpdated: chainState });
+                            });
+                        })
                     }
-                }, (error: any, result: any) => {
-                    const chainState = Chain.findOne({ chainId: chainId });
-                    PUB.pubsub.publish(PUB.CHAIN_UPDATED, { chainUpdated: chainState });
                 });
-            }
         }
         catch (e) {
             console.log("Error when updating Coin Data " + e);
