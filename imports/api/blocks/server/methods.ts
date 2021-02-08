@@ -48,11 +48,14 @@ const chainStatus = (chainState, block, blockTime, latestBlockHeight, targetHeig
   for (let i = latestBlockHeight + 1; i <= targetHeight; i++) {
 
       if (chainState) {
-          chainState.averageBlockTime = chainState?.averageBlockTime && blockTime ? (chainState.averageBlockTime * (i - 1) + blockTime) / i : 0;
-          chainState.latestHeight = block?.number ? block.number : 0;
-          chainState.txCount = chainState?.txCount ? chainState.txCount : 0;
-      } 
-      else {
+        // make sure averageBlockTime and txCount exist before calculation
+          if (!chainState.averageBlockTime) chainState.averageBlockTime = 0
+          if (!chainState.txCount) chainState.txCount = 0
+
+          chainState.averageBlockTime = (chainState.averageBlockTime * (i - 1) + blockTime) / i
+          chainState.latestHeight = block.number
+        } 
+        else {
           chainState = {}
           chainState.averageBlockTime = 0
           chainState.txCount = 0
