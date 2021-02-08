@@ -105,7 +105,7 @@ const electedValidators = (electedValidatorSet, data) => {
                     }
                 }
             }
-            return electedValidatorSet
+            return data.electedValidators
         }
        
 }
@@ -132,7 +132,7 @@ const validatorGroupsDetails = async (valGroups, validators, epochNumber, valCon
             // Get Validator Total Rewards Value
             validatorRewards(data, valContract, epochNumber);
             // Get list of Elected Validators for current epoch
-            electedValidators(electedValidatorSet, data);
+            electedValidators(await electedValidatorSet, data);
 
           
             try {
@@ -212,9 +212,9 @@ Meteor.methods({
         }
 
         try {
-            if(epochNumber > 0){
+            // if(epochNumber > 0){
                 electedValidatorSet = await election.getElectedValidators(epochNumber)      
-            }
+            // }
         }
         catch (error) {
             console.log("Error when getting Elected Validators Set  " + error)
