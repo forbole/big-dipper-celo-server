@@ -223,7 +223,7 @@ Meteor.methods({
       // Update Chain Status
       chainStatus(chainState, block, blockTime, latestBlockHeight, targetHeight)
       // Update the record for all signers in the latest block
-      blockSignersRecords(block)
+      await blockSignersRecords(block)
       // Save latest block tx details 
       saveTxDetails(block, chainState) 
 
