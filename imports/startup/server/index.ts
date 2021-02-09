@@ -19,7 +19,7 @@ server.applyMiddleware({
     path: '/graphql'
 })
 
-server.installSubscriptionHandlers(WebApp.httpServer);
+// server.installSubscriptionHandlers(WebApp.httpServer);
   
 WebApp.connectHandlers.use('/graphql', (req, res) => {
     if (req.method === 'GET') {
