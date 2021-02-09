@@ -80,6 +80,19 @@ function updateBlock(number: number) {
   });
 }
 
+// Update the record for all signers in the blocks
+function updateBlockSigners(blockNumber:number) {
+  Meteor.call("blocks.getBlockSigners", blockNumber, (error, result) => {
+    if (error) {
+      console.log(error);
+    }
+
+    if (result) {
+      console.log(`Updated signers for block ${blockNumber} ` );
+    }
+  });
+}
+
 function updateElection(number: Number) {
   Meteor.clearInterval(timerElection);
   Meteor.call("election.update", number, (error, result) => {
@@ -127,7 +140,6 @@ function getContractABI() {
   });
 }
 
-
 function updateProposals() {
   Meteor.clearInterval(timerProposals);
   Meteor.call("proposals.getProposals", (error, result) => {
@@ -145,7 +157,6 @@ function updateProposals() {
 }
 
 
-
 Meteor.startup(() => {
   // Make sure the chain has block
   web3.eth.getBlockNumber().then((number) => {
@@ -159,6 +170,7 @@ Meteor.startup(() => {
         updateChainState(number);
         updateValidators(number);
         updateBlock(number);
+        updateBlockSigners(number)
         updateTokenPrice();
         updatePendingTransactions();
         updateProposals();

@@ -67,64 +67,6 @@ const chainStatus = (chainState, block, blockTime, latestBlockHeight, targetHeig
   }
 
 
-// Query and store record of all signatures in every block in ValidatorRecords collection
- const blockSignersRecords = async (block) => {
-        let  epochNumber, election, validatorSet, validators, epochSize
-  
-        try {
-            epochNumber = await kit.getEpochNumberOfBlock(block.number)
-        } 
-        catch (e) {
-            console.log("Error when processing Epoch Number  " + e)
-        }
-
-        try {
-           election = await kit.contracts.getElection()
-        } 
-        catch (e) {
-            console.log("Error when processing Election Contract Details " + e)
-        }
-
-        try {
-          if(epochNumber > 0){
-            validatorSet = await election.getElectedValidators(epochNumber)
-          }
-        } 
-        catch (e) {
-            console.log("Error when processing Elected Validators Set  " + e)
-        }
-
-        try {
-           validators = await kit.contracts.getValidators()
-        } 
-        catch (e) {
-            console.log("Error when processing Validators   " + e)
-        }
-
-        try {
-           epochSize = await validators.getEpochSize()
-        } 
-        catch (e) {
-            console.log("Error when processing Epoch Size  " + e)
-        }
-
-        const electionRC = new ElectionResultsCache(election, epochSize.toNumber())
-        try{
-          for (let v in validatorSet) {
-            let record: RecordInterface = {
-              blockNumber: block.number,
-              signer: validatorSet[v].signer,
-              exist: await electionRC.signedParent(validatorSet[v].signer, block)
-            }
-            ValidatorRecords.insert(record);
-          }
-          Blocks.update({ number: block.number }, {$set: { hasSingers: true}});
-        }
-        catch(e){
-            console.log("Error when processing Validator Record " + e)
-        }
-}
-
 // Query the transaction hash in each block and save it in Transactions collection 
 const saveTxDetails = (block, chainState) => {
         // Get transactions hash
@@ -222,8 +164,6 @@ Meteor.methods({
       
       // Update Chain Status
       chainStatus(chainState, block, blockTime, latestBlockHeight, targetHeight)
-      // Update the record for all signers in the latest block
-      blockSignersRecords(block)
       // Save latest block tx details 
       saveTxDetails(block, chainState) 
 
@@ -238,6 +178,86 @@ Meteor.methods({
 
     return targetHeight
   },
+
+  "blocks.getBlockSigners": async function (latestHeight: number) {
+    this.unblock();
+    let latestBlockHeight: number = 0;
+    let  epochNumber, election, validatorSet, validators, epochSize,block;
+
+    let latestBlock: LatestBlockInterface = Blocks.findOne({}, { sort: { number: -1 }, limit: 1 })
+    if (latestBlock) {
+      latestBlockHeight = latestBlock.number
+    }
+    
+    for (let i = latestBlockHeight + 1; i <= latestHeight; i++) {
+        console.log("Update signers for block : " + i)
+
+      try {
+        // Get block
+         block  = await web3.eth.getBlock(i)
+      }
+      catch (e) {
+          console.log(`Error when getting Signers Block ${i} details ` + e)
+      }
+
+      if (!block) return i
+    try {
+        epochNumber = await kit.getEpochNumberOfBlock(i)
+    } 
+    catch (e) {
+        console.log("Error when processing Epoch Number " + e)
+    }
+
+    try {
+        election = await kit.contracts.getElection()
+    } 
+    catch (e) {
+        console.log("Error when processing Election Contract Details " + e)
+    }
+
+    try {
+      if(epochNumber > 0){
+        validatorSet = await election.getElectedValidators(epochNumber)
+      }
+    } 
+    catch (e) {
+        console.log("Error when processing Elected Validators Set " + e)
+    }
+
+    try {
+        validators = await kit.contracts.getValidators()
+    } 
+    catch (e) {
+        console.log("Error when processing Validators " + e)
+    }
+
+    try {
+        epochSize = await validators.getEpochSize()
+    } 
+    catch (e) {
+        console.log("Error when processing Epoch Size " + e)
+    }
+
+    const electionRC = new ElectionResultsCache(election, epochSize.toNumber())
+    try{
+      for (let v in validatorSet) {
+        let record: RecordInterface = {
+          blockNumber: block.number,
+          signer: validatorSet[v].signer,
+          exist: await electionRC.signedParent(validatorSet[v].signer, block)
+        }
+        ValidatorRecords.insert(record);
+      }
+      Blocks.upsert({ number: block.number }, {$set: { hasSingers: true}});
+    }
+    catch(e){
+        console.log("Error when processing Validator Record " + e)
+    }
+
+  }
+    return latestHeight;
+
+},
 
 
 });
