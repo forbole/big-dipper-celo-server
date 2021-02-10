@@ -29,6 +29,7 @@
 * [#86] Downgraded Meteor 2.0 to Meteor 1.12
 * Updated `averageBlockTime` value
 * Added `blocks.getBlockSigners` method
+* Added `Referendum` and `Execution` to Proposal Stage
 
 ## [v0.1.3]
 * Added validator address in the schema
