@@ -155,12 +155,15 @@ const getProposalStage = async (proposalData, getGovernance,executedProposals) =
                         status = "Rejected"
                     }  
                 }
-                else {
+                else if(proposalRec[d].stage === ProposalStage.Referendum){
                     status = "Referendum"
+                }
+                else if(proposalRec[d].stage === ProposalStage.Execution){
+                    status = "Execution"
                 }
 
                 try{
-                        Proposals.update({ proposalId: d+2},{$set: {stage: proposalRec[d].stage, status: status}});
+                    Proposals.update({ proposalId: d+2},{$set: {stage: proposalRec[d].stage, status: status}});
                 }
                 catch(e){
                     console.log("Error when updating Proposal Stage and Status " + e)
