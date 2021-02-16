@@ -31,7 +31,7 @@
 * Added `blocks.getBlockSigners` method
 * Added `Referendum` and `Execution` to Proposal Stage
 * Updated `@celo` npm packages to `v1.0.1`
-* Updated Meteor to `v2.0`
+* Updated Meteor to `v2.0` 
 
 ## [v0.1.3]
 * Added validator address in the schema
