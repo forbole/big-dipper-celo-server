@@ -148,20 +148,22 @@ const getProposalStage = async (proposalData, getGovernance,executedProposals) =
             if(proposalData[d].returnValues.proposalId == d+2){
                 proposalRec[d] = await getGovernance.getProposalRecord(d+2)
                 if(proposalRec[d].stage === ProposalStage.Expiration){
-                     if (executedProposals.find((e) => new BigNumber(e.returnValues.proposalId).eq(proposalData[d].returnValues.proposalId))) {
+                    if(proposalRec[d].stage === ProposalStage.Referendum){
+                    status = "Referendum"
+                    }
+                    
+                    if(proposalRec[d].stage === ProposalStage.Execution){
+                    status = "Execution"
+                    }
+
+                    if (executedProposals.find((e) => new BigNumber(e.returnValues.proposalId).eq(proposalData[d].returnValues.proposalId))) {
                         status = "Approved"
                     }
                     else {
                         status = "Rejected"
                     }  
                 }
-                else if(proposalRec[d].stage === ProposalStage.Referendum){
-                    status = "Referendum"
-                }
-                else if(proposalRec[d].stage === ProposalStage.Execution){
-                    status = "Execution"
-                }
-
+                
                 try{
                     Proposals.update({ proposalId: d+2},{$set: {stage: proposalRec[d].stage, status: status}});
                 }

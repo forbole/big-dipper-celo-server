@@ -13,6 +13,7 @@ let timerCoin:number = 0;
 let timerProposals:number = 0;
 let timerTransactions: number = 0;
 let timerElection: number = 0;
+let timerBlockSigners: number = 0;
 
 function updatePendingTransactions() {
   Meteor.clearInterval(timerTransactions);
@@ -90,6 +91,13 @@ function updateBlockSigners(blockNumber:number) {
     if (result) {
       console.log(`Updated signers for block ${blockNumber} ` );
     }
+
+      timerBlockSigners = Meteor.setInterval(() => {
+      Meteor.clearInterval(timerBlockSigners);
+      web3.eth.getBlockNumber().then((num) => {
+        updateBlockSigners(num);
+      });
+    }, 10000);
   });
 }
 
