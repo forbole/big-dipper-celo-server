@@ -23,7 +23,6 @@
 * Added upvotes timestamp 
 * Updated README.md
 * Added `try-catch` block when querying the coin price
-* Updated to Meteor 2.0 
 * [#82] Replaced `HTTP` package in Meteor with `fetch` package
 * Updated blocks `gasLimit` value
 * [#86] Downgraded Meteor 2.0 to Meteor 1.12
