@@ -30,6 +30,7 @@
 * Updated `averageBlockTime` value
 * Added `blocks.getBlockSigners` method
 * Added `Referendum` and `Execution` to Proposal Stage
+* Updated `@celo` npm packages to `v1.0.1`
 
 ## [v0.1.3]
 * Added validator address in the schema

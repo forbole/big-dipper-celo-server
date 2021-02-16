@@ -9,9 +9,9 @@
   },
   "dependencies": {
     "@babel/runtime": "^7.12.5",
-    "@celo/celocli": "0.0.60",
-    "@celo/contractkit": "^0.4.18",
-    "@celo/utils": "^0.1.22",
+    "@celo/celocli": "^1.0.1",
+    "@celo/contractkit": "^1.0.1",
+    "@celo/utils": "^1.0.1",
     "@types/meteor": "^1.4.64",
     "abi-decoder": "^2.3.0",
     "apollo-client": "^2.6.10",
