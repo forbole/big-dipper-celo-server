@@ -1,4 +1,4 @@
-import { gql } from 'apollo-server-express'
+import { gql } from 'apollo-server'
 import BigInt from "apollo-type-bigint-fix";
 import GraphQLJSON from "graphql-type-json";
 
