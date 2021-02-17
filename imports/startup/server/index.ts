@@ -8,7 +8,7 @@ import { WebApp } from 'meteor/webapp'
 
 import typeDefs from '../../api/graphql/schema';
 import resolvers from '../../api/graphql/resolvers';
-import { ApolloServer, gql } from "apollo-server"
+import { ApolloServer } from "apollo-server"
 
 // The ApolloServer constructor requires two parameters: your schema
 // definition and your set of resolvers.
