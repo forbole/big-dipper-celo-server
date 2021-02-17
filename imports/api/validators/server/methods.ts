@@ -110,12 +110,12 @@ const electedValidators = (electedValidatorSet, data) => {
        
 }
 
-const validatorGroupsDetails = async (valGroups, validators, epochNumber, valContract, electedValidatorSet, lockedGold, election) => {   
+const validatorGroupsDetails = async (valGroups, validators, valContract, lockedGold, election,latestHeight) => {   
 
         for (let i in valGroups) {
                 
             let data: { [k: string]: any } = {}
-            let votes; 
+            let votes, lastEpochNumber, electedValidatorSet,epochNumber; 
 
             data = valGroups[i];
             data.commission = valGroups && valGroups[i] && valGroups[i].commission ? valGroups[i].commission.toNumber() : 0;
@@ -126,13 +126,25 @@ const validatorGroupsDetails = async (valGroups, validators, epochNumber, valCon
             data.members = valGroups && valGroups[i] && valGroups[i].members ? valGroups[i].members : null;
             data.electedValidators = {};
 
-
+            try {
+                epochNumber = await kit.getEpochNumberOfBlock(latestHeight) 
+                lastEpochNumber = epochNumber - 1;     
+            }
+            catch (error) {
+                console.log("Error when getting Epoch Number of Block  " + error)
+            }
+            try {
+                electedValidatorSet = await election.getElectedValidators(lastEpochNumber)       
+            }
+            catch (error) {
+                console.log("Error when getting Elected Validators Set  " + error)
+            }
             // Get Validator Score 
             validatorScore(validators, data);
             // Get Validator Total Rewards Value
             validatorRewards(data, valContract, epochNumber);
             // Get list of Elected Validators for current epoch
-            electedValidators(await electedValidatorSet, data);
+            electedValidators(electedValidatorSet, data);
 
           
             try {
@@ -167,7 +179,7 @@ const validatorGroupsDetails = async (valGroups, validators, epochNumber, valCon
 Meteor.methods({
     'validators.update': async function (latestHeight: number) {
         this.unblock()
-        let valContract, valGroups, validators, lockedGold, epochNumber, election, electedValidatorSet, attestation, lastEpochNumber;
+        let valContract, valGroups, validators, lockedGold, election, attestation;
        
         try {
             valContract = await kit.contracts.getValidators()            
@@ -197,13 +209,7 @@ Meteor.methods({
             console.log("Error when getting Validators Locked Gold Contract " + error)
         }
 
-        try {
-            epochNumber = await kit.getEpochNumberOfBlock(latestHeight) 
-            lastEpochNumber = epochNumber - 1;     
-        }
-        catch (error) {
-            console.log("Error when getting Epoch Number of Block  " + error)
-        }
+        
 
         try {
             election = await kit.contracts.getElection()
@@ -212,14 +218,7 @@ Meteor.methods({
             console.log("Error when getting Election Contract  " + error)
         }
 
-        try {
-            if(lastEpochNumber > 0){
-                electedValidatorSet = await election.getElectedValidators(lastEpochNumber)      
-            }
-        }
-        catch (error) {
-            console.log("Error when getting Elected Validators Set  " + error)
-        }
+        
 
         try {
             attestation = await kit.contracts.getAttestations()    
@@ -231,7 +230,7 @@ Meteor.methods({
         // Query and store validators latest details 
         validatorsDetails(validators, attestation)
         // Query and store validator groups latest details
-        validatorGroupsDetails(valGroups, validators, epochNumber, valContract, electedValidatorSet, lockedGold, election) 
+        validatorGroupsDetails(valGroups, validators, valContract, lockedGold, election,latestHeight) 
  
 
     }
