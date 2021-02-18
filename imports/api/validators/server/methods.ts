@@ -199,7 +199,6 @@ Meteor.methods({
 
         try {
             epochNumber = await kit.getEpochNumberOfBlock(latestHeight) 
-            lastEpochNumber = epochNumber - 1;     
         }
         catch (error) {
             console.log("Error when getting Epoch Number of Block  " + error)
@@ -213,8 +212,8 @@ Meteor.methods({
         }
 
         try {
-            if(lastEpochNumber > 0){
-                electedValidatorSet = await election.getElectedValidators(lastEpochNumber)      
+            if (epochNumber > 0){
+                electedValidatorSet = await election.getElectedValidators(epochNumber)      
             }
         }
         catch (error) {
