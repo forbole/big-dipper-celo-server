@@ -94,21 +94,21 @@ const validatorRewards = async (data, valContract, epochNumber) => {
   
 }
 
-const electedValidators = (electedValidatorSet, data) => {
-        if(electedValidatorSet){
-            for (let d = 0; d < electedValidatorSet.length; d++) {
-                let counter = 0
-                for (let e = 0; e < data.members.length; e++) {
-                    if (electedValidatorSet[d].address === data.members[e]) {
-                        data.electedValidators[counter] = electedValidatorSet[d].address
-                        counter++
-                    }
-                }
-            }
-            return data.electedValidators
-        }
+// const electedValidators = (electedValidatorSet, data) => {
+//         if(electedValidatorSet){
+//             for (let d = 0; d < electedValidatorSet.length; d++) {
+//                 let counter = 0
+//                 for (let e = 0; e < data.members.length; e++) {
+//                     if (electedValidatorSet[d].address === data.members[e]) {
+//                         data.electedValidators[counter] = electedValidatorSet[d].address
+//                         counter++
+//                     }
+//                 }
+//             }
+//             return data.electedValidators
+//         }
        
-}
+// }
 
 const validatorGroupsDetails = async (valGroups, validators, valContract, lockedGold, election,latestHeight) => {   
 
@@ -134,7 +134,7 @@ const validatorGroupsDetails = async (valGroups, validators, valContract, locked
                 console.log("Error when getting Epoch Number of Block  " + error)
             }
             try {
-                electedValidatorSet = await election.getElectedValidators(lastEpochNumber)       
+                electedValidatorSet = await election.getElectedValidators(epochNumber)       
             }
             catch (error) {
                 console.log("Error when getting Elected Validators Set  " + error)
@@ -144,7 +144,16 @@ const validatorGroupsDetails = async (valGroups, validators, valContract, locked
             // Get Validator Total Rewards Value
             validatorRewards(data, valContract, epochNumber);
             // Get list of Elected Validators for current epoch
-            electedValidators(electedValidatorSet, data);
+
+            for (let d = 0; d < electedValidatorSet.length; d++) {
+                let counter = 0
+                for (let e = 0; e < data.members.length; e++) {
+                    if (electedValidatorSet[d].address === data.members[e]) {
+                        data.electedValidators[counter] = electedValidatorSet[d].address
+                        counter++
+                    }
+                }
+            }
 
           
             try {
