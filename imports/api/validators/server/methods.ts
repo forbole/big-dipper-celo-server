@@ -213,8 +213,8 @@ Meteor.methods({
         }
 
         try {
-            if(lastEpochNumber > 0){
-                electedValidatorSet = await election.getElectedValidators(lastEpochNumber)      
+            if (epochNumber > 0){
+                electedValidatorSet = await election.getElectedValidators(epochNumber)      
             }
         }
         catch (error) {
