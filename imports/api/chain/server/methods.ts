@@ -95,7 +95,7 @@ Meteor.methods({
 
     'chain.updateCoin': async function () {
         // this.unblock();
-        const url = "https://api.coingecko.com/api/v3/simple/price?ids=celo-gold&vs_currencies=usd&include_market_cap=true&include_24hr_vol=true&include_24hr_change=true&include_last_updated_at=true"
+        const url = "https://api.coingecko.com/api/v3/simple/price?ids=celo&vs_currencies=usd&include_market_cap=true&include_24hr_vol=true&include_24hr_change=true&include_last_updated_at=true"
         let response = HTTP.get(url);
         try {
             if (response.statusCode == 200) {
