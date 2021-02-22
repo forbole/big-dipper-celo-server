@@ -212,7 +212,9 @@ Meteor.methods({
         }
 
         try {
-            electedValidatorSet = await election.getElectedValidators(epochNumber)      
+            if(epochNumber > 0){
+                electedValidatorSet = await election.getElectedValidators(epochNumber)
+            }      
         }
         catch (error) {
             console.log("Error when getting Elected Validators Set  " + error)
