@@ -32,6 +32,7 @@
 * Updated `@celo` npm packages to `v1.0.1`
 * Updated Meteor to `v2.0` 
 * [#94] Updated CoinGecko coin name from `celo-gold` to `celo`
+* Removed `lastEpochNumber` value
 
 ## [v0.1.3]
 * Added validator address in the schema

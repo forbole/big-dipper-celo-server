@@ -266,7 +266,7 @@ Meteor.methods({
 
     'election.update': async function (latestHeight: number) {
         this.unblock()
-        let validatorsData, registeredValidatorGroups, registeredValidators, epochNumber, lastEpochNumber, election, electedValidatorSet, electedGroupSet
+        let validatorsData, registeredValidatorGroups, registeredValidators, epochNumber, election, electedValidatorSet, electedGroupSet
         let electedGroup = [];
 
         try {
@@ -292,7 +292,6 @@ Meteor.methods({
 
         try {
             epochNumber = await kit.getEpochNumberOfBlock(latestHeight)
-            lastEpochNumber = epochNumber - 1
         }
         catch (error) {
             console.log("Error when getting Epoch Number " + error)
@@ -306,8 +305,8 @@ Meteor.methods({
         }
 
         try {
-            if(lastEpochNumber > 0){
-                electedValidatorSet = await election.getElectedValidators(lastEpochNumber)
+            if(epochNumber > 0){
+                electedValidatorSet = await election.getElectedValidators(epochNumber)
             }
         }
         catch (error) {

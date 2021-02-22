@@ -167,7 +167,7 @@ const validatorGroupsDetails = async (valGroups, validators, epochNumber, valCon
 Meteor.methods({
     'validators.update': async function (latestHeight: number) {
         this.unblock()
-        let valContract, valGroups, validators, lockedGold, epochNumber, election, electedValidatorSet, attestation, lastEpochNumber;
+        let valContract, valGroups, validators, lockedGold, epochNumber, election, electedValidatorSet, attestation;
        
         try {
             valContract = await kit.contracts.getValidators()            
@@ -199,7 +199,6 @@ Meteor.methods({
 
         try {
             epochNumber = await kit.getEpochNumberOfBlock(latestHeight) 
-            lastEpochNumber = epochNumber - 1;     
         }
         catch (error) {
             console.log("Error when getting Epoch Number of Block  " + error)
@@ -213,9 +212,9 @@ Meteor.methods({
         }
 
         try {
-            if(lastEpochNumber > 0){
-                electedValidatorSet = await election.getElectedValidators(lastEpochNumber)      
-            }
+            if(epochNumber > 0){
+                electedValidatorSet = await election.getElectedValidators(epochNumber)
+            }      
         }
         catch (error) {
             console.log("Error when getting Elected Validators Set  " + error)
