@@ -175,7 +175,7 @@ export default {
       }
 
       const blocks: BlockInterface = Blocks.find(
-        { number: { $gte: fromBlock }},
+        {},
         { sort: sortItems, limit: pageSize, skip: (page - 1) * pageSize }
       ).fetch();
       return {
