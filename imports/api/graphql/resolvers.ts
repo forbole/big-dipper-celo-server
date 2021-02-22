@@ -250,7 +250,7 @@ export default {
       let fromDate = moment(`${dateFrom} 00:00`, "DD-MM-YYYY HH:mm").unix()
       let toDate = moment(`${dateTo} 00:00`, "DD-MM-YYYY HH:mm").unix()
 
-      let url = `https://api.coingecko.com/api/v3/coins/celo-gold/market_chart/range?vs_currency=usd&from=${fromDate}&to=${toDate}`
+      let url = `https://api.coingecko.com/api/v3/coins/celo/market_chart/range?vs_currency=usd&from=${fromDate}&to=${toDate}`
 
       let response = HTTP.get(url);
       if (response.statusCode == 200) {
@@ -274,7 +274,7 @@ export default {
 
       let celoTotal: CeloTotalInterface = Chain.findOne();
 
-      let url = `https://api.coingecko.com/api/v3/coins/celo-gold/market_chart?vs_currency=usd&days=${args.days}`
+      let url = `https://api.coingecko.com/api/v3/coins/celo/market_chart?vs_currency=usd&days=${args.days}`
 
       let response = HTTP.get(url);
       if (response.statusCode == 200) {

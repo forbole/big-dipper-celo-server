@@ -95,7 +95,7 @@ Meteor.methods({
 
     'chain.updateCoin': async function () {
         // this.unblock();
-        const url = "https://api.coingecko.com/api/v3/simple/price?ids=celo-gold&vs_currencies=usd&include_market_cap=true&include_24hr_vol=true&include_24hr_change=true&include_last_updated_at=true"
+        const url = "https://api.coingecko.com/api/v3/simple/price?ids=celo&vs_currencies=usd&include_market_cap=true&include_24hr_vol=true&include_24hr_change=true&include_last_updated_at=true"
         let response = HTTP.get(url);
         try {
             if (response.statusCode == 200) {
@@ -109,11 +109,11 @@ Meteor.methods({
                 Chain.upsert({ chainId: chainId }, {
                     $set: {
                         tokenPrice: {
-                            usd: response?.data['celo-gold']?.usd,
-                            usdMarketCap: response?.data['celo-gold']?.usd_market_cap,
-                            usd24hVol: response?.data['celo-gold']?.usd_24h_vol,
-                            usd24hChange: response?.data['celo-gold']?.usd_24h_change,
-                            lastUpdatedAt: response?.data['celo-gold']?.last_updated_at
+                            usd: response?.data['celo']?.usd,
+                            usdMarketCap: response?.data['celo']?.usd_market_cap,
+                            usd24hVol: response?.data['celo']?.usd_24h_vol,
+                            usd24hChange: response?.data['celo']?.usd_24h_change,
+                            lastUpdatedAt: response?.data['celo']?.last_updated_at
                         }
                     }
                 }, (error: any, result: any) => {
