@@ -47,54 +47,54 @@ interface BlockInterface {
 const chainStatus = (chainState, block, blockTime, latestBlockHeight, targetHeight) => {
   for (let i = latestBlockHeight + 1; i <= targetHeight; i++) {
 
-      if (chainState) {
-        // make sure averageBlockTime and txCount exist before calculation
-          if (!chainState.averageBlockTime) chainState.averageBlockTime = 0
-          if (!chainState.txCount) chainState.txCount = 0
+    if (chainState) {
+      // make sure averageBlockTime and txCount exist before calculation
+      if (!chainState.averageBlockTime) chainState.averageBlockTime = 0
+      if (!chainState.txCount) chainState.txCount = 0
 
-          chainState.averageBlockTime = (chainState.averageBlockTime * (i - 1) + blockTime) / i
-          chainState.latestHeight = block.number
-        } 
-        else {
-          chainState = {}
-          chainState.averageBlockTime = 0
-          chainState.txCount = 0
-        }
+      chainState.averageBlockTime = (chainState.averageBlockTime * (i - 1) + blockTime) / i
+      chainState.latestHeight = block.number
+    }
+    else {
+      chainState = {}
+      chainState.averageBlockTime = 0
+      chainState.txCount = 0
+    }
 
-        chainState.latestHeight = block.number
+    chainState.latestHeight = block.number
 
-      }
   }
+}
 
 
 // Query the transaction hash in each block and save it in Transactions collection 
 const saveTxDetails = (block, chainState) => {
-        // Get transactions hash
-        if (block.transactions.length > 0) {
-          for (let j = 0; j < block.transactions.length; j++) {
-            console.log("Add pending transaction: " + block.transactions[j])
-            let tx = {
-              hash: block.transactions[j],
-              pending: true,
-              blockNumber: block.number,
-              blockHash: block.hash,
-            };
-            if (tx) {
-              console.log("Processing transaction: " + tx.hash)
-              // Insert tx details
-              try {
-                Transactions.insert(tx, (error, result) => {
-                  PUB.pubsub.publish(PUB.TRANSACTION_ADDED, {
-                    transactionAdded: tx,
-                  });
-                });
-              } catch (e) {
-                console.log(`Error when processing transaction with hash ${tx.hash} ` + e)
-              }
-            }
-          }
-          return chainState.txCount += block.transactions.length
+  // Get transactions hash
+  if (block.transactions.length > 0) {
+    for (let j = 0; j < block.transactions.length; j++) {
+      console.log("Add pending transaction: " + block.transactions[j])
+      let tx = {
+        hash: block.transactions[j],
+        pending: true,
+        blockNumber: block.number,
+        blockHash: block.hash,
+      };
+      if (tx) {
+        console.log("Processing transaction: " + tx.hash)
+        // Insert tx details
+        try {
+          Transactions.insert(tx, (error, result) => {
+            PUB.pubsub.publish(PUB.TRANSACTION_ADDED, {
+              transactionAdded: tx,
+            });
+          });
+        } catch (e) {
+          console.log(`Error when processing transaction with hash ${tx.hash} ` + e)
         }
+      }
+    }
+    return chainState.txCount += block.transactions.length
+  }
 }
 
 Meteor.methods({
@@ -104,7 +104,7 @@ Meteor.methods({
     let chainId: number;
     let blockTime = 0
     let block: BlockInterface;
-    let blockchainParams; 
+    let blockchainParams;
 
     let latestBlock: LatestBlockInterface = Blocks.findOne({}, { sort: { number: -1 }, limit: 1 })
     if (latestBlock) {
@@ -118,7 +118,7 @@ Meteor.methods({
     catch (error) {
       console.log("Error when getting Chain ID " + error)
     }
-    
+
     try {
       blockchainParams = await kit.contracts.getBlockchainParameters();
     }
@@ -129,43 +129,43 @@ Meteor.methods({
     let lastBlock: LatestBlockInterface = latestBlock;
 
     for (let i = latestBlockHeight + 1; i <= targetHeight; i++) {
-        console.log("Processing block: " + i)
+      console.log("Processing block: " + i)
 
       try {
         // Get block
-         block  = await web3.eth.getBlock(i)
+        block = await web3.eth.getBlock(i)
       }
       catch (e) {
-          console.log(`Error when getting Block ${i} details `   + e)
+        console.log(`Error when getting Block ${i} details ` + e)
       }
 
       if (!block) return i
 
       if (lastBlock) {
-          blockTime = block.timestamp - lastBlock.timestamp
+        blockTime = block.timestamp - lastBlock.timestamp
       }
 
       let chainState: { [k: string]: any } = Chain.findOne({
         chainId: chainId,
       });
 
-       // Calculate block time
+      // Calculate block time
       block.blockTime = blockTime
       // Set initial hasSigners value to false
       block.hasSingers = false
 
       try {
         let getGasLimit = await blockchainParams.getBlockGasLimit()
-        block.gasLimit =  new BigNumber(getGasLimit).toNumber();
+        block.gasLimit = new BigNumber(getGasLimit).toNumber();
       }
       catch (error) {
         console.log("Error when getting Gas Limit " + error)
       }
-      
+
       // Update Chain Status
       chainStatus(chainState, block, blockTime, latestBlockHeight, targetHeight)
       // Save latest block tx details 
-      saveTxDetails(block, chainState) 
+      saveTxDetails(block, chainState)
 
       Chain.upsert({ chainId: chainId }, { $set: chainState })
       Blocks.insert(block, (error, result) => {
@@ -182,82 +182,80 @@ Meteor.methods({
   "blocks.getBlockSigners": async function (latestHeight: number) {
     this.unblock();
     let latestBlockHeight: number = 0;
-    let  epochNumber, election, validatorSet, validators, epochSize,block;
+    let epochNumber, election, validatorSet, validators, epochSize, block;
 
     let latestBlock: LatestBlockInterface = Blocks.findOne({}, { sort: { number: -1 }, limit: 1 })
     if (latestBlock) {
       latestBlockHeight = latestBlock.number
     }
-    
+
     for (let i = latestBlockHeight + 1; i <= latestHeight; i++) {
-        console.log("Update signers for block : " + i)
+      console.log("Update signers for block : " + i)
 
       try {
         // Get block
-         block  = await web3.eth.getBlock(i)
+        block = await web3.eth.getBlock(i)
       }
       catch (e) {
-          console.log(`Error when getting Signers Block ${i} details ` + e)
+        console.log(`Error when getting Signers Block ${i} details ` + e)
       }
 
       if (!block) return i
-    try {
+      try {
         epochNumber = await kit.getEpochNumberOfBlock(i)
-    } 
-    catch (e) {
+      }
+      catch (e) {
         console.log("Error when processing Epoch Number " + e)
-    }
+      }
 
-    try {
+      try {
         election = await kit.contracts.getElection()
-    } 
-    catch (e) {
+      }
+      catch (e) {
         console.log("Error when processing Election Contract Details " + e)
-    }
+      }
 
-    try {
-      if(epochNumber > 0){
+      try {
         validatorSet = await election.getElectedValidators(epochNumber)
       }
-    } 
-    catch (e) {
+      catch (e) {
         console.log("Error when processing Elected Validators Set " + e)
-    }
-
-    try {
-        validators = await kit.contracts.getValidators()
-    } 
-    catch (e) {
-        console.log("Error when processing Validators " + e)
-    }
-
-    try {
-        epochSize = await validators.getEpochSize()
-    } 
-    catch (e) {
-        console.log("Error when processing Epoch Size " + e)
-    }
-
-    const electionRC = new ElectionResultsCache(election, epochSize.toNumber())
-    try{
-      for (let v in validatorSet) {
-        let record: RecordInterface = {
-          blockNumber: block.number,
-          signer: validatorSet[v].signer,
-          exist: await electionRC.signedParent(validatorSet[v].signer, block)
-        }
-        ValidatorRecords.insert(record);
       }
-      Blocks.upsert({ number: block.number }, {$set: { hasSingers: true}});
-    }
-    catch(e){
-        console.log("Error when processing Validator Record " + e)
-    }
 
-  }
+      try {
+        validators = await kit.contracts.getValidators()
+      }
+      catch (e) {
+        console.log("Error when processing Validators " + e)
+      }
+
+      try {
+        epochSize = await validators.getEpochSize()
+      }
+      catch (e) {
+        console.log("Error when processing Epoch Size " + e)
+      }
+
+      const electionRC = new ElectionResultsCache(election, epochSize.toNumber())
+      try {
+        for (let v in validatorSet) {
+          let record: RecordInterface = {
+            blockNumber: block.number,
+            signer: validatorSet[v].signer,
+            exist: await electionRC.signedParent(validatorSet[v].signer, block)
+          }
+          ValidatorRecords.insert(record);
+        }
+        Blocks.upsert({ number: block.number }, {$set: { hasSingers: true}});
+      }
+      catch (e) {
+        console.log("Error when processing Validator Record " + e)
+      }
+
+    }
     return latestHeight;
 
-},
+  },
 
 
 });

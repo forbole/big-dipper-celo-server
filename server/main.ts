@@ -7,10 +7,10 @@ import "../imports/startup/server";
 const kit = newKit(Meteor.settings.public.fornoAddress);
 const web3 = kit.web3;
 let timer: number = 0;
-let timerChain:number = 0;
-let timerValidators:number = 0;
-let timerCoin:number = 0;
-let timerProposals:number = 0;
+let timerChain: number = 0;
+let timerValidators: number = 0;
+let timerCoin: number = 0;
+let timerProposals: number = 0;
 let timerTransactions: number = 0;
 let timerElection: number = 0;
 let timerBlockSigners: number = 0;
@@ -73,7 +73,7 @@ function updateBlock(number: number) {
     }
 
     timer = Meteor.setInterval(() => {
-    Meteor.clearInterval(timer);
+      Meteor.clearInterval(timer);
       web3.eth.getBlockNumber().then((num) => {
         updateBlock(num);
       });
@@ -82,17 +82,17 @@ function updateBlock(number: number) {
 }
 
 // Update the record for all signers in the blocks
-function updateBlockSigners(blockNumber:number) {
+function updateBlockSigners(blockNumber: number) {
   Meteor.call("blocks.getBlockSigners", blockNumber, (error, result) => {
     if (error) {
       console.log(error);
     }
 
     if (result) {
-      console.log(`Updated signers for block ${blockNumber} ` );
+      console.log(`Updated signers for block ${blockNumber} `);
     }
 
-      timerBlockSigners = Meteor.setInterval(() => {
+    timerBlockSigners = Meteor.setInterval(() => {
       Meteor.clearInterval(timerBlockSigners);
       web3.eth.getBlockNumber().then((num) => {
         updateBlockSigners(num);
@@ -109,7 +109,7 @@ function updateElection(number: Number) {
     }
 
     if (result) {
-      console.log("Updated election at height " + number );
+      console.log("Updated election at height " + number);
     }
   })
   timerElection = Meteor.setInterval(updateElection, 450000);
@@ -128,7 +128,7 @@ function updateChainState(number: number) {
     }
 
     timerChain = Meteor.setInterval(() => {
-  Meteor.clearInterval(timerChain);
+      Meteor.clearInterval(timerChain);
       web3.eth.getBlockNumber().then((num) => {
         updateChainState(num);
       });

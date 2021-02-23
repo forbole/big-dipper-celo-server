@@ -13,28 +13,29 @@ let web3 = kit.web3;
 
 // Decode tx input to obtain descriptionURL
 const decodeInput = async (proposalData, proposalQueuedEvent) => {
-        for(let c = 1; c <= Object.keys(proposalQueuedEvent).length; c++){
-            try{
-                let getTransaction =  await web3.eth.getTransaction((proposalQueuedEvent[c]?.transactionHash));
-                let contract = Contracts.findOne({ address: proposalQueuedEvent[c].address });
-                abiDecoder.addABI(contract?.ABI);
-                        
-                let decodedInput = abiDecoder.decodeMethod(getTransaction.input);
-                proposalData[c-1] = proposalQueuedEvent[c];
-                proposalData[c-1].proposalId = parseInt(proposalQueuedEvent[c]?.returnValues?.proposalId) < 7 ? parseInt(proposalQueuedEvent[c]?.returnValues?.proposalId) - 1 : parseInt(proposalQueuedEvent[c]?.returnValues?.proposalId);
+    for (let c = 1; c <= Object.keys(proposalQueuedEvent).length; c++) {
+        try {
+            let getTransaction = await web3.eth.getTransaction((proposalQueuedEvent[c]?.transactionHash));
+            let contract = Contracts.findOne({ address: proposalQueuedEvent[c].address });
+            abiDecoder.addABI(contract?.ABI);
 
-                proposalData[c-1].input = decodedInput;
-            }
-            catch(e){
-                console.log(`Error when decoding input for proposal ${c} ` + e)
-            }
-        
-}}
+            let decodedInput = abiDecoder.decodeMethod(getTransaction.input);
+            proposalData[c - 1] = proposalQueuedEvent[c];
+            proposalData[c - 1].proposalId = parseInt(proposalQueuedEvent[c]?.returnValues?.proposalId) < 7 ? parseInt(proposalQueuedEvent[c]?.returnValues?.proposalId) - 1 : parseInt(proposalQueuedEvent[c]?.returnValues?.proposalId);
+
+            proposalData[c - 1].input = decodedInput;
+        }
+        catch (e) {
+            console.log(`Error when decoding input for proposal ${c} ` + e)
+        }
+
+    }
+}
 
 
 // Save list and total number of votes received during Referendum Phase
 const saveProposalVotes = (proposalData, getTotalVotes) => {
-        for(let item = 0; item < proposalData.length; item++){
+    for (let item = 0; item < proposalData.length; item++) {
         let votedAbstain = 0
         let votedNo = 0
         let votedYes = 0
@@ -50,24 +51,24 @@ const saveProposalVotes = (proposalData, getTotalVotes) => {
         // No -> value == 2
         // Yes ->  value == 3
         for (let s = 0; s < getTotalVotes.length; s++) {
-        
-            if (getTotalVotes[s].returnValues.proposalId == item+2 && getTotalVotes[s].returnValues.value == 1) {
+
+            if (getTotalVotes[s].returnValues.proposalId == item + 2 && getTotalVotes[s].returnValues.value == 1) {
                 votedAbstain += parseFloat(getTotalVotes[s].returnValues.weight),
-                votedAbstainList[counterAbstain] = getTotalVotes[s],
-                votedAbstainList[counterAbstain]["voteType"] = "Abstain",
-                counterAbstain++
+                    votedAbstainList[counterAbstain] = getTotalVotes[s],
+                    votedAbstainList[counterAbstain]["voteType"] = "Abstain",
+                    counterAbstain++
             }
-            else if (getTotalVotes[s].returnValues.proposalId == item+2 && getTotalVotes[s].returnValues.value == 2) {
+            else if (getTotalVotes[s].returnValues.proposalId == item + 2 && getTotalVotes[s].returnValues.value == 2) {
                 votedNo += parseFloat(getTotalVotes[s].returnValues.weight),
-                votedNoList[counterNo] = getTotalVotes[s],
-                votedNoList[counterNo]["voteType"] = "No",
-                counterNo++
+                    votedNoList[counterNo] = getTotalVotes[s],
+                    votedNoList[counterNo]["voteType"] = "No",
+                    counterNo++
             }
-            else if (getTotalVotes[s].returnValues.proposalId == item+2 && getTotalVotes[s].returnValues.value == 3) {
+            else if (getTotalVotes[s].returnValues.proposalId == item + 2 && getTotalVotes[s].returnValues.value == 3) {
                 votedYes += parseFloat(getTotalVotes[s].returnValues.weight),
-                votedYesList[counterYes] = getTotalVotes[s],
-                votedYesList[counterYes]["voteType"] = "Yes",
-                counterYes++
+                    votedYesList[counterYes] = getTotalVotes[s],
+                    votedYesList[counterYes]["voteType"] = "Yes",
+                    counterYes++
             }
             let allVotesTotal = [...votedYesList, ...votedAbstainList, ...votedNoList]
             let totalVotesList = {
@@ -92,31 +93,31 @@ const saveProposalVotes = (proposalData, getTotalVotes) => {
 
 // Save list of upvotes received when the proposal was in the queue
 const saveUpvoteList = (proposalData, getUpvoters) => {
-    for(let item = 0; item < proposalData.length; item++){
-    let upvotersList = {};
-    let counter = 0;
-    
-    for (let s = 0; s < getUpvoters.length; s++) {
-        let blockDetails;
-        if (parseInt(getUpvoters[s].returnValues.proposalId) === item+2) {
-            upvotersList[counter] = getUpvoters[s],
-            blockDetails = Blocks.findOne({ hash: upvotersList[counter].blockHash });
-            upvotersList[counter].timestamp = blockDetails.timestamp;
-            counter++
-        }
-        proposalData[item].upvoteList = upvotersList
+    for (let item = 0; item < proposalData.length; item++) {
+        let upvotersList = {};
+        let counter = 0;
 
+        for (let s = 0; s < getUpvoters.length; s++) {
+            let blockDetails;
+            if (parseInt(getUpvoters[s].returnValues.proposalId) === item + 2) {
+                upvotersList[counter] = getUpvoters[s],
+                    blockDetails = Blocks.findOne({ hash: upvotersList[counter].blockHash });
+                upvotersList[counter].timestamp = blockDetails.timestamp;
+                counter++
+            }
+            proposalData[item].upvoteList = upvotersList
+
+        }
     }
-  }
 };
 
 // Save proposals duration for each phase 
-const saveProposalDurations = (proposalData,duration) => {
-        for(let item = 0; item < proposalData.length; item++){
+const saveProposalDurations = (proposalData, duration) => {
+    for (let item = 0; item < proposalData.length; item++) {
         let submittedTime = new BigNumber(proposalData[item]?.returnValues?.timestamp).toNumber()
 
         // Approval phase lasts 1 day and if the proposal is not approved in this window, it is considered expired.
-        let approvalPhaseTime =  new BigNumber(submittedTime).plus(duration?.Approval).toNumber();
+        let approvalPhaseTime = new BigNumber(submittedTime).plus(duration?.Approval).toNumber();
 
         // Referendum Phase (voting) lasts five days
         // Calculate day 5 of Referendum Phase
@@ -132,44 +133,44 @@ const saveProposalDurations = (proposalData,duration) => {
 
         proposalData[item].submittedTime = submittedTime ? submittedTime : 0;
         proposalData[item].approvalPhaseTime = approvalPhaseTime ? approvalPhaseTime : 0;
-        proposalData[item].votingPhaseStartTime = votingPhaseStartTime ? votingPhaseStartTime: 0;
+        proposalData[item].votingPhaseStartTime = votingPhaseStartTime ? votingPhaseStartTime : 0;
         proposalData[item].votingPhaseEndTime = votingPhaseEndTime ? votingPhaseEndTime : 0;
-        proposalData[item].executionPhaseStartTime = executionPhaseStartTime ? executionPhaseStartTime: 0;
-        proposalData[item].executionPhaseEndTime = executionPhaseEndTime ? executionPhaseEndTime: 0;
+        proposalData[item].executionPhaseStartTime = executionPhaseStartTime ? executionPhaseStartTime : 0;
+        proposalData[item].executionPhaseEndTime = executionPhaseEndTime ? executionPhaseEndTime : 0;
     }
 };
 
 // Save proposal stage and status 
-const getProposalStage = async (proposalData, getGovernance,executedProposals) => {
-        let proposalRec = [];
-        let status;
+const getProposalStage = async (proposalData, getGovernance, executedProposals) => {
+    let proposalRec = [];
+    let status;
 
-        for(let d = 0; d < proposalData.length; d++){
-            if(proposalData[d].returnValues.proposalId == d+2){
-                proposalRec[d] = await getGovernance.getProposalRecord(d+2)
-                if(proposalRec[d].stage === ProposalStage.Expiration){
-                    if(proposalRec[d].stage === ProposalStage.Referendum){
+    for (let d = 0; d < proposalData.length; d++) {
+        if (proposalData[d].returnValues.proposalId == d + 2) {
+            proposalRec[d] = await getGovernance.getProposalRecord(d + 2)
+            if (proposalRec[d].stage === ProposalStage.Expiration) {
+                if (proposalRec[d].stage === ProposalStage.Referendum) {
                     status = "Referendum"
-                    }
-                    
-                    if(proposalRec[d].stage === ProposalStage.Execution){
-                    status = "Execution"
-                    }
+                }
 
-                    if (executedProposals.find((e) => new BigNumber(e.returnValues.proposalId).eq(proposalData[d].returnValues.proposalId))) {
-                        status = "Approved"
-                    }
-                    else {
-                        status = "Rejected"
-                    }  
+                if (proposalRec[d].stage === ProposalStage.Execution) {
+                    status = "Execution"
                 }
-                
-                try{
-                    Proposals.update({ proposalId: d+2},{$set: {stage: proposalRec[d].stage, status: status}});
+
+                if (executedProposals.find((e) => new BigNumber(e.returnValues.proposalId).eq(proposalData[d].returnValues.proposalId))) {
+                    status = "Approved"
                 }
-                catch(e){
-                    console.log("Error when updating Proposal Stage and Status " + e)
+                else {
+                    status = "Rejected"
                 }
+            }
+
+            try {
+                Proposals.update({ proposalId: d + 2 }, { $set: { stage: proposalRec[d].stage, status: status } });
+            }
+            catch (e) {
+                console.log("Error when updating Proposal Stage and Status " + e)
+            }
         }
     }
 }
@@ -178,7 +179,7 @@ const getProposalStage = async (proposalData, getGovernance,executedProposals) =
 Meteor.methods({
     "proposals.getProposals": async function () {
         this.unblock()
-   
+
         console.log("Start proposals.getProposals")
 
         let governance, getGovernance, executedProposals, getUpvoters, getTotalVotes, duration;
@@ -194,7 +195,7 @@ Meteor.methods({
 
         try {
             proposalQueuedEvent = await governance.getPastEvents('ProposalQueued', { fromBlock: 0 })
-            decodeInput(proposalData, proposalQueuedEvent); 
+            decodeInput(proposalData, proposalQueuedEvent);
         }
         catch (error) {
             console.log("Error when getting the Governance Past Events " + error)
@@ -214,7 +215,7 @@ Meteor.methods({
         catch (error) {
             console.log("Error when getting Governance Durations " + error);
         }
-   
+
 
         try {
             executedProposals = await governance.getPastEvents('ProposalExecuted', { fromBlock: 0 });
@@ -236,24 +237,24 @@ Meteor.methods({
         catch (error) {
             console.log("Error when getting Governance Voted Proposals " + error);
         }
-        
+
         saveUpvoteList(proposalData, getUpvoters);
         saveProposalVotes(proposalData, getTotalVotes);
-        saveProposalDurations(proposalData,duration);
-        getProposalStage(proposalData, getGovernance,executedProposals);
+        saveProposalDurations(proposalData, duration);
+        getProposalStage(proposalData, getGovernance, executedProposals);
 
 
-        for(let item = 0; item < proposalData.length; item++){
+        for (let item = 0; item < proposalData.length; item++) {
 
             const bulkProposals = Proposals.rawCollection().initializeUnorderedBulkOp();
-            bulkProposals.find({transactionHash: proposalData[item]?.transactionHash}).upsert().updateOne({$set: proposalData[item]});
-            
-            if (bulkProposals.length > 0){
+            bulkProposals.find({ transactionHash: proposalData[item]?.transactionHash }).upsert().updateOne({ $set: proposalData[item] });
+
+            if (bulkProposals.length > 0) {
                 bulkProposals.execute((err, result) => {
-                    if (err){
+                    if (err) {
                         console.log("Error when saving proposals " + err);
                     }
-                    if (result){
+                    if (result) {
                         console.log("Proposals saved!")
                     }
                 });
@@ -305,9 +306,7 @@ Meteor.methods({
         }
 
         try {
-            if(epochNumber > 0){
-                electedValidatorSet = await election.getElectedValidators(epochNumber)
-            }
+            electedValidatorSet = await election.getElectedValidators(epochNumber)
         }
         catch (error) {
             console.log("Error when getting Elected Validators Set " + error)
