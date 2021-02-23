@@ -246,7 +246,7 @@ Meteor.methods({
           }
           ValidatorRecords.insert(record);
         }
-        Blocks.upsert({ number: block.number }, {$set: { hasSingers: true}});
+        // Blocks.upsert({ number: block.number }, {$set: { hasSingers: true}});
       }
       catch (e) {
         console.log("Error when processing Validator Record " + e)
