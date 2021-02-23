@@ -95,7 +95,9 @@ function updateBlockSigners(blockNumber:number) {
       timerBlockSigners = Meteor.setInterval(() => {
       Meteor.clearInterval(timerBlockSigners);
       web3.eth.getBlockNumber().then((num) => {
-        updateBlockSigners(num);
+        Meteor.defer(function () {
+          updateBlockSigners(num);
+        })
       });
     }, 10000);
   });
