@@ -2,6 +2,7 @@ import { Meteor } from 'meteor/meteor';
 import GraphQLJSON from 'graphql-type-json';
 import moment from 'moment';
 import numbro from 'numbro';
+import fetch from 'node-fetch';
 import Chain from '../chain/chain';
 import Transactions from '../transactions/transactions';
 import Accounts from '../accounts/accounts';
@@ -315,59 +316,65 @@ export default {
       return validatorSet;
     },
 
-    coinHistoryByDates(_, {
+    async coinHistoryByDates(_, {
       dateFrom = '22-08-2020', dateTo = '11-09-2020',
     }, context, info) {
       const celoTotal: CeloTotalInterface = Chain.findOne();
       const fromDate = moment(`${dateFrom} 00:00`, 'DD-MM-YYYY HH:mm').unix();
       const toDate = moment(`${dateTo} 00:00`, 'DD-MM-YYYY HH:mm').unix();
-
       const url = `https://api.coingecko.com/api/v3/coins/celo/market_chart/range?vs_currency=usd&from=${fromDate}&to=${toDate}`;
 
-      const response = HTTP.get(url);
-      if (response.statusCode === 200) {
-        const data = JSON.parse(response.content);
-
-        const prices = [];
-        for (let c = 0; c < data.prices.length; c++) {
-          prices[c] = {
-            Time: moment(data.prices[c][0]).format('DD MMM hh:mm a'),
-            CELO: numbro(data.prices[c][1]).format('0.0000'),
-            Market_Cap: numbro((data.prices[c][1] * celoTotal.celoTotalSupply) / CELO).format('0.0000'),
-          };
+      const priceHistory = await fetch(url).then((response) => {
+        if (response.ok) {
+          return response.json();
         }
-        const { totalVolumes } = data;
+      })
+        .catch((e) => {
+          return console.log(`Error when getting Coin Price History by Dates ${e}`);
+        });
 
-        return {
-          prices, totalVolumes,
+      const prices = [];
+      for (let c = 0; c < priceHistory?.prices.length; c++) {
+        prices[c] = {
+          Time: moment(priceHistory?.prices[c][0]).format('DD MMM hh:mm a'),
+          CELO: numbro(priceHistory?.prices[c][1]).format('0.0000'),
+          Market_Cap: numbro((priceHistory?.prices[c][1] * celoTotal?.celoTotalSupply) / CELO).format('0.0000'),
         };
       }
+      const totalVolumes = priceHistory?.total_volumes;
+
+      return {
+        prices, totalVolumes,
+      };
     },
 
-    coinHistoryByNumOfDays(_, args, context, info) {
+    async coinHistoryByNumOfDays(_, args, context, info) {
       const celoTotal: CeloTotalInterface = Chain.findOne();
-
       const url = `https://api.coingecko.com/api/v3/coins/celo/market_chart?vs_currency=usd&days=${args.days}`;
 
-      const response = HTTP.get(url);
-      if (response.statusCode === 200) {
-        const data = JSON.parse(response.content);
+      const priceHistory = await fetch(url)
+        .then((response) => {
+          if (response.ok) {
+            return response.json();
+          }
+        })
+        .catch((e) => {
+          return console.log(`Error when getting Coin Price History by Number of Days ${e}`);
+        });
 
-        const coinPrices = data;
-        const prices = [];
-        for (let c = 0; c < coinPrices.prices.length; c++) {
-          prices[c] = {
-            Time: moment(coinPrices.prices[c][0]).format('DD MMM hh:mm a'),
-            CELO: numbro(coinPrices.prices[c][1]).format('0.0000'),
-            Market_Cap: numbro((coinPrices.prices[c][1] * celoTotal.celoTotalSupply) / CELO).format('0.0000'),
-          };
-        }
-        const { totalVolumes } = data;
-
-        return {
-          prices, totalVolumes,
+      const prices = [];
+      for (let c = 0; c < priceHistory?.prices.length; c++) {
+        prices[c] = {
+          Time: moment(priceHistory?.prices[c][0]).format('DD MMM hh:mm a'),
+          CELO: numbro(priceHistory?.prices[c][1]).format('0.0000'),
+          Market_Cap: numbro((priceHistory?.prices[c][1] * celoTotal?.celoTotalSupply) / CELO).format('0.0000'),
         };
       }
+      const totalVolumes = priceHistory?.total_volumes;
+
+      return {
+        prices, totalVolumes,
+      };
     },
 
     async downtime(_, {

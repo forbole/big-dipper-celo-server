@@ -1,6 +1,6 @@
 import { Meteor } from 'meteor/meteor';
-import { HTTP } from 'meteor/http';
 import { newKit } from '@celo/contractkit';
+import fetch from 'node-fetch';
 import Chain from '../chain';
 import Accounts from '../../accounts/accounts';
 
@@ -92,37 +92,48 @@ Meteor.methods({
 
   'chain.updateCoin': async function () {
     // this.unblock();
-    const url = 'https://api.coingecko.com/api/v3/simple/price?ids=celo&vs_currencies=usd&include_market_cap=true&include_24hr_vol=true&include_24hr_change=true&include_last_updated_at=true';
-    const response = HTTP.get(url);
+    let url;
+
     try {
-      if (response.statusCode === 200) {
-        let chainId: number;
-        try {
-          chainId = await web3.eth.net.getId();
-        } catch (e) {
-          console.log(`Error when processing chainId ${e}`);
-        }
-        Chain.upsert({
-          chainId,
-        }, {
-          $set: {
-            tokenPrice: {
-              usd: response?.data.celo?.usd,
-              usdMarketCap: response?.data.celo?.usd_market_cap,
-              usd24hVol: response?.data.celo?.usd_24h_vol,
-              usd24hChange: response?.data.celo?.usd_24h_change,
-              lastUpdatedAt: response?.data.celo?.last_updated_at,
-            },
-          },
-        }, (error: any, result: any) => {
-          const chainState = Chain.findOne({
-            chainId,
-          });
-          PUB.pubsub.publish(PUB.CHAIN_UPDATED, {
-            chainUpdated: chainState,
-          });
+      url = 'https://api.coingecko.com/api/v3/simple/price?ids=celo&vs_currencies=usd&include_market_cap=true&include_24hr_vol=true&include_24hr_change=true&include_last_updated_at=true';
+    } catch (e) {
+      console.log(`Error when updating the coin price ${e}`);
+    }
+
+    try {
+      await fetch(url)
+        .then((response) => {
+          if (response.ok) {
+            response.json().then(async (data) => {
+              let chainId: number;
+              try {
+                chainId = await web3.eth.net.getId();
+              } catch (e) {
+                console.log(`Error when processing chainId ${e}`);
+              }
+              Chain.upsert({
+                chainId,
+              }, {
+                $set: {
+                  tokenPrice: {
+                    usd: data.celo?.usd,
+                    usdMarketCap: data.celo?.usd_market_cap,
+                    usd24hVol: data.celo?.usd_24h_vol,
+                    usd24hChange: data.celo?.usd_24h_change,
+                    lastUpdatedAt: data.celo?.last_updated_at,
+                  },
+                },
+              }, (error: any, result: any) => {
+                const chainState = Chain.findOne({
+                  chainId,
+                });
+                PUB.pubsub.publish(PUB.CHAIN_UPDATED, {
+                  chainUpdated: chainState,
+                });
+              });
+            });
+          }
         });
-      }
     } catch (e) {
       console.log(`Error when updating Coin Data ${e}`);
     }
