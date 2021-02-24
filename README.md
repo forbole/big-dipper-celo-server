@@ -9,10 +9,9 @@ Block Explorer for Celo Blockchain.
 
 ## Donations :pray:
 
-The Big Dipper is always free and open. Anyone can use to monitor available Cosmos hub or zones, or port to your own chain built with Cosmos SDK. We welcome any supports to help us improve this project.
+The Big Dipper is always free and open. We welcome any support to help us improve this project.
 
-ATOM: `cosmos1n67vdlaejpj3uzswr9qapeg76zlkusj5k875ma`\
-BTC: `1HrTuvS83VoUVA79wTifko69ziWTjEXzQS`\
-ETH: `0xec3AaC5023E0C9E2a76A223E4e312f275c76Cd77`
+BTC: `bc1qye4k27zsn5nehzded6jwsvzg8qd6kgvxyhckts`\
+ETH: `0x8CAb9F3fC6bBBD819050365627FC6B79d0ea73e6`
 
-And by downloading and using [Brave](https://brave.com/big517).
+You can also support us by downloading and using [Brave](https://brave.com/big517).
