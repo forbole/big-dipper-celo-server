@@ -33,6 +33,7 @@
 * Updated Meteor to `v2.0` 
 * [#94] Updated CoinGecko coin name from `celo-gold` to `celo`
 * Removed `lastEpochNumber` value
+* [#88] Indexed signer field in resolvers to improve aggregation performance
 
 ## [v0.1.3]
 * Added validator address in the schema
