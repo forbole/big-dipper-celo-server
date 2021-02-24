@@ -420,7 +420,8 @@ export default {
       const pipeline = [
         {
           '$match': {
-            'blockNumber': parent.number
+            'blockNumber': parent.number,
+            'signer': parent.signer
           }
         }, {
           '$lookup': {
