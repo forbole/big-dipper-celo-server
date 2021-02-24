@@ -14,4 +14,4 @@ The Big Dipper is always free and open. We welcome any support to help us improv
 BTC: `bc1qye4k27zsn5nehzded6jwsvzg8qd6kgvxyhckts`\
 ETH: `0x8CAb9F3fC6bBBD819050365627FC6B79d0ea73e6`
 
-And by downloading and using [Brave](https://brave.com/big517).
+You can also support us by downloading and using [Brave](https://brave.com/big517).
