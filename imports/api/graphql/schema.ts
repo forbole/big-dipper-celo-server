@@ -1,6 +1,4 @@
-import { gql } from 'apollo-server-express'
-import BigInt from "apollo-type-bigint-fix";
-import GraphQLJSON from "graphql-type-json";
+import { gql } from 'apollo-server-express';
 
 const typeDefs = gql`
     scalar BigInt
