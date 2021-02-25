@@ -1,11 +1,10 @@
-import { Meteor } from "meteor/meteor";
-import { newKit } from "@celo/contractkit";
+import { Meteor } from 'meteor/meteor';
+import { newKit } from '@celo/contractkit';
 
-
-import "../imports/startup/server";
+import '../imports/startup/server';
 
 const kit = newKit(Meteor.settings.public.fornoAddress);
-const web3 = kit.web3;
+const { web3 } = kit;
 let timer: number = 0;
 let timerChain: number = 0;
 let timerValidators: number = 0;
@@ -17,7 +16,7 @@ let timerBlockSigners: number = 0;
 
 function updatePendingTransactions() {
   Meteor.clearInterval(timerTransactions);
-  Meteor.call("transactions.updatePending", (error, result) => {
+  Meteor.call('transactions.updatePending', (error, result) => {
     if (error) {
       console.log(error);
     }
@@ -32,7 +31,7 @@ function updatePendingTransactions() {
 
 function updateTokenPrice() {
   Meteor.clearInterval(timerCoin);
-  Meteor.call("chain.updateCoin", (error, result) => {
+  Meteor.call('chain.updateCoin', (error, result) => {
     if (error) {
       console.log(error);
     }
@@ -47,7 +46,7 @@ function updateTokenPrice() {
 
 function updateValidators(number: number) {
   Meteor.clearInterval(timerValidators);
-  Meteor.call("validators.update", number, (error, result) => {
+  Meteor.call('validators.update', number, (error, result) => {
     if (error) {
       console.log(error);
     }
@@ -63,13 +62,13 @@ function updateValidators(number: number) {
 // Get blocks from the server until the latest block height.
 // Continue checking every 10 seconds.
 function updateBlock(number: number) {
-  Meteor.call("blocks.getBlocks", number, (error, result) => {
+  Meteor.call('blocks.getBlocks', number, (error, result) => {
     if (error) {
       console.log(error);
     }
 
     if (result) {
-      console.log("Updated block height to: " + result);
+      console.log(`Updated block height to: ${result}`);
     }
 
     timer = Meteor.setInterval(() => {
@@ -83,7 +82,7 @@ function updateBlock(number: number) {
 
 // Update the record for all signers in the blocks
 function updateBlockSigners(blockNumber: number) {
-  Meteor.call("blocks.getBlockSigners", blockNumber, (error, result) => {
+  Meteor.call('blocks.getBlockSigners', blockNumber, (error, result) => {
     if (error) {
       console.log(error);
     }
@@ -103,28 +102,27 @@ function updateBlockSigners(blockNumber: number) {
 
 function updateElection(number: Number) {
   Meteor.clearInterval(timerElection);
-  Meteor.call("election.update", number, (error, result) => {
+  Meteor.call('election.update', number, (error, result) => {
     if (error) {
       console.log(error);
     }
 
     if (result) {
-      console.log("Updated election at height " + number);
+      console.log(`Updated election at height ${number}`);
     }
-  })
+  });
   timerElection = Meteor.setInterval(updateElection, 450000);
 }
 
-
 // Update chain latest status every 5 seconds.
 function updateChainState(number: number) {
-  Meteor.call("chain.updateChain", number, (error, result) => {
+  Meteor.call('chain.updateChain', number, (error, result) => {
     if (error) {
       console.log(error);
     }
 
     if (result) {
-      console.log("Updated chain height to: " + result);
+      console.log(`Updated chain height to: ${result}`);
     }
 
     timerChain = Meteor.setInterval(() => {
@@ -137,48 +135,46 @@ function updateChainState(number: number) {
 }
 
 function getContractABI() {
-  Meteor.call("contract.getContractABI", (error, result) => {
+  Meteor.call('contract.getContractABI', (error, result) => {
     if (error) {
       console.log(error);
     }
 
     if (result) {
-      console.log("Updated contract ABIs ");
+      console.log('Updated contract ABIs ');
     }
   });
 }
 
 function updateProposals() {
   Meteor.clearInterval(timerProposals);
-  Meteor.call("proposals.getProposals", (error, result) => {
+  Meteor.call('proposals.getProposals', (error, result) => {
     if (error) {
       console.log(error);
     }
 
     if (result) {
-      console.log("Updated proposals ");
+      console.log('Updated proposals ');
     }
 
     timerProposals = Meteor.setInterval(updateProposals, 300000);
-
   });
 }
-
 
 Meteor.startup(() => {
   // Make sure the chain has block
   web3.eth.getBlockNumber().then((number) => {
-    Meteor.call("contract.getContractAddress", (error, result) => {
+    Meteor.call('contract.getContractAddress', (error, result) => {
       if (error) {
         console.log(error);
       }
 
       if (result) {
-        console.log("Contracts have been processed " + result);
+        console.log(`Contracts have been processed ${result}`);
         updateChainState(number);
         updateValidators(number);
         updateBlock(number);
-        updateBlockSigners(number)
+        updateBlockSigners(number);
         updateTokenPrice();
         updatePendingTransactions();
         updateProposals();

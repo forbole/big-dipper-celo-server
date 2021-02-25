@@ -1,7 +1,9 @@
 import React from 'react';
 
-export const App = () => (
+const App = () => (
   <div>
-    <h1>Big Dipper for Celo</h1>    
+    <h1>Big Dipper for Celo</h1>
   </div>
 );
+
+export default App();

@@ -5,7 +5,9 @@
     "start": "meteor run",
     "test": "meteor test --once --driver-package meteortesting:mocha",
     "test-app": "TEST_WATCH=1 meteor test --full-app --driver-package meteortesting:mocha",
-    "visualize": "meteor --production --extra-packages bundle-visualizer"
+    "visualize": "meteor --production --extra-packages bundle-visualizer",
+    "lint": "eslint --fix . --ext .ts,.tsx,.js,.jsx",
+    "pretest": "npm run lint --silent"
   },
   "dependencies": {
     "@babel/runtime": "^7.12.5",
@@ -17,10 +19,13 @@
     "apollo-client": "^2.6.10",
     "apollo-server-express": "^2.19.0",
     "apollo-type-bigint-fix": "^0.1.2",
+    "bignumber.js": "^9.0.1",
     "express": "^4.17.1",
     "graphql": "^15.4.0",
     "graphql-type-json": "^0.3.2",
     "meteor-node-stubs": "^1.0.1",
+    "moment": "^2.29.1",
+    "node-fetch": "^2.6.1",
     "numbro": "^2.3.2",
     "react": "^16.14.0",
     "react-dom": "^16.14.0",
@@ -32,5 +37,22 @@
       "server": "server/main.ts"
     },
     "testModule": "tests/main.ts"
+  },
+  "devDependencies": {
+    "@meteorjs/eslint-config-meteor": "^1.0.5",
+    "@typescript-eslint/eslint-plugin": "^4.15.2",
+    "@typescript-eslint/parser": "^4.15.2",
+    "babel-eslint": "^10.1.0",
+    "eslint": "^7.20.0",
+    "eslint-config-airbnb": "^18.2.1",
+    "eslint-import-resolver-meteor": "^0.4.0",
+    "eslint-plugin-import": "^2.22.1",
+    "eslint-plugin-jsx-a11y": "^6.4.1",
+    "eslint-plugin-meteor": "^7.3.0",
+    "eslint-plugin-react": "^7.22.0",
+    "eslint-plugin-react-hooks": "^4.2.0"
+  },
+  "eslintConfig": {
+    "extends": "@meteorjs/eslint-config-meteor"
   }
 }
