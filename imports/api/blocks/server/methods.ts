@@ -47,12 +47,8 @@ interface BlockInterface {
 const chainStatus = (chainState, block, blockTime, latestBlockHeight, targetHeight) => {
   for (let i = latestBlockHeight + 1; i <= targetHeight; i++) {
     if (chainState) {
-      // make sure averageBlockTime and txCount exist before calculation
-      if (!chainState.averageBlockTime) chainState.averageBlockTime = 0;
-      if (!chainState.txCount) chainState.txCount = 0;
-
-      chainState.averageBlockTime = (chainState.averageBlockTime * (i - 1) + blockTime) / i;
-      chainState.latestHeight = block.number;
+      chainState.averageBlockTime = (chainState.averageBlockTime * (i - 1) + blockTime) / i ?? 0;
+      chainState.latestHeight = block?.number ?? 0;
     } else {
       chainState = {
       };
