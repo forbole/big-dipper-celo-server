@@ -14,7 +14,7 @@ const typeDefs = gql`
         order: Order!
     }
 
-    type Chain {
+    type Chain @cacheControl(maxAge: 240){
         _id: String
         averageBlockTime: Float
         txCount: Int
@@ -45,7 +45,7 @@ const typeDefs = gql`
         lastUpdatedAt: Int!
     }
 
-    type Block {
+    type Block @cacheControl(maxAge: 240){
         _id: String
         extraData: String!
         gasLimit: Int
@@ -61,10 +61,10 @@ const typeDefs = gql`
         stateRoot: String!
         timestamp: Int!
         totalDifficulty: String!
-        transactions: [Transaction]
+        transactions: [Transaction] @cacheControl(maxAge: 30)
         transactionsRoot: String!
         blockTime: Int!
-        signers: [SignerRecord]
+        signers: [SignerRecord] @cacheControl(maxAge: 30)
     }
 
     type Randomness {
@@ -79,7 +79,7 @@ const typeDefs = gql`
         validator: Validator
     }
 
-    type Transaction {
+    type Transaction @cacheControl(maxAge: 240){
         _id: String
         blockHash: String!
         blockNumber: Int!
@@ -104,7 +104,7 @@ const typeDefs = gql`
         timestamp: Int
     }
 
-    type Account {
+    type Account @cacheControl(maxAge: 240){
         _id: String
         address: String
         balance: BigInt
@@ -126,7 +126,7 @@ const typeDefs = gql`
         pending: BigInt
     }
 
-    type Proposal{
+    type Proposal @cacheControl(maxAge: 240){
         _id: String
         proposalId: Int
         address: String
@@ -185,7 +185,7 @@ const typeDefs = gql`
         ABI: JSON
     }
 
-    type ValidatorGroup {
+    type ValidatorGroup @cacheControl(maxAge: 240) {
         _id: String
         address: String!
         affiliates: [String]
@@ -205,7 +205,7 @@ const typeDefs = gql`
         rewards: JSON
     }
 
-    type Validator{
+    type Validator @cacheControl(maxAge: 240){
         _id: String
         address: String!
         affiliation: String!
@@ -220,19 +220,19 @@ const typeDefs = gql`
         validatorGroup: ValidatorGroup
     }
 
-    type CoinHistoryByDates{
+    type CoinHistoryByDates @cacheControl(maxAge: 240){
         prices: JSON
         market_caps: JSON 
         total_volumes: JSON
     }
 
-    type CoinHistoryByNumOfDays{
+    type CoinHistoryByNumOfDays @cacheControl(maxAge: 240){
         prices: JSON
         total_volumes: JSON
     }
 
 
-     type Election{
+     type Election @cacheControl(maxAge: 240){
         electedValidatorGroups: Int!
         electedValidators: Int!
         registeredValidatorGroups: Int!
@@ -240,62 +240,62 @@ const typeDefs = gql`
     }
 
     type Query {
-        chain: Chain
+        chain: Chain @cacheControl(maxAge: 10)
         accountCount: Int!
         blocks(
             pageSize: Int
             page: Int
             sortBy: SortBy
             fromBlock: Int
-        ): BlockList! 
+        ): BlockList! @cacheControl(maxAge: 10)
         transactions(
             pageSize: Int
             page: Int
             sortBy: SortBy
-        ): TransactionList!
+        ): TransactionList! @cacheControl(maxAge: 10)
         accounts(
             pageSize: Int
             page: Int
             sortBy: SortBy
-        ): AccountList!
-        currentValidatorSet: [Validator]!
-        block(number: Int): Block
-        transaction(hash: String!): Transaction
+        ): AccountList! @cacheControl(maxAge: 10)
+        currentValidatorSet: [Validator]! @cacheControl(maxAge: 10)
+        block(number: Int): Block @cacheControl(maxAge: 10)
+        transaction(hash: String!): Transaction @cacheControl(maxAge: 10)
         transactionsByAccount(
             address: String!,
             pageSize: Int,
             page: Int
-        ): TransactionList
+        ): TransactionList @cacheControl(maxAge: 10)
         proposedBlocks(
             address: String
             pageSize: Int
             page: Int
-        ): BlockList!
+        ): BlockList! @cacheControl(maxAge: 10)
         downtime(
             address: String
             pageSize: Int
             page: Int
-        ): BlockList!
-        account(address: String!): Account
-        validatorGroup(valGroupAddress:String name:String): ValidatorGroup
+        ): BlockList! @cacheControl(maxAge: 10)
+        account(address: String!): Account @cacheControl(maxAge: 10)
+        validatorGroup(valGroupAddress:String name:String): ValidatorGroup @cacheControl(maxAge: 10)
         validatorGroups(
             pageSize: Int
             page: Int
             sortBy: SortBy
-        ): ValidatorGroupList!
-        validator(address:String name:String): Validator
+        ): ValidatorGroupList! @cacheControl(maxAge: 10)
+        validator(address:String name:String): Validator @cacheControl(maxAge: 10)
         coinHistoryByDates(dateFrom: String 
-            dateTo: String): CoinHistoryByDates
-        coinHistoryByNumOfDays(days: Int): CoinHistoryByNumOfDays
-        proposal(proposalNumber: Int): Proposal
+            dateTo: String): CoinHistoryByDates @cacheControl(maxAge: 10)
+        coinHistoryByNumOfDays(days: Int): CoinHistoryByNumOfDays @cacheControl(maxAge: 10)
+        proposal(proposalNumber: Int): Proposal @cacheControl(maxAge: 10)
         proposals(pageSize: Int
             page: Int
-            sortBy: SortBy): ProposalList!
-        election: Election
+            sortBy: SortBy): ProposalList! @cacheControl(maxAge: 10)
+        election: Election @cacheControl(maxAge: 10)
 
     }
 
-    type AccountList {
+    type AccountList @cacheControl(maxAge: 240) {
         cursor: Int!
         pageSize: Int!
         page: Int!
@@ -304,7 +304,7 @@ const typeDefs = gql`
         accounts: [Account]
     }
 
-    type BlockList {
+    type BlockList @cacheControl(maxAge: 240) {
         cursor: Int!
         pageSize: Int!
         page: Int!
@@ -313,7 +313,7 @@ const typeDefs = gql`
         blocks: [Block]
     }
 
-    type TransactionList {
+    type TransactionList @cacheControl(maxAge: 240) {
         cursor: Int!
         pageSize: Int!
         page: Int!
@@ -322,7 +322,7 @@ const typeDefs = gql`
         transactions: [Transaction]
     }
 
-    type ProposalList {
+    type ProposalList @cacheControl(maxAge: 240){
         cursor: Int!
         pageSize: Int!
         page: Int!
@@ -331,7 +331,7 @@ const typeDefs = gql`
         proposals: [Proposal]
     }
 
-    type ValidatorGroupList{
+    type ValidatorGroupList @cacheControl(maxAge: 240){
         pageSize: Int!
         page: Int!
         totalCounts: Int!

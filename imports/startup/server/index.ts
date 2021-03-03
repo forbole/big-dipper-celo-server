@@ -6,13 +6,14 @@ import './create-indexes';
 import { ApolloServer } from 'apollo-server-express';
 import { WebApp } from 'meteor/webapp';
 
+import responseCachePlugin from 'apollo-server-plugin-response-cache';
 import typeDefs from '../../api/graphql/schema';
 import resolvers from '../../api/graphql/resolvers';
 
 // The ApolloServer constructor requires two parameters: your schema
 // definition and your set of resolvers.
 const server = new ApolloServer({
-  typeDefs, resolvers, introspection: true, playground: true,
+  typeDefs, resolvers, introspection: true, playground: true, plugins: [responseCachePlugin()],
 });
 
 server.applyMiddleware({

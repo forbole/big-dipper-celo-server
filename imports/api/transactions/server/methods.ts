@@ -26,7 +26,7 @@ const updatePendingTransactions = (tx) => {
       console.log(`Error when processing Pending Transactions ${error}`);
     }
     if (result) {
-      console.log(result);
+      console.log(`Updated pending transaction ${result}`);
     }
   });
 };
@@ -37,7 +37,7 @@ const updateTransactions = (tx) => {
       console.log(`Error when updating Account Transactions (Transfer) ${error}`);
     }
     if (result) {
-      console.log(result);
+      console.log(`Updated transaction ${result}`);
     }
   });
 };
