@@ -116,6 +116,7 @@ const typeDefs = gql`
         attestation: JSON
         txCount: Int
         groupsVotedFor: JSON
+        hasActivatablePendingVotes: Boolean
     }
 
     type TotalBalance {
