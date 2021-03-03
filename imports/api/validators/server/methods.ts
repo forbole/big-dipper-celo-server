@@ -216,7 +216,8 @@ Meteor.methods({
     }
 
     try {
-      electedValidatorSet = await election.getElectedValidators(epochNumber);
+      const lastEpochNumber = epochNumber - 1;
+      electedValidatorSet = await election.getElectedValidators(lastEpochNumber);
     } catch (error) {
       console.log(`Error when getting Elected Validators Set  ${error}`);
     }
