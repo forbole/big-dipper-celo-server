@@ -531,7 +531,7 @@ export default {
         {
           $match: {
             blockNumber: parent.number,
-            signer: parent.signer,
+            hash: parent.hash,
           },
         }, {
           $lookup: {
