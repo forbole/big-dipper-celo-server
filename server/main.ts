@@ -40,7 +40,7 @@ function updateTokenPrice() {
       // console.log("Updated token price " )
     }
 
-    timerCoin = Meteor.setInterval(updateTokenPrice, 30000);
+    timerCoin = Meteor.setInterval(updateTokenPrice, 31000);
   });
 }
 
@@ -55,7 +55,7 @@ function updateValidators(number: number) {
       // console.log("Updated validators at height: " + number)
     }
 
-    timerValidators = Meteor.setInterval(updateValidators, 10000);
+    timerValidators = Meteor.setInterval(updateValidators, 12000);
   });
 }
 
@@ -96,7 +96,7 @@ function updateBlockSigners(blockNumber: number) {
       web3.eth.getBlockNumber().then((num) => {
         updateBlockSigners(num);
       });
-    }, 10000);
+    }, 11000);
   });
 }
 
