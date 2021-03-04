@@ -526,12 +526,16 @@ export default {
     },
 
     async blocksSignedByAddress(_, {
-      address, signer, limit = 10,
+      signer, limit = 10,
     }, context, info) {
+      const valAddress = Validators.findOne({
+        signer,
+      });
+      const validatorAddress = valAddress?.address ?? '';
+
       const pipeline = [
         {
           $match: {
-            address,
             signer,
           },
         }, {
@@ -547,16 +551,20 @@ export default {
         },
       ];
 
-      let signerRecords;
+      let signers;
       try {
-        signerRecords = await ValidatorRecords.rawCollection().aggregate(pipeline).toArray();
+        signers = await ValidatorRecords.rawCollection().aggregate(pipeline).toArray();
       } catch (error) {
         console.log(`Error when getting Signer Records ${error}`);
       }
 
-      const totalCounts = signerRecords.length;
+      const totalCounts = signers.length;
+      const signerRecord = {
+        validatorAddress,
+        signers,
+      };
       return {
-        signerRecords,
+        signerRecord,
         totalCounts,
       };
     },

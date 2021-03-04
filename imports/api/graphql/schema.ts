@@ -295,7 +295,7 @@ const typeDefs = gql`
             sortBy: SortBy): ProposalList!
         election: Election
         blockSigners(blockNumber: Int): [SignersList]
-        blocksSignedByAddress(address: String signer: String limit: Int): SignersRecordList
+        blocksSignedByAddress(signer: String limit: Int): SignersRecordList
 
     }
 
@@ -328,16 +328,9 @@ const typeDefs = gql`
 
     type SignersRecordList {
         totalCounts: Int
-        signerRecords: [SignerRecords]
+        signerRecord: JSON
     }
 
-    type SignerRecords{
-        blockNumber: Int
-        signer: String
-        hash: String 
-        exist: Boolean
-        miner: Validator
-    }
 
     type TransactionList {
         cursor: Int
