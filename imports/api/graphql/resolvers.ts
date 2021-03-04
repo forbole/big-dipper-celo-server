@@ -500,29 +500,32 @@ export default {
     election() {
       return Election.findOne();
     },
-    blockSigners(_, {
-      blockNumber, pageSize = 20, page = 1,
+    async blockSigners(_, {
+      blockNumber, blockHash,
     }, context, info) {
-      const totalCounts = ValidatorRecords.find({
-        blockNumber,
-      }).count();
-      const signers = ValidatorRecords.find(
+      const pipeline = [
         {
-          blockNumber,
+          $match: {
+            blockNumber,
+            hash: blockHash,
+          },
+        }, {
+          $lookup: {
+            from: 'validators',
+            localField: 'signer',
+            foreignField: 'signer',
+            as: 'validators',
+          },
         },
-        {
-          limit: pageSize,
-          skip: (page - 1) * pageSize,
-        },
-      ).fetch();
-      return {
-        pageSize,
-        page,
-        signers,
-        totalCounts,
-        cursor: signers.length ? signers[signers.length - 1].number : null,
-        hasMore: signers.length ? signers[signers.length - 1].number !== 1 : false,
-      };
+      ];
+
+      let signerRecords;
+      try {
+        signerRecords = await ValidatorRecords.rawCollection().aggregate(pipeline).toArray();
+      } catch (error) {
+        console.log(`Error when getting Signer Records ${error}`);
+      }
+      return signerRecords;
     },
   },
   Block: {
@@ -554,19 +557,15 @@ export default {
       const pipeline = [
         {
           $match: {
-            blockNumber: parent.number,
-            hash: parent.hash,
+            blockNumber: (parent.number),
+            hash: parent?.hash,
           },
         }, {
           $lookup: {
             from: 'validators',
             localField: 'signer',
             foreignField: 'signer',
-            as: 'validator',
-          },
-        }, {
-          $unwind: {
-            path: '$validator',
+            as: 'validators',
           },
         },
       ];
@@ -647,7 +646,6 @@ export default {
       });
     },
     signerAccount(parent) {
-      console.log(parent.signer);
       return Meteor.call('accounts.getAccount', parent.signer);
     },
   },
