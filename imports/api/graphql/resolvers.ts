@@ -526,11 +526,12 @@ export default {
     },
 
     async blocksSignedByAddress(_, {
-      signer, limit = 10,
+      address, signer, limit = 10,
     }, context, info) {
       const pipeline = [
         {
           $match: {
+            address,
             signer,
           },
         }, {

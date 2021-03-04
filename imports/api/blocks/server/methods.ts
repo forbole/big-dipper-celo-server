@@ -19,6 +19,7 @@ interface LatestBlockInterface {
 
 interface RecordInterface {
   blockNumber?: number;
+  address?: string;
   miner?: string;
   hash?: string;
   signer?: string;
@@ -252,6 +253,7 @@ Meteor.methods({
             const record: RecordInterface = {
               blockNumber: block.number,
               signer: validatorSet[v].signer,
+              address: validatorSet[v].address,
               miner: block.miner,
               hash: block.hash,
               exist: await electionRC.signedParent(validatorSet[v].signer, block),

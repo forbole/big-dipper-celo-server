@@ -295,7 +295,7 @@ const typeDefs = gql`
             sortBy: SortBy): ProposalList!
         election: Election
         blockSigners(blockNumber: Int): [SignersList]
-        blocksSignedByAddress(signer: String limit: Int): SignersRecordList
+        blocksSignedByAddress(address: String signer: String limit: Int): SignersRecordList
 
     }
 
