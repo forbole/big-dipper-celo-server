@@ -133,21 +133,21 @@ const validatorGroupsDetails = async (valGroups, validators, epochNumber, valCon
       data.nextCommissionBlock = valGroups && valGroups[i] && valGroups[i].nextCommissionBlock ? valGroups[i].nextCommissionBlock.toNumber() : 0;
       data.slashingMultiplier = valGroups && valGroups[i] && valGroups[i].slashingMultiplier ? valGroups[i].slashingMultiplier.toNumber() : 0;
       data.lastSlashed = valGroups && valGroups[i] && valGroups[i].lastSlashed ? valGroups[i].lastSlashed.toNumber() : null;
-      // data.members = valGroups && valGroups[i] && valGroups[i].members ? valGroups[i].members : null;
+      data.members = valGroups && valGroups[i] && valGroups[i].members ? valGroups[i].members : null;
       data.electedValidators = {
       };
-      if (valGroups[i]?.members) {
-        // eslint-disable-next-line guard-for-in
-        for (const c in valGroups[i].members) {
-          const singerAddress = Validators.findOne({
-            address: valGroups[i].members[c],
-          });
-          data.members[c] = {
-            address: valGroups[i].members[c] as string ?? '',
-            signer: singerAddress ? singerAddress?.signer as string : '',
-          };
-        }
-      }
+      // if (valGroups[i]?.members) {
+      //   // eslint-disable-next-line guard-for-in
+      //   for (const c in valGroups[i].members) {
+      //     const singerAddress = Validators.findOne({
+      //       address: valGroups[i].members[c],
+      //     });
+      //     data.members[c] = {
+      //       address: valGroups[i].members[c] as string ?? '',
+      //       signer: singerAddress ? singerAddress?.signer as string : '',
+      //     };
+      //   }
+      // }
 
       // Get Validator Score
       validatorScore(validators, data);
