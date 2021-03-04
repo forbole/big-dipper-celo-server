@@ -526,12 +526,27 @@ export default {
     },
 
     async blocksSignedByAddress(_, {
-      signer, limit = 10,
+      signer, address, limit = 10,
     }, context, info) {
-      const valAddress = Validators.findOne({
-        signer,
-      });
-      const validatorAddress = valAddress?.address ?? '';
+      let valAddress: string = '';
+      let valSigner: string = '';
+      if (signer) {
+        // @ts-ignore
+        valAddress = Validators.findOne({
+          signer,
+        });
+      }
+      if (address) {
+        // @ts-ignore
+        valSigner = Validators.findOne({
+          address,
+        });
+      }
+
+      // @ts-ignore
+      signer = valSigner.signer;
+      // @ts-ignore
+      const validatorAddress: string | unknown = valAddress?.address ?? '';
 
       const pipeline = [
         {
