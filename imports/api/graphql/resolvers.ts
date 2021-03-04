@@ -524,6 +524,41 @@ export default {
       }
       return signerRecords;
     },
+
+    async blocksSignedByAddress(_, {
+      signer, limit = 10,
+    }, context, info) {
+      const pipeline = [
+        {
+          $match: {
+            signer,
+          },
+        }, {
+          $lookup: {
+            from: 'validators',
+            localField: 'signer',
+            foreignField: 'address',
+            as: 'validatorSigners',
+          },
+        },
+        {
+          $limit: limit,
+        },
+      ];
+
+      let signerRecords;
+      try {
+        signerRecords = await ValidatorRecords.rawCollection().aggregate(pipeline).toArray();
+      } catch (error) {
+        console.log(`Error when getting Signer Records ${error}`);
+      }
+
+      const totalCounts = signerRecords.length;
+      return {
+        signerRecords,
+        totalCounts,
+      };
+    },
   },
   Block: {
     transactions(parent) {

@@ -96,7 +96,7 @@ function updateBlockSigners(blockNumber: number) {
       web3.eth.getBlockNumber().then((num) => {
         updateBlockSigners(num);
       });
-    }, 11000);
+    }, 6000);
   });
 }
 
