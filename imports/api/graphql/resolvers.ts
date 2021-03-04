@@ -500,14 +500,11 @@ export default {
     election() {
       return Election.findOne();
     },
-    async blockSigners(_, {
-      blockNumber, blockHash,
-    }, context, info) {
+    async blockSigners(_, { blockNumber }, context, info) {
       const pipeline = [
         {
           $match: {
             blockNumber,
-            hash: blockHash,
           },
         }, {
           $lookup: {

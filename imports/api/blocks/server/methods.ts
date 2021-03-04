@@ -256,7 +256,11 @@ Meteor.methods({
               hash: block.hash,
               exist: await electionRC.signedParent(validatorSet[v].signer, block),
             };
-            ValidatorRecords.insert(record);
+            try {
+              ValidatorRecords.insert(record);
+            } catch (e) {
+              console.log(`Error when inserting Validator Records ${e}`);
+            }
           }
         }
         Blocks.upsert({
