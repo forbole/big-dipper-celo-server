@@ -82,8 +82,6 @@ function updateBlock(number: number) {
 
 // Update the record for all signers in the blocks
 function updateBlockSigners(blockNumber: number) {
-  Meteor.clearInterval(timerBlockSigners);
-
   Meteor.call('blocks.getBlockSigners', blockNumber, (error, result) => {
     if (error) {
       console.log(error);
@@ -93,7 +91,12 @@ function updateBlockSigners(blockNumber: number) {
       console.log(`Updated signers for block ${blockNumber} `);
     }
 
-    timerBlockSigners = Meteor.setInterval(updateBlockSigners, 10000);
+    timerBlockSigners = Meteor.setInterval(() => {
+      Meteor.clearInterval(timerBlockSigners);
+      web3.eth.getBlockNumber().then((num) => {
+        updateBlockSigners(num);
+      });
+    }, 10000);
   });
 }
 
