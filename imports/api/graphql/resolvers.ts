@@ -500,6 +500,30 @@ export default {
     election() {
       return Election.findOne();
     },
+    blockSigners(_, {
+      blockNumber, pageSize = 20, page = 1,
+    }, context, info) {
+      const totalCounts = ValidatorRecords.find({
+        blockNumber,
+      }).count();
+      const signers = ValidatorRecords.find(
+        {
+          blockNumber,
+        },
+        {
+          limit: pageSize,
+          skip: (page - 1) * pageSize,
+        },
+      ).fetch();
+      return {
+        pageSize,
+        page,
+        signers,
+        totalCounts,
+        cursor: signers.length ? signers[signers.length - 1].number : null,
+        hasMore: signers.length ? signers[signers.length - 1].number !== 1 : false,
+      };
+    },
   },
   Block: {
     transactions(parent) {

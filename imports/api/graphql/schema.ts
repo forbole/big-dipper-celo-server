@@ -64,6 +64,7 @@ const typeDefs = gql`
         transactions: [Transaction]
         transactionsRoot: String!
         blockTime: Int!
+        hasSingers: Boolean
         signers: [SignerRecord]
     }
 
@@ -293,6 +294,8 @@ const typeDefs = gql`
             page: Int
             sortBy: SortBy): ProposalList!
         election: Election
+        blockSigners(blockNumber: Int pageSize: Int
+            page: Int): BlockSigners
 
     }
 
@@ -312,6 +315,23 @@ const typeDefs = gql`
         totalCounts: Int!
         hasMore: Boolean!
         blocks: [Block]
+    }
+
+     type BlockSigners {
+        cursor: Int!
+        pageSize: Int!
+        page: Int!
+        totalCounts: Int!
+        hasMore: Boolean!
+        signers: [SignersList]
+    }
+
+    type SignersList {
+        blockNumber: Int!
+        miner: String 
+        hash: String 
+        signer: String
+        exist: Boolean
     }
 
     type TransactionList {
