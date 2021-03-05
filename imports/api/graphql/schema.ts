@@ -38,38 +38,39 @@ const typeDefs = gql`
     }
 
     type tokenPrice {
-        usd: Float!
-        usdMarketCap: Float!
-        usd24hVol: Float!
-        usd24hChange: Float!
-        lastUpdatedAt: Int!
+        usd: Float
+        usdMarketCap: Float
+        usd24hVol: Float
+        usd24hChange: Float
+        lastUpdatedAt: Int
     }
 
     type Block {
         _id: String
-        extraData: String!
+        extraData: String
         gasLimit: Int
-        gasUsed: Int!
-        hash: String!
-        logsBloom: String!
+        gasUsed: Int
+        hash: String
+        logsBloom: String
         miner: Validator
-        number: Int!
-        parentHash: String!
-        randomness: Randomness!
-        receiptsRoot: String!
-        size: Int!
-        stateRoot: String!
-        timestamp: Int!
-        totalDifficulty: String!
+        number: Int
+        parentHash: String
+        randomness: Randomness
+        receiptsRoot: String
+        size: Int
+        stateRoot: String
+        timestamp: Int
+        totalDifficulty: String
         transactions: [Transaction]
-        transactionsRoot: String!
-        blockTime: Int!
+        transactionsRoot: String
+        blockTime: Int
+        hasSingers: Boolean
         signers: [SignerRecord]
     }
 
     type Randomness {
-        committed: String!
-        revealed: String!
+        committed: String
+        revealed: String
     }
     
     type SignerRecord {
@@ -81,25 +82,25 @@ const typeDefs = gql`
 
     type Transaction {
         _id: String
-        blockHash: String!
-        blockNumber: Int!
+        blockHash: String
+        blockNumber: Int
         from: Account
-        gas: Int!
-        gasPrice: String!
+        gas: Int
+        gasPrice: String
         feeCurrency: String
         gatewayFeeRecipient: String
-        gatewayFee: String!
-        hash: String!
-        input: String!
+        gatewayFee: String
+        hash: String
+        input: String
         decodedInput: JSON
         type: String
         nonce: Int
-        to: ToWalletObject!
+        to: ToWalletObject
         transactionIndex: Int
         value: String
-        v: String!
-        r: String!
-        s: String!
+        v: String
+        r: String
+        s: String
         pending: Boolean
         timestamp: Int
     }
@@ -116,6 +117,7 @@ const typeDefs = gql`
         attestation: JSON
         txCount: Int
         groupsVotedFor: JSON
+        hasActivatablePendingVotes: Boolean
     }
 
     type TotalBalance {
@@ -175,29 +177,29 @@ const typeDefs = gql`
     type ToWalletContract implements ToWalletObject {
         _id: String
         address: String
-        contract: Contract!
+        contract: Contract
     }
 
     type Contract {
-        _id: String!
-        address: String!
-        name: String!
+        _id: String
+        address: String
+        name: String
         ABI: JSON
     }
 
     type ValidatorGroup {
         _id: String
-        address: String!
+        address: String
         affiliates: [String]
-        commission: Float!
-        lastSlashed: Int!
+        commission: Float
+        lastSlashed: Int
         members: [Validator]
         membersAccount: [Account]
-        membersUpdated: Int!
-        name: String!
-        nextCommission: Float!
-        nextCommissionBlock: Int!
-        slashingMultiplier: Float!
+        membersUpdated: Int
+        name: String
+        nextCommission: Float
+        nextCommissionBlock: Int
+        slashingMultiplier: Float
         lockedGoldAmount: BigInt
         votes: BigInt
         votesAvailable: BigInt
@@ -207,16 +209,16 @@ const typeDefs = gql`
 
     type Validator{
         _id: String
-        address: String!
-        affiliation: String!
-        blsPublicKey: String!
-        ecdsaPublicKey: String!
-        name: String!
-        score: Float!
-        attestationCompleted: Int!
-        attestationRequested: Int!
+        address: String
+        affiliation: String
+        blsPublicKey: String
+        ecdsaPublicKey: String
+        name: String
+        score: Float
+        attestationCompleted: Int
+        attestationRequested: Int
         signerAccount: Account
-        signer: String!
+        signer: String
         validatorGroup: ValidatorGroup
     }
 
@@ -233,15 +235,15 @@ const typeDefs = gql`
 
 
      type Election{
-        electedValidatorGroups: Int!
-        electedValidators: Int!
-        registeredValidatorGroups: Int!
-        registeredValidators: Int!
+        electedValidatorGroups: Int
+        electedValidators: Int
+        registeredValidatorGroups: Int
+        registeredValidators: Int
     }
 
     type Query {
         chain: Chain
-        accountCount: Int!
+        accountCount: Int
         blocks(
             pageSize: Int
             page: Int
@@ -292,50 +294,67 @@ const typeDefs = gql`
             page: Int
             sortBy: SortBy): ProposalList!
         election: Election
+        blockSigners(blockNumber: Int): [SignersList]
+        blocksSignedByAddress(signer: String address: String limit: Int): SignersRecordList
 
     }
 
     type AccountList {
-        cursor: Int!
+        cursor: Int
         pageSize: Int!
         page: Int!
-        totalCounts: Int!
-        hasMore: Boolean!
+        totalCounts: Int
+        hasMore: Boolean
         accounts: [Account]
     }
 
     type BlockList {
-        cursor: Int!
-        pageSize: Int!
-        page: Int!
-        totalCounts: Int!
-        hasMore: Boolean!
+        cursor: Int
+        pageSize: Int
+        page: Int
+        totalCounts: Int
+        hasMore: Boolean
         blocks: [Block]
     }
 
+
+    type SignersList {
+        blockNumber: Int
+        signer: String
+        hash: String 
+        exist: Boolean
+        miner: Validator
+    }
+
+    type SignersRecordList {
+        totalCounts: Int
+        signerRecord: JSON
+    }
+
+
     type TransactionList {
-        cursor: Int!
+        cursor: Int
         pageSize: Int!
         page: Int!
-        totalCounts: Int!
-        hasMore: Boolean!
+        totalCounts: Int
+        hasMore: Boolean
         transactions: [Transaction]
     }
 
     type ProposalList {
-        cursor: Int!
+        cursor: Int
         pageSize: Int!
         page: Int!
-        totalCounts: Int!
-        hasMore: Boolean!
+        totalCounts: Int
+        hasMore: Boolean
         proposals: [Proposal]
     }
 
     type ValidatorGroupList{
         pageSize: Int!
         page: Int!
-        totalCounts: Int!
-        hasMore: Boolean!
+        totalCounts: Int
+        hasMore: Boolean
         validatorGroups: [ValidatorGroup]
     }
 `;

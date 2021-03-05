@@ -10,7 +10,7 @@ const { web3 } = kit;
 Meteor.methods({
   'accounts.update': async function (address:string) {
     this.unblock();
-    console.log(`Update wallet address: ${address}`);
+    // console.log(`Update wallet address: ${address}`);
     const data: { [c: string]: any } = {
     };
     let balance; let
@@ -99,6 +99,7 @@ Meteor.methods({
 
     try {
       account.groupsVotedFor = await election.getGroupsVotedForByAccount(address);
+      account.hasActivatablePendingVotes = await election.hasActivatablePendingVotes(address);
     } catch (e) {
       console.log(`Error when getting Groups Voted For By Account ${e}`);
     }

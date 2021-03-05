@@ -17,6 +17,10 @@ const server = new ApolloServer({
 
 server.applyMiddleware({
   app: WebApp.connectHandlers,
+  cors: {
+    credentials: true,
+    origin: true,
+  },
   path: '/graphql',
 });
 

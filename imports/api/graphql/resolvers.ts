@@ -500,6 +500,89 @@ export default {
     election() {
       return Election.findOne();
     },
+    async blockSigners(_, { blockNumber }, context, info) {
+      const pipeline = [
+        {
+          $match: {
+            blockNumber,
+          },
+        }, {
+          $lookup: {
+            from: 'validators',
+            localField: 'signer',
+            foreignField: 'signer',
+            as: 'validators',
+          },
+        },
+      ];
+
+      let signerRecords;
+      try {
+        signerRecords = await ValidatorRecords.rawCollection().aggregate(pipeline).toArray();
+      } catch (error) {
+        console.log(`Error when getting Signer Records ${error}`);
+      }
+      return signerRecords;
+    },
+
+    async blocksSignedByAddress(_, {
+      signer, address, limit = 10,
+    }, context, info) {
+      let valAddress: string = '';
+      let valSigner: string = '';
+      if (signer) {
+        // @ts-ignore
+        valAddress = Validators.findOne({
+          signer,
+        });
+      }
+      if (address) {
+        // @ts-ignore
+        valSigner = Validators.findOne({
+          address,
+        });
+      }
+
+      // @ts-ignore
+      signer = valSigner.signer;
+      // @ts-ignore
+      const validatorAddress: string | unknown = valAddress?.address ?? '';
+
+      const pipeline = [
+        {
+          $match: {
+            signer,
+          },
+        }, {
+          $lookup: {
+            from: 'validators',
+            localField: 'signer',
+            foreignField: 'address',
+            as: 'validatorSigners',
+          },
+        },
+        {
+          $limit: limit,
+        },
+      ];
+
+      let signers;
+      try {
+        signers = await ValidatorRecords.rawCollection().aggregate(pipeline).toArray();
+      } catch (error) {
+        console.log(`Error when getting Signer Records ${error}`);
+      }
+
+      const totalCounts = signers.length;
+      const signerRecord = {
+        validatorAddress,
+        signers,
+      };
+      return {
+        signerRecord,
+        totalCounts,
+      };
+    },
   },
   Block: {
     transactions(parent) {
@@ -530,19 +613,15 @@ export default {
       const pipeline = [
         {
           $match: {
-            blockNumber: parent.number,
-            signer: parent.signer,
+            blockNumber: (parent.number),
+            hash: parent?.hash,
           },
         }, {
           $lookup: {
             from: 'validators',
             localField: 'signer',
             foreignField: 'signer',
-            as: 'validator',
-          },
-        }, {
-          $unwind: {
-            path: '$validator',
+            as: 'validators',
           },
         },
       ];
@@ -623,7 +702,6 @@ export default {
       });
     },
     signerAccount(parent) {
-      console.log(parent.signer);
       return Meteor.call('accounts.getAccount', parent.signer);
     },
   },

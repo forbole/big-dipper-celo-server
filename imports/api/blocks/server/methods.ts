@@ -19,6 +19,9 @@ interface LatestBlockInterface {
 
 interface RecordInterface {
   blockNumber?: number;
+  address?: string;
+  miner?: string;
+  hash?: string;
   signer?: string;
   exist?: boolean;
 }
@@ -250,9 +253,16 @@ Meteor.methods({
             const record: RecordInterface = {
               blockNumber: block.number,
               signer: validatorSet[v].signer,
+              address: validatorSet[v].address,
+              miner: block.miner,
+              hash: block.hash,
               exist: await electionRC.signedParent(validatorSet[v].signer, block),
             };
-            ValidatorRecords.insert(record);
+            try {
+              ValidatorRecords.insert(record);
+            } catch (e) {
+              console.log(`Error when inserting Validator Records ${e}`);
+            }
           }
         }
         Blocks.upsert({
