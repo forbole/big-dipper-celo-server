@@ -106,7 +106,7 @@ const validatorRewards = async (data, valContract, epochNumber) => {
 };
 
 const electedValidators = (electedValidatorSet, data) => {
-  if (electedValidatorSet && electedValidatorSet.length > 0) {
+  if (electedValidatorSet) {
     let counter = 0;
     for (let d = 0; d < electedValidatorSet.length; d++) {
       for (let e = 0; e < data.members.length; e++) {
