@@ -106,7 +106,7 @@ const validatorRewards = async (data, valContract, epochNumber) => {
 };
 
 const electedValidators = (electedValidatorSet, data) => {
-  if (electedValidatorSet) {
+  if (electedValidatorSet && electedValidatorSet.length > 0) {
     let counter = 0;
     for (let d = 0; d < electedValidatorSet.length; d++) {
       for (let e = 0; e < data.members.length; e++) {
@@ -134,8 +134,6 @@ const validatorGroupsDetails = async (valGroups, validators, epochNumber, valCon
       data.slashingMultiplier = valGroups && valGroups[i] && valGroups[i].slashingMultiplier ? valGroups[i].slashingMultiplier.toNumber() : 0;
       data.lastSlashed = valGroups && valGroups[i] && valGroups[i].lastSlashed ? valGroups[i].lastSlashed.toNumber() : null;
       data.members = valGroups && valGroups[i] && valGroups[i].members ? valGroups[i].members : null;
-      data.electedValidators = {
-      };
 
       // Get Validator Score
       validatorScore(validators, data);
