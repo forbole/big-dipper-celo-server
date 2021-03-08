@@ -111,7 +111,7 @@ const electedValidators = (electedValidatorSet, data) => {
     for (let d = 0; d < electedValidatorSet.length; d++) {
       for (let e = 0; e < data.members.length; e++) {
         if (electedValidatorSet[d].address === data.members[e]) {
-          data.electedValidators[counter] = electedValidatorSet[d].address;
+          data.electedValidators[counter] = data.members[e];
           counter++;
         }
       }
