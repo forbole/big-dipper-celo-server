@@ -103,7 +103,7 @@ const saveUpvoteList = (proposalData, getUpvoters) => {
         blockDetails = Blocks.findOne({
           hash: upvotersList[counter].blockHash,
         });
-        upvotersList[counter].timestamp = blockDetails.timestamp;
+        upvotersList[counter].timestamp = blockDetails?.timestamp;
         counter++;
       }
       proposalData[item].upvoteList = upvotersList;
