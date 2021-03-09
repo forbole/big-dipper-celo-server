@@ -12,7 +12,7 @@
   "dependencies": {
     "@babel/runtime": "^7.12.5",
     "@celo/celocli": "^1.0.1",
-    "@celo/contractkit": "^1.0.1",
+    "@celo/contractkit": "^1.0.2",
     "@celo/utils": "^1.0.1",
     "@types/meteor": "^1.4.64",
     "abi-decoder": "^2.3.0",
