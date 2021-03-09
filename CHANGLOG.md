@@ -36,6 +36,7 @@
 * [#88] Indexed signer field in resolvers to improve aggregation performance
 * [#99] Added `ESLint` 
 * Implemented `blockSigners` and `blocksSignedByAddress` in schema/resolvers and added `hasActivatablePendingVotes` value to account. 
+* Updated `electedValidators` values
 
 
 ## [v0.1.3]
