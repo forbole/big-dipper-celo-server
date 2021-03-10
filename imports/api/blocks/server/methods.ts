@@ -134,7 +134,7 @@ Meteor.methods({
     let lastBlock: LatestBlockInterface = latestBlock;
 
     for (let i = latestBlockHeight + 1; i <= targetHeight; i++) {
-      // console.log(`Processing block: ${i}`);
+      console.log(`Processing block: ${i}`);
 
       try {
         // Get block
