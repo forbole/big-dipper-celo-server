@@ -44,6 +44,7 @@ function updateTokenPrice() {
   });
 }
 
+// Update validators every 1 hour
 function updateValidators(number: number) {
   Meteor.call('validators.update', number, (error, result) => {
     if (error) {
@@ -59,7 +60,7 @@ function updateValidators(number: number) {
       web3.eth.getBlockNumber().then((num) => {
         updateValidators(num);
       });
-    }, 12000);
+    }, 3600000);
   });
 }
 
@@ -121,7 +122,7 @@ function updateElection(number: Number) {
     web3.eth.getBlockNumber().then((num) => {
       updateElection(num);
     });
-  }, 450000);
+  }, 1800000);
 }
 
 // Update chain latest status every 5 seconds.
