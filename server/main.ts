@@ -44,7 +44,7 @@ function updateTokenPrice() {
   });
 }
 
-// Update validators every 1 hour
+// Update validators every half an hour
 function updateValidators(number: number) {
   Meteor.call('validators.update', number, (error, result) => {
     if (error) {
@@ -60,7 +60,7 @@ function updateValidators(number: number) {
       web3.eth.getBlockNumber().then((num) => {
         updateValidators(num);
       });
-    }, 3600000);
+    }, 1800000);
   });
 }
 
