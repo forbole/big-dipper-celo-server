@@ -1,7 +1,5 @@
 import { Meteor } from 'meteor/meteor';
-import {
-  newKit, ContractKit, CeloContract,
-} from '@celo/contractkit';
+import { newKit } from '@celo/contractkit';
 import BigNumber from 'bignumber.js';
 import { ProposalStage } from '@celo/contractkit/lib/wrappers/Governance';
 import * as abiDecoder from 'abi-decoder';
@@ -16,20 +14,23 @@ const { web3 } = kit;
 // Decode tx input to obtain descriptionURL
 const decodeInput = async (proposalData, proposalQueuedEvent) => {
   for (let c = 1; c <= Object.keys(proposalQueuedEvent).length; c++) {
+    let getTransaction;
     try {
-      const getTransaction = await web3.eth.getTransaction((proposalQueuedEvent[c]?.transactionHash));
-      const contract = Contracts.findOne({
-        address: proposalQueuedEvent[c].address,
-      });
-      abiDecoder.addABI(contract?.ABI);
+      getTransaction = proposalQueuedEvent[c]?.transactionHash ? await web3.eth.getTransaction((proposalQueuedEvent[c]?.transactionHash)) : null;
+    } catch (e) {
+      console.log(`Error when gettimg trasction for proposal ${c} ${e}`);
+    }
+    const contract = Contracts.findOne({
+      address: proposalQueuedEvent[c]?.address,
+    });
+    abiDecoder.addABI(contract?.ABI);
 
-      const decodedInput = abiDecoder.decodeMethod(getTransaction.input);
-      proposalData[c - 1] = proposalQueuedEvent[c];
+    if (getTransaction) {
+      const decodedInput = abiDecoder.decodeMethod(getTransaction?.input);
+      proposalData[c - 1] = proposalQueuedEvent[c] ?? null;
       proposalData[c - 1].proposalId = parseInt(proposalQueuedEvent[c]?.returnValues?.proposalId) < 7 ? parseInt(proposalQueuedEvent[c]?.returnValues?.proposalId) - 1 : parseInt(proposalQueuedEvent[c]?.returnValues?.proposalId);
 
-      proposalData[c - 1].input = decodedInput;
-    } catch (e) {
-      console.log(`Error when decoding input for proposal ${c} ${e}`);
+      proposalData[c - 1].input = decodedInput ?? null;
     }
   }
 };
@@ -308,7 +309,7 @@ Meteor.methods({
     try {
       electedValidatorSet = await election.getElectedValidators(epochNumber);
     } catch (error) {
-      console.log(`Error when getting Elected Validators Set ${error}`);
+      console.log(`Error when getting Elected Validators Set (Governance) ${error}`);
     }
 
     for (let c = 0; c < electedValidatorSet.length; c++) {
