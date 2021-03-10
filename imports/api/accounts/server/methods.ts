@@ -107,7 +107,7 @@ Meteor.methods({
     account.balance = balance;
     account.totalBalance = data;
 
-    if (parseInt(balance) > 0) {
+    if (parseInt(balance) >= 0) {
       // update or insert address if balance larger than 0
       Accounts.upsert(
         {
