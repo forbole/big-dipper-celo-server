@@ -1,0 +1,41 @@
+# This workflow will do a clean install of node dependencies, build the source code and run tests across different versions of node
+# For more information see: https://help.github.com/actions/language-and-framework-guides/using-nodejs-with-github-actions
+
+name: Node.js CI
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        node-version: [10.x, 12.x, 14.x, 15.x]
+        # See supported Node.js release schedule at https://nodejs.org/en/about/releases/
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: Use Node.js ${{ matrix.node-version }}
+      uses: actions/setup-node@v1
+      with:
+        node-version: ${{ matrix.node-version }}
+    - name: Build application
+    - run: meteor build ../big-dipper-bundle/ --directory --architecture os.linux.x86_64 --server-only
+    - name: Install Dependencies For Production
+      working-directory: ../big-dipper-bundle/bundle/programs/server
+    - run: npm install --production
+    - name: Copy Passenger file
+      working-directory: ../big-dipper-bundle/bundle
+    - run: cp ~/Passengerfile.json .  
+    - name: Restart the passenger
+      working-directory: ../big-dipper-bundle/bundle
+      run: |
+        sudo passenger stop
+        sudo passenger start
+    - run: npm test
