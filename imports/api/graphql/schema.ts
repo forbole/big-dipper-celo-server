@@ -320,6 +320,7 @@ const typeDefs = gql`
 
     type SignersList {
         blockNumber: Int
+        address: String
         signer: String
         hash: String 
         exist: Boolean
