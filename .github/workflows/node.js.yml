@@ -26,16 +26,16 @@ jobs:
       with:
         node-version: ${{ matrix.node-version }}
     - name: Build application
-    - run: meteor build ../big-dipper-bundle/ --directory --architecture os.linux.x86_64 --server-only
+      run: meteor build ../big-dipper-bundle/ --directory --architecture os.linux.x86_64 --server-only
     - name: Install Dependencies For Production
       working-directory: ../big-dipper-bundle/bundle/programs/server
-    - run: npm install --production
+      run: npm install --production
     - name: Copy Passenger file
       working-directory: ../big-dipper-bundle/bundle
-    - run: cp ~/Passengerfile.json .  
+      run: cp ~/Passengerfile.json .  
     - name: Restart the passenger
       working-directory: ../big-dipper-bundle/bundle
       run: |
         sudo passenger stop
         sudo passenger start
-    - run: npm test
+      run: npm test
