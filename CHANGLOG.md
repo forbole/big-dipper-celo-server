@@ -37,6 +37,7 @@
 * [#99] Added `ESLint` 
 * Implemented `blockSigners` and `blocksSignedByAddress` in schema/resolvers and added `hasActivatablePendingVotes` value to account. 
 * Updated `electedValidators` values
+* Added `fromBlock` prop to `blockSigners` in resolvers
 
 
 ## [v0.1.3]

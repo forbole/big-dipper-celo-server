@@ -500,22 +500,45 @@ export default {
     election() {
       return Election.findOne();
     },
-    async blockSigners(_, { blockNumber }, context, info) {
-      const pipeline = [
-        {
-          $match: {
-            blockNumber,
-          },
-        }, {
-          $lookup: {
-            from: 'validators',
-            localField: 'signer',
-            foreignField: 'signer',
-            as: 'validators',
-          },
-        },
-      ];
+    async blockSigners(_, {
+      blockNumber, fromBlock,
+    }, context, info) {
+      let pipeline;
 
+      if (blockNumber > 0) {
+        pipeline = [
+          {
+            $match: {
+              blockNumber,
+            },
+          }, {
+            $lookup: {
+              from: 'validators',
+              localField: 'signer',
+              foreignField: 'signer',
+              as: 'validators',
+            },
+          },
+        ];
+      } else if (fromBlock > 0) {
+        pipeline = [
+          {
+            $match: {
+              blockNumber: {
+                $gte: fromBlock,
+              },
+            },
+          },
+          {
+            $lookup: {
+              from: 'validators',
+              localField: 'signer',
+              foreignField: 'signer',
+              as: 'validators',
+            },
+          },
+        ];
+      }
       let signerRecords;
       try {
         signerRecords = await ValidatorRecords.rawCollection().aggregate(pipeline).toArray();
