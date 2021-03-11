@@ -38,7 +38,7 @@
 * Implemented `blockSigners` and `blocksSignedByAddress` in schema/resolvers and added `hasActivatablePendingVotes` value to account. 
 * Updated `electedValidators` values
 * Added `fromBlock` prop to `blockSigners` in resolvers
-* Added `decodeTransactionReceipt` method in transactions
+* Added `decodeTransactionReceipt` method in transactions 
 
 
 ## [v0.1.3]
