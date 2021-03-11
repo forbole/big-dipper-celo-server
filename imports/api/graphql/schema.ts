@@ -294,7 +294,7 @@ const typeDefs = gql`
             page: Int
             sortBy: SortBy): ProposalList!
         election: Election
-        blockSigners(blockNumber: Int): [SignersList]
+        blockSigners(blockNumber: Int fromBlock: Int): [SignersList]
         blocksSignedByAddress(signer: String address: String limit: Int): SignersRecordList
 
     }
