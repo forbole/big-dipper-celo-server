@@ -145,8 +145,9 @@ Meteor.methods({
 
       if (!block) return i;
 
+      // Set 5s as blockTime when timestamp is missing
       if (lastBlock) {
-        blockTime = block?.timestamp - lastBlock?.timestamp;
+        blockTime = block?.timestamp - lastBlock?.timestamp > 0 ? block?.timestamp - lastBlock?.timestamp : 5;
       }
 
       const chainState: { [k: string]: any } = Chain.findOne({
