@@ -25,9 +25,11 @@ jobs:
       uses: actions/setup-node@v1
       with:
         node-version: ${{ matrix.node-version }}
+    - name: Install Meteor
+      run: meteor npm install
     - name: Build application
       run: meteor build ../big-dipper-bundle/ --directory --architecture os.linux.x86_64 --server-only
-    - name: Install Dependencies For Production
+    - name: Install Dependencies
       working-directory: ../big-dipper-bundle/bundle/programs/server
       run: npm install --production
     - name: Copy Passenger file
