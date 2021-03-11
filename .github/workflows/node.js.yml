@@ -26,8 +26,10 @@ jobs:
       with:
         node-version: ${{ matrix.node-version }}
     - name: Install Meteor
+      working-directory: ./big-dipper-celo-server
       run: meteor npm install
     - name: Build application
+      working-directory: ./big-dipper-celo-server
       run: meteor build ../big-dipper-bundle/ --directory --architecture os.linux.x86_64 --server-only
     - name: Install Dependencies
       working-directory: ../big-dipper-bundle/bundle/programs/server
