@@ -38,4 +38,4 @@ jobs:
       run: |
         sudo passenger stop
         sudo passenger start
-      run: npm test
+        npm test
