@@ -215,10 +215,12 @@ Meteor.methods({
       console.log(`Error when getting Election Contract  ${error}`);
     }
 
-    try {
-      electedValidatorSet = await election.getElectedValidators(epochNumber);
-    } catch (error) {
-      console.log(`Error when getting Elected Validators Set  ${error}`);
+    if (epochNumber > 0) {
+      try {
+        electedValidatorSet = await election.getElectedValidators(epochNumber);
+      } catch (error) {
+        console.log(`Error when getting Elected Validators in Validators Set  ${error}`);
+      }
     }
 
     try {

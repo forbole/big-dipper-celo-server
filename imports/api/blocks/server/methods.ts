@@ -145,8 +145,9 @@ Meteor.methods({
 
       if (!block) return i;
 
+      // Set 5s as blockTime when timestamp is missing
       if (lastBlock) {
-        blockTime = block.timestamp - lastBlock.timestamp;
+        blockTime = block?.timestamp - lastBlock?.timestamp > 0 ? block?.timestamp - lastBlock?.timestamp : 5;
       }
 
       const chainState: { [k: string]: any } = Chain.findOne({
@@ -201,6 +202,26 @@ Meteor.methods({
       },
       limit: 1,
     });
+
+    try {
+      election = await kit.contracts.getElection();
+    } catch (e) {
+      console.log(`Error when processing Election Contract Details ${e}`);
+    }
+
+    try {
+      validators = await kit.contracts.getValidators();
+    } catch (e) {
+      console.log(`Error when processing Validators ${e}`);
+    }
+
+    try {
+      epochSize = await validators.getEpochSize();
+    } catch (e) {
+      console.log(`Error when processing Epoch Size ${e}`);
+    }
+    const electionRC = new ElectionResultsCache(election, epochSize.toNumber());
+
     if (latestBlock) {
       latestBlockHeight = latestBlock.number;
     }
@@ -217,36 +238,19 @@ Meteor.methods({
 
       if (!block) return i;
       try {
-        epochNumber = await kit.getEpochNumberOfBlock(i);
+        epochNumber = i ? await kit.getEpochNumberOfBlock(i) : 0;
       } catch (e) {
         console.log(`Error when processing Epoch Number ${e}`);
       }
 
-      try {
-        election = await kit.contracts.getElection();
-      } catch (e) {
-        console.log(`Error when processing Election Contract Details ${e}`);
+      if (epochNumber > 0) {
+        try {
+          validatorSet = await election.getElectedValidators(epochNumber);
+        } catch (e) {
+          console.log(`Error when processing Elected Validators Block Set ${e}`);
+        }
       }
 
-      try {
-        validatorSet = await election.getElectedValidators(epochNumber);
-      } catch (e) {
-        console.log(`Error when processing Elected Validators Set ${e}`);
-      }
-
-      try {
-        validators = await kit.contracts.getValidators();
-      } catch (e) {
-        console.log(`Error when processing Validators ${e}`);
-      }
-
-      try {
-        epochSize = await validators.getEpochSize();
-      } catch (e) {
-        console.log(`Error when processing Epoch Size ${e}`);
-      }
-
-      const electionRC = new ElectionResultsCache(election, epochSize.toNumber());
       try {
         for (const v in validatorSet) {
           if (v) {

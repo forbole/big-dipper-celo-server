@@ -44,8 +44,8 @@ function updateTokenPrice() {
   });
 }
 
+// Update validators every half an hour
 function updateValidators(number: number) {
-  Meteor.clearInterval(timerValidators);
   Meteor.call('validators.update', number, (error, result) => {
     if (error) {
       console.log(error);
@@ -55,7 +55,12 @@ function updateValidators(number: number) {
       // console.log("Updated validators at height: " + number)
     }
 
-    timerValidators = Meteor.setInterval(updateValidators, 12000);
+    timerValidators = Meteor.setInterval(() => {
+      Meteor.clearInterval(timerValidators);
+      web3.eth.getBlockNumber().then((num) => {
+        updateValidators(num);
+      });
+    }, 1800000);
   });
 }
 
@@ -82,7 +87,7 @@ function updateBlock(number: number) {
 
 // Update the record for all signers in the blocks
 function updateBlockSigners(blockNumber: number) {
-  Meteor.clearInterval(timerBlockSigners);
+  // Meteor.clearInterval(timerBlockSigners);
   Meteor.call('blocks.getBlockSigners', blockNumber, (error, result) => {
     if (error) {
       console.log(error);
@@ -92,12 +97,16 @@ function updateBlockSigners(blockNumber: number) {
       console.log(`Updated signers for block ${blockNumber} `);
     }
 
-    timerBlockSigners = Meteor.setInterval(updateBlockSigners, 5500);
+    timerBlockSigners = Meteor.setInterval(() => {
+      Meteor.clearInterval(timerBlockSigners);
+      web3.eth.getBlockNumber().then((num) => {
+        updateBlockSigners(num);
+      });
+    }, 5500);
   });
 }
 
 function updateElection(number: Number) {
-  Meteor.clearInterval(timerElection);
   Meteor.call('election.update', number, (error, result) => {
     if (error) {
       console.log(error);
@@ -107,7 +116,13 @@ function updateElection(number: Number) {
       console.log(`Updated election at height ${number}`);
     }
   });
-  timerElection = Meteor.setInterval(updateElection, 450000);
+
+  timerElection = Meteor.setInterval(() => {
+    Meteor.clearInterval(timerElection);
+    web3.eth.getBlockNumber().then((num) => {
+      updateElection(num);
+    });
+  }, 1800000);
 }
 
 // Update chain latest status every 5 seconds.

@@ -42,15 +42,43 @@ const updateTransactions = (tx) => {
   });
 };
 
-const decodeTransaction = (tx) => {
+const decodeTransactionReceipt = async (tx) => {
+  const stableTokenContract: ContractInterface = Contracts.findOne({
+    name: 'StableToken',
+  });
+  if (tx) {
+    const txReceipt = await web3.eth.getTransactionReceipt(tx.hash);
+    abiDecoder.addABI(stableTokenContract.ABI);
+    const decodedLogs = abiDecoder.decodeLogs(txReceipt.logs);
+    if (decodedLogs) {
+      for (let i = 0; i < decodedLogs[0]?.events.length; i++) {
+        if (decodedLogs[0]?.events[i]?.type === 'address') {
+          Meteor.call('accounts.update', decodedLogs[0]?.events[i]?.value, (error, result) => {
+            if (error) {
+              console.log(`Error when updating Account Decoded Tx ${error}`);
+            }
+            if (result) {
+              console.log(`Updated Account Info ${result}`);
+            }
+          });
+        }
+      }
+      tx.decodedInput = decodedLogs;
+      tx.type = decodedLogs[0]?.name;
+    } else {
+      tx.type = 'contractCall';
+    }
+  }
+};
+
+const decodeTransaction = async (tx) => {
   // make sure it has input in the txn
   const contract: ContractInterface = Contracts.findOne({
     address: tx.to,
   });
-  if (!!contract && !!contract.ABI) {
+  if (contract && contract.ABI) {
     abiDecoder.addABI(contract.ABI);
     const decodedInput = abiDecoder.decodeMethod(tx.input);
-
     if (decodedInput && decodedInput.name) {
       for (const i in decodedInput.params) {
         if (decodedInput.params[i].type === 'address') {
@@ -65,13 +93,12 @@ const decodeTransaction = (tx) => {
         }
       }
     }
-
     if (decodedInput) {
       tx.decodedInput = decodedInput;
       tx.type = decodedInput.name;
     }
   } else {
-    tx.type = 'contractCall';
+    await decodeTransactionReceipt(tx);
   }
 };
 
@@ -108,7 +135,7 @@ Meteor.methods({
             // the tx address will be the contract address
 
               if (tx.input !== '0x') {
-                decodeTransaction(tx);
+                await decodeTransaction(tx);
               }
 
               if (tx.to) {
