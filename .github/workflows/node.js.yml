@@ -36,7 +36,7 @@ jobs:
       run: npm install --production
     - name: Copy Passenger file
       working-directory: ../big-dipper-bundle/bundle
-      run: cp ~/Passengerfile.json .  
+      run: cp ../../Passengerfile.json .  
     - name: Restart the passenger
       working-directory: ../big-dipper-bundle/bundle
       run: |
