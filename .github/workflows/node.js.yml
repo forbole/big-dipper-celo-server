@@ -17,7 +17,6 @@ jobs:
     strategy:
       matrix:
         node-version: [12.x]
-        # See supported Node.js release schedule at https://nodejs.org/en/about/releases/
 
     steps:
     - uses: actions/checkout@v2
@@ -34,9 +33,11 @@ jobs:
     - name: Install Dependencies
       working-directory: ../big-dipper-bundle/bundle/programs/server
       run: npm install --production
-    - name: Copy Passenger file
+    - name: Add Passenger file
       working-directory: ../big-dipper-bundle/bundle
-      run: cp ../../Passengerfile.json .  
+      run: |
+        touch Passenger.json
+        echo ${{secrets.PASSENGER}} >> Passenger.json
     - name: Restart the passenger
       working-directory: ../big-dipper-bundle/bundle
       run: |
