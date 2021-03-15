@@ -186,15 +186,7 @@ Meteor.startup(() => {
         updateChainState(number);
         updateValidators(number);
         updateBlock(number);
-        // const t0 = performance.now();
-        // const day1 = Date.now();
         updateBlockSigners(number);
-        // const t1 = performance.now();
-        // const day2 = Date.now();
-        // console.log('###############################################');
-        // console.log(`Call to doSomething took ${day1 - day2} milliseconds.`);
-        // console.log(`Call to doSomething took ${t1 - t0} milliseconds.`);
-        // console.log('###############################################');
         updateTokenPrice();
         updatePendingTransactions();
         updateProposals();
