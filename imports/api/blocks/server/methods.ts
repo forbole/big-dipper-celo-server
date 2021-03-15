@@ -16,7 +16,7 @@ interface LatestBlockInterface {
   number?: number;
   timestamp?: number
 }
-interface ValidatorRecordsnterface {
+interface ValidatorRecordsInterface {
   blockNumber?: number;
 }
 interface RecordInterface {
@@ -197,7 +197,7 @@ Meteor.methods({
     let epochNumber; let election; let validatorSet; let validators; let epochSize; let
       block;
 
-    const latestBlock: ValidatorRecordsnterface = ValidatorRecords.findOne({
+    const latestBlock: ValidatorRecordsInterface = ValidatorRecords.findOne({
     }, {
       sort: {
         blockNumber: -1,
