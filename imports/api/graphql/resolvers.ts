@@ -501,7 +501,7 @@ export default {
       return Election.findOne();
     },
     async blockSigners(_, {
-      blockNumber, fromBlock,
+      blockNumber, fromBlock, toBlock,
     }, context, info) {
       let pipeline;
 
@@ -521,23 +521,44 @@ export default {
           },
         ];
       } else if (fromBlock > 0) {
-        pipeline = [
-          {
-            $match: {
-              blockNumber: {
-                $gte: fromBlock,
+        if (toBlock > 0) {
+          pipeline = [
+            {
+              $match: {
+                blockNumber: {
+                  $gte: fromBlock,
+                  $lte: toBlock,
+                },
               },
             },
-          },
-          {
-            $lookup: {
-              from: 'validators',
-              localField: 'signer',
-              foreignField: 'signer',
-              as: 'validators',
+            {
+              $lookup: {
+                from: 'validators',
+                localField: 'signer',
+                foreignField: 'signer',
+                as: 'validators',
+              },
             },
-          },
-        ];
+          ];
+        } else {
+          pipeline = [
+            {
+              $match: {
+                blockNumber: {
+                  $gte: fromBlock,
+                },
+              },
+            },
+            {
+              $lookup: {
+                from: 'validators',
+                localField: 'signer',
+                foreignField: 'signer',
+                as: 'validators',
+              },
+            },
+          ];
+        }
       }
       let signerRecords;
       try {
