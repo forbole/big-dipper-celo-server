@@ -3,6 +3,10 @@ import { newKit } from '@celo/contractkit';
 
 import '../imports/startup/server';
 
+const {
+  PerformanceObserver, performance,
+} = require('perf_hooks');
+
 const kit = newKit(Meteor.settings.public.fornoAddress);
 const { web3 } = kit;
 let timer: number = 0;
@@ -12,7 +16,7 @@ let timerCoin: number = 0;
 let timerProposals: number = 0;
 let timerTransactions: number = 0;
 let timerElection: number = 0;
-let timerBlockSigners: number = 0;
+const timerBlockSigners: number = 0;
 
 function updatePendingTransactions() {
   Meteor.clearInterval(timerTransactions);
@@ -97,12 +101,9 @@ function updateBlockSigners(blockNumber: number) {
       console.log(`Updated signers for block ${blockNumber} `);
     }
 
-    timerBlockSigners = Meteor.setInterval(() => {
-      Meteor.clearInterval(timerBlockSigners);
-      web3.eth.getBlockNumber().then((num) => {
-        updateBlockSigners(num);
-      });
-    }, 5500);
+    web3.eth.getBlockNumber().then((num) => {
+      updateBlockSigners(num);
+    });
   });
 }
 
@@ -185,7 +186,15 @@ Meteor.startup(() => {
         updateChainState(number);
         updateValidators(number);
         updateBlock(number);
+        // const t0 = performance.now();
+        // const day1 = Date.now();
         updateBlockSigners(number);
+        // const t1 = performance.now();
+        // const day2 = Date.now();
+        // console.log('###############################################');
+        // console.log(`Call to doSomething took ${day1 - day2} milliseconds.`);
+        // console.log(`Call to doSomething took ${t1 - t0} milliseconds.`);
+        // console.log('###############################################');
         updateTokenPrice();
         updatePendingTransactions();
         updateProposals();
