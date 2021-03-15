@@ -101,8 +101,10 @@ function updateBlockSigners(blockNumber: number) {
       console.log(`Updated signers for block ${blockNumber} `);
     }
 
-    web3.eth.getBlockNumber().then((num) => {
-      updateBlockSigners(num);
+    Meteor.defer(() => {
+      web3.eth.getBlockNumber().then((num) => {
+        updateBlockSigners(num);
+      });
     });
   });
 }
