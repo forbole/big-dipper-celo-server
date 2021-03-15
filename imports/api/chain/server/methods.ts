@@ -1,6 +1,6 @@
 import { Meteor } from 'meteor/meteor';
 import { newKit } from '@celo/contractkit';
-import fetch from 'node-fetch';
+import fetch from 'cross-fetch';
 import Chain from '../chain';
 import Accounts from '../../accounts/accounts';
 
@@ -103,7 +103,9 @@ Meteor.methods({
     try {
       await fetch(url)
         .then((response) => {
-          if (response.ok) {
+          if (response.status >= 400) {
+            console.log(`Bad response from server ${response}`);
+          } else {
             response.json().then(async (data) => {
               let chainId: number;
               try {
