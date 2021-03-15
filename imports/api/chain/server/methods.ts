@@ -133,6 +133,8 @@ Meteor.methods({
               });
             });
           }
+        }).catch((e) => {
+          console.log(`Error when getting Coin Data ${e}`);
         });
     } catch (e) {
       console.log(`Error when updating Coin Data ${e}`);
