@@ -1,6 +1,8 @@
 import { Meteor } from 'meteor/meteor';
 import { newKit } from '@celo/contractkit';
 import Accounts from '../accounts';
+import { Validators } from '../../validators/validators';
+import ValidatorGroups from '../../validator-groups/validator-groups';
 
 import PUB from '../../graphql/subscriptions';
 
@@ -41,6 +43,14 @@ Meteor.methods({
     data.pending = totalBalance?.pending ? totalBalance?.pending.toNumber() : 0;
 
     account = Accounts.findOne({
+      address,
+    });
+
+    const isValidator = Validators.findOne({
+      address,
+    });
+
+    const isValidatorGroup = ValidatorGroups.findOne({
       address,
     });
 
@@ -90,11 +100,13 @@ Meteor.methods({
     }
     account.lockedGold = lockedGold;
 
-    try {
-      const accountSummary = await accounts.getAccountSummary(address);
-      account.accountSummary = accountSummary;
-    } catch (e) {
-      console.log(`Error when getting Account Summary ${e}`);
+    if (isValidator || isValidatorGroup) {
+      try {
+        const accountSummary = await accounts.getAccountSummary(address);
+        account.accountSummary = accountSummary;
+      } catch (e) {
+        console.log(`Error when getting Account Summary ${e} for account ${address}`);
+      }
     }
 
     try {
