@@ -39,7 +39,12 @@ jobs:
         touch Passengerfile.json
         echo ${{secrets.APP_TYPE}} >> Passengerfile.json
         echo ${{secrets.STARTUP_FILE}} >> Passengerfile.json
-        echo ${{secrets.ENVVARS}} >> Passengerfile.json
+        echo ${{secrets.MONGO_URL}} >> Passengerfile.json
+        echo ${{secrets.ROOT_URL}} >> Passengerfile.json
+        echo ${{secrets.METEOR_SETTINGS}} >> Passengerfile.json
+        echo ${{secrets.NODE_TLS_REJECT_UNAUTHORIZED}} >> Passengerfile.json
+        echo ${{secrets.NODE_OPTIONS}} >> Passengerfile.json
+        echo ${{secrets.TOOL_NODE_FLAGS}} >> Passengerfile.json
         echo ${{secrets.LOG_FILE}} >> Passengerfile.json
         echo ${{secrets.PID_FILE}} >> Passengerfile.json
         echo ${{secrets.ENVIRONMENT}} >> Passengerfile.json
