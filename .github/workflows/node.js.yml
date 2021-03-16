@@ -25,7 +25,6 @@ jobs:
       with:
         node-version: ${{ matrix.node-version }}
     - name: Install Meteor
-      working-directory: ../big-dipper-bundle/bundle
       run: /usr/local/bin/meteor npm install
     - name: Build application
       run: /usr/local/bin/meteor build ../big-dipper-bundle/ --directory --architecture os.linux.x86_64 --server-only
