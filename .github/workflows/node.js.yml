@@ -55,6 +55,5 @@ jobs:
     - name: Restart the passenger
       working-directory: ../big-dipper-bundle/bundle
       run: |
-        sudo /usr/bin/passenger stop
         sudo /usr/bin/passenger start
         npm test
