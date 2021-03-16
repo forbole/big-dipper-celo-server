@@ -54,4 +54,6 @@ jobs:
         }' > Passengerfile.json
     - name: Start passenger
       working-directory: ../big-dipper-bundle/bundle
-      run: sudo /usr/bin/passenger start
+      run: |
+        sudo /usr/bin/passenger stop
+        sudo /usr/bin/passenger start
