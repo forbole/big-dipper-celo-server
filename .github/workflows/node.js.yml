@@ -27,12 +27,12 @@ jobs:
     - name: Install Meteor
       run: /usr/local/bin/meteor npm install
     - name: Build application
-      run: /usr/local/bin/meteor build ../big-dipper-bundle/ --directory --architecture os.linux.x86_64 --server-only
+      run: /usr/local/bin/meteor build ./big-dipper-bundle/ --directory --architecture os.linux.x86_64 --server-only
     - name: Install Dependencies
-      working-directory: ../big-dipper-bundle/bundle/programs/server
+      working-directory: ./big-dipper-bundle/bundle/programs/server
       run: npm install --production
     - name: Add passenger file
-      working-directory: ../big-dipper-bundle/bundle
+      working-directory: ./big-dipper-bundle/bundle
       run: |
         echo '{
         "app_type": ${{secrets.APP_TYPE}},
@@ -52,8 +52,8 @@ jobs:
         "daemonize": ${{secrets.DAEMONIZE}},
         "user": ${{secrets.USER}}
         }' > Passengerfile.json
-    - name: Restart the passenger
-      working-directory: ../big-dipper-bundle/bundle
+    - name: Start passenger
+      working-directory: ./big-dipper-bundle/bundle
       run: |
         sudo /usr/bin/passenger start
         npm test
