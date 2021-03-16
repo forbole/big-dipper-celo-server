@@ -39,6 +39,7 @@
 * Updated `electedValidators` values
 * Added `fromBlock` prop to `blockSigners` in resolvers
 * Added `decodeTransactionReceipt` method in transactions 
+* Updated `accountSummary` query for Validators and Validator Groups
 
 
 ## [v0.1.3]
