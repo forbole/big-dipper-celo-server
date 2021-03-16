@@ -1,0 +1,59 @@
+# This workflow will do a clean install of node dependencies, build the source code and run tests across different versions of node
+# For more information see: https://help.github.com/actions/language-and-framework-guides/using-nodejs-with-github-actions
+
+name: Node.js CI
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  build:
+
+    runs-on: self-hosted
+
+    strategy:
+      matrix:
+        node-version: [12.x]
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: Use Node.js ${{ matrix.node-version }}
+      uses: actions/setup-node@v1
+      with:
+        node-version: ${{ matrix.node-version }}
+    - name: Install Meteor
+      run: /usr/local/bin/meteor npm install
+    - name: Build application
+      run: /usr/local/bin/meteor build ../big-dipper-bundle/ --directory --architecture os.linux.x86_64 --server-only
+    - name: Install Dependencies
+      working-directory: ../big-dipper-bundle/bundle/programs/server
+      run: npm install --production
+    - name: Add passenger file
+      working-directory: ../big-dipper-bundle/bundle
+      run: |
+        echo '{
+        "app_type": ${{secrets.APP_TYPE}},
+        "startup_file": ${{secrets.STARTUP_FILE}},
+        "envvars": {
+        "MONGO_URL": ${{secrets.MONGO_URL}},
+        "ROOT_URL":  ${{secrets.ROOT_URL}},
+        "METEOR_SETTINGS": ${{secrets.METEOR_SETTINGS}},
+        "NODE_TLS_REJECT_UNAUTHORIZED": ${{secrets.NODE_TLS_REJECT_UNAUTHORIZED}},
+        "NODE_OPTIONS": ${{secrets.NODE_OPTIONS}},
+        "TOOL_NODE_FLAGS": ${{secrets.TOOL_NODE_FLAGS}}
+        },
+        "log_file": ${{secrets.LOG_FILE}},
+        "pid_file": ${{secrets.PID_FILE}},
+        "environment": ${{secrets.ENVIRONMENT}},
+        "port": ${{secrets.PORT}},
+        "daemonize": ${{secrets.DAEMONIZE}},
+        "user": ${{secrets.USER}}
+        }' > Passengerfile.json
+    - name: Start passenger
+      working-directory: ../big-dipper-bundle/bundle
+      run: |
+        sudo /usr/bin/passenger stop
+        sudo /usr/bin/passenger start
