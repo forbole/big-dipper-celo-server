@@ -56,4 +56,3 @@ jobs:
       working-directory: ../big-dipper-bundle/bundle
       run: |
         sudo /usr/bin/passenger start
-        npm test
