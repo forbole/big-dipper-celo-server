@@ -35,7 +35,10 @@ jobs:
       run: npm install --production
     - name: Add Passenger file
       working-directory: ../big-dipper-bundle/bundle
-      run: echo ${{secrets.PASSENGER}} >> Passenger.json
+      run: |
+        touch Passengerfile.json
+        echo ${{secrets.PASSENGER}} >> Passengerfile.json
+        cat Passengerfile.json
     - name: Restart the passenger
       working-directory: ../big-dipper-bundle/bundle
       run: |
