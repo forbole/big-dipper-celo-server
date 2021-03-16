@@ -2,7 +2,7 @@ import { Meteor } from 'meteor/meteor';
 import GraphQLJSON from 'graphql-type-json';
 import moment from 'moment';
 import numbro from 'numbro';
-import fetch from 'node-fetch';
+import fetch from 'cross-fetch';
 import Chain from '../chain/chain';
 import Transactions from '../transactions/transactions';
 import Accounts from '../accounts/accounts';
@@ -325,7 +325,9 @@ export default {
       const url = `https://api.coingecko.com/api/v3/coins/celo/market_chart/range?vs_currency=usd&from=${fromDate}&to=${toDate}`;
 
       const priceHistory = await fetch(url).then((response) => {
-        if (response.ok) {
+        if (response.status > 400) {
+          console.log(`Bad response from server in Coin Price History by Dates ${response}`);
+        } else {
           return response.json();
         }
       })
@@ -354,7 +356,9 @@ export default {
 
       const priceHistory = await fetch(url)
         .then((response) => {
-          if (response.ok) {
+          if (response.status > 400) {
+            console.log(`Bad response from server in Coin Price History by Number of Days ${response}`);
+          } else {
             return response.json();
           }
         })

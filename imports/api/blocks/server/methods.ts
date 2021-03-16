@@ -16,7 +16,9 @@ interface LatestBlockInterface {
   number?: number;
   timestamp?: number
 }
-
+interface ValidatorRecordsInterface {
+  blockNumber?: number;
+}
 interface RecordInterface {
   blockNumber?: number;
   address?: string;
@@ -195,10 +197,10 @@ Meteor.methods({
     let epochNumber; let election; let validatorSet; let validators; let epochSize; let
       block;
 
-    const latestBlock: LatestBlockInterface = Blocks.findOne({
+    const latestBlock: ValidatorRecordsInterface = ValidatorRecords.findOne({
     }, {
       sort: {
-        number: -1,
+        blockNumber: -1,
       },
       limit: 1,
     });
@@ -223,7 +225,7 @@ Meteor.methods({
     const electionRC = new ElectionResultsCache(election, epochSize.toNumber());
 
     if (latestBlock) {
-      latestBlockHeight = latestBlock.number;
+      latestBlockHeight = latestBlock.blockNumber;
     }
 
     for (let i = latestBlockHeight + 1; i <= latestHeight; i++) {
