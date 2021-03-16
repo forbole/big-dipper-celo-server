@@ -37,7 +37,15 @@ jobs:
       working-directory: ../big-dipper-bundle/bundle
       run: |
         touch Passengerfile.json
-        echo ${{secrets.PASSENGER}} >> Passengerfile.json
+        echo ${{secrets.APP_TYPE}} >> Passengerfile.json
+        echo ${{secrets.STARTUP_FILE}} >> Passengerfile.json
+        echo ${{secrets.ENVVARS}} >> Passengerfile.json
+        echo ${{secrets.LOG_FILE}} >> Passengerfile.json
+        echo ${{secrets.PID_FILE}} >> Passengerfile.json
+        echo ${{secrets.ENVIRONMENT}} >> Passengerfile.json
+        echo ${{secrets.PORT}} >> Passengerfile.json
+        echo ${{secrets.DAEMONIZE}} >> Passengerfile.json
+        echo ${{secrets.USER}} >> Passengerfile.json
         cat Passengerfile.json
     - name: Restart the passenger
       working-directory: ../big-dipper-bundle/bundle
