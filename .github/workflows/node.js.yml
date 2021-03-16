@@ -31,24 +31,29 @@ jobs:
     - name: Install Dependencies
       working-directory: ../big-dipper-bundle/bundle/programs/server
       run: npm install --production
+    - name: Save Enviroment Variables
+      working-directory: ../big-dipper-bundle/bundle
+      run: |
+        touch .env
+        echo APP_TYPE=${{secrets.APP_TYPE}} >> .env
+        echo STARTUP_FILE=${{secrets.STARTUP_FILE}} >> .env
+        echo MONGO_URL=${{secrets.MONGO_URL}} >> .env
+        echo ROOT_URL=${{secrets.ROOT_URL}} >> .env
+        echo METEOR_SETTINGS=${{secrets.METEOR_SETTINGS}} >> .env
+        echo NODE_TLS_REJECT_UNAUTHORIZED=${{secrets.NODE_TLS_REJECT_UNAUTHORIZED}} >> .env
+        echo NODE_OPTIONS=${{secrets.NODE_OPTIONS}} >> .env
+        echo TOOL_NODE_FLAGS=${{secrets.TOOL_NODE_FLAGS}} >> .env
+        echo LOG_FILE=${{secrets.LOG_FILE}} >> .env
+        echo PID_FILE=${{secrets.PID_FILE}} >> .env
+        echo ENVIRONMENT=${{secrets.ENVIRONMENT}} >> .env
+        echo PORT=${{secrets.PORT}} >> .env
+        echo DAEMONIZE=${{secrets.DAEMONIZE}} >> .env
+        echo USER=${{secrets.USER}} >> .env
+        cat .env
     - name: Add Passenger file
       working-directory: ../big-dipper-bundle/bundle
       run: |
-        touch Passengerfile.json
-        echo ${{secrets.APP_TYPE}} >> Passengerfile.json
-        echo ${{secrets.STARTUP_FILE}} >> Passengerfile.json
-        echo ${{secrets.MONGO_URL}} >> Passengerfile.json
-        echo ${{secrets.ROOT_URL}} >> Passengerfile.json
-        echo ${{secrets.METEOR_SETTINGS}} >> Passengerfile.json
-        echo ${{secrets.NODE_TLS_REJECT_UNAUTHORIZED}} >> Passengerfile.json
-        echo ${{secrets.NODE_OPTIONS}} >> Passengerfile.json
-        echo ${{secrets.TOOL_NODE_FLAGS}} >> Passengerfile.json
-        echo ${{secrets.LOG_FILE}} >> Passengerfile.json
-        echo ${{secrets.PID_FILE}} >> Passengerfile.json
-        echo ${{secrets.ENVIRONMENT}} >> Passengerfile.json
-        echo ${{secrets.PORT}} >> Passengerfile.json
-        echo ${{secrets.DAEMONIZE}} >> Passengerfile.json
-        echo ${{secrets.USER}} >> Passengerfile.json
+        cp ~/Passengerfile.json .  
         cat Passengerfile.json
     - name: Restart the passenger
       working-directory: ../big-dipper-bundle/bundle
