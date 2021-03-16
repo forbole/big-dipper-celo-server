@@ -31,30 +31,27 @@ jobs:
     - name: Install Dependencies
       working-directory: ../big-dipper-bundle/bundle/programs/server
       run: npm install --production
-    - name: Save Enviroment Variables
+    - name: Add passenger file
       working-directory: ../big-dipper-bundle/bundle
       run: |
-        touch .env
-        echo APP_TYPE=${{secrets.APP_TYPE}} >> .env
-        echo STARTUP_FILE=${{secrets.STARTUP_FILE}} >> .env
-        echo MONGO_URL=${{secrets.MONGO_URL}} >> .env
-        echo ROOT_URL=${{secrets.ROOT_URL}} >> .env
-        echo METEOR_SETTINGS=${{secrets.METEOR_SETTINGS}} >> .env
-        echo NODE_TLS_REJECT_UNAUTHORIZED=${{secrets.NODE_TLS_REJECT_UNAUTHORIZED}} >> .env
-        echo NODE_OPTIONS=${{secrets.NODE_OPTIONS}} >> .env
-        echo TOOL_NODE_FLAGS=${{secrets.TOOL_NODE_FLAGS}} >> .env
-        echo LOG_FILE=${{secrets.LOG_FILE}} >> .env
-        echo PID_FILE=${{secrets.PID_FILE}} >> .env
-        echo ENVIRONMENT=${{secrets.ENVIRONMENT}} >> .env
-        echo PORT=${{secrets.PORT}} >> .env
-        echo DAEMONIZE=${{secrets.DAEMONIZE}} >> .env
-        echo USER=${{secrets.USER}} >> .env
-        cat .env
-    - name: Add Passenger file
-      working-directory: ../big-dipper-bundle/bundle
-      run: |
-        cp ~/Passengerfile.json .  
-        cat Passengerfile.json
+        echo '{
+        "app_type": ${{secrets.APP_TYPE}},
+        "startup_file": ${{secrets.STARTUP_FILE}},
+        "envvars": {
+        "MONGO_URL": ${{secrets.MONGO_URL}},
+        "ROOT_URL":  ${{secrets.ROOT_URL}},
+        "METEOR_SETTINGS": ${{secrets.METEOR_SETTINGS}},
+        "NODE_TLS_REJECT_UNAUTHORIZED": ${{secrets.NODE_TLS_REJECT_UNAUTHORIZED}},
+        "NODE_OPTIONS": ${{secrets.NODE_OPTIONS}},
+        "TOOL_NODE_FLAGS": ${{secrets.TOOL_NODE_FLAGS}}
+        },
+        "log_file": ${{secrets.LOG_FILE}},
+        "pid_file": ${{secrets.PID_FILE}},
+        "environment": ${{secrets.ENVIRONMENT}},
+        "port": ${{secrets.PORT}},
+        "daemonize": ${{secrets.DAEMONIZE}},
+        "user": ${{secrets.USER}}
+        }' > Passengerfile.json
     - name: Restart the passenger
       working-directory: ../big-dipper-bundle/bundle
       run: |
