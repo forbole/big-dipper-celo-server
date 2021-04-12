@@ -12,9 +12,9 @@
   },
   "dependencies": {
     "@babel/runtime": "^7.12.5",
-    "@celo/celocli": "^1.0.1",
-    "@celo/contractkit": "^1.0.2",
-    "@celo/utils": "^1.0.1",
+    "@celo/celocli": "^1.1.0",
+    "@celo/contractkit": "^1.1.0",
+    "@celo/utils": "^1.1.0",
     "@types/meteor": "^1.4.64",
     "abi-decoder": "^2.3.0",
     "apollo-client": "^2.6.10",
@@ -31,7 +31,8 @@
     "numbro": "^2.3.2",
     "react": "^16.14.0",
     "react-dom": "^16.14.0",
-    "web3": "^1.3.0"
+    "web3": "^1.3.0",
+    "web3-eth-contract": "^1.3.5"
   },
   "meteor": {
     "mainModule": {
