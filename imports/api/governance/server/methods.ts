@@ -53,17 +53,17 @@ const saveProposalVotes = (proposalData, getTotalVotes) => {
     // No -> value == 2
     // Yes ->  value == 3
     for (let s = 0; s < getTotalVotes.length; s++) {
-      if (getTotalVotes[s].returnValues.proposalId === item + 2 && getTotalVotes[s].returnValues.value === 1) {
+      if (parseInt(getTotalVotes[s].returnValues.proposalId) === item + 2 && parseInt(getTotalVotes[s].returnValues.value) === 1) {
         votedAbstain += parseFloat(getTotalVotes[s].returnValues.weight);
         votedAbstainList[counterAbstain] = getTotalVotes[s];
         votedAbstainList[counterAbstain].voteType = 'Abstain';
         counterAbstain++;
-      } else if (getTotalVotes[s].returnValues.proposalId === item + 2 && getTotalVotes[s].returnValues.value === 2) {
+      } else if (parseInt(getTotalVotes[s].returnValues.proposalId) === item + 2 && parseInt(getTotalVotes[s].returnValues.value) === 2) {
         votedNo += parseFloat(getTotalVotes[s].returnValues.weight);
         votedNoList[counterNo] = getTotalVotes[s];
         votedNoList[counterNo].voteType = 'No';
         counterNo++;
-      } else if (getTotalVotes[s].returnValues.proposalId === item + 2 && getTotalVotes[s].returnValues.value === 3) {
+      } else if (parseInt(getTotalVotes[s].returnValues.proposalId) === item + 2 && parseInt(getTotalVotes[s].returnValues.value) === 3) {
         votedYes += parseFloat(getTotalVotes[s].returnValues.weight);
         votedYesList[counterYes] = getTotalVotes[s];
         votedYesList[counterYes].voteType = 'Yes';
@@ -146,19 +146,19 @@ const getProposalStage = async (proposalData, getGovernance, executedProposals) 
   const proposalRec = [];
   let status;
 
-  for (let d = 0; d < proposalData.length; d++) {
-    if (proposalData[d].returnValues.proposalId === d + 2) {
+  for (let d = 0; d < proposalData?.length; d++) {
+    if (parseInt(proposalData[d]?.returnValues?.proposalId) === d + 2) {
       proposalRec[d] = await getGovernance.getProposalRecord(d + 2);
-      if (proposalRec[d].stage === ProposalStage.Expiration) {
-        if (proposalRec[d].stage === ProposalStage.Referendum) {
+      if (proposalRec[d]?.stage === ProposalStage.Expiration) {
+        if (proposalRec[d]?.stage === ProposalStage.Referendum) {
           status = 'Referendum';
         }
 
-        if (proposalRec[d].stage === ProposalStage.Execution) {
+        if (proposalRec[d]?.stage === ProposalStage.Execution) {
           status = 'Execution';
         }
 
-        if (executedProposals.find((e) => new BigNumber(e.returnValues.proposalId).eq(proposalData[d].returnValues.proposalId))) {
+        if (executedProposals.find((e) => new BigNumber(e?.returnValues?.proposalId).eq(proposalData[d]?.returnValues?.proposalId))) {
           status = 'Approved';
         } else {
           status = 'Rejected';
@@ -170,7 +170,7 @@ const getProposalStage = async (proposalData, getGovernance, executedProposals) 
           proposalId: d + 2,
         }, {
           $set: {
-            stage: proposalRec[d].stage, status,
+            stage: proposalRec[d]?.stage, status,
           },
         });
       } catch (e) {
