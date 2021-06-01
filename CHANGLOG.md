@@ -1,6 +1,7 @@
 # CHANGELOG
 ## [UNRELEASED]
 * Updated Meteor to v2.2
+* Updated npm packages to the latest version
 
 ## [v0.1.4]
 * Implemented CoinHistoryByDates, CoinHistoryByNumOfDays in Schema and Resolvers
