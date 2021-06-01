@@ -18,12 +18,17 @@ const decodeInput = async (proposalData, proposalQueuedEvent) => {
     try {
       getTransaction = proposalQueuedEvent[c]?.transactionHash ? await web3.eth.getTransaction((proposalQueuedEvent[c]?.transactionHash)) : null;
     } catch (e) {
-      console.log(`Error when gettimg trasction for proposal ${c} ${e}`);
+      console.log(`Error when getting trasction for proposal ${c} ${e}`);
     }
-    const contract = Contracts.findOne({
-      address: proposalQueuedEvent[c]?.address,
-    });
-    abiDecoder.addABI(contract?.ABI);
+    try {
+      const contract = Contracts.findOne({
+        address: proposalQueuedEvent[c]?.address,
+      });
+      const contractABI = contract?.ABI ?? [];
+      abiDecoder.addABI(contractABI);
+    } catch (e) {
+      console.log(`Error when decoding contract ABI ${e}`);
+    }
 
     if (getTransaction) {
       const decodedInput = abiDecoder.decodeMethod(getTransaction?.input);
