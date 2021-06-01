@@ -1,6 +1,8 @@
 # CHANGELOG
-
 ## [UNRELEASED]
+* Updated Meteor to v2.2
+
+## [v0.1.4]
 * Implemented CoinHistoryByDates, CoinHistoryByNumOfDays in Schema and Resolvers
 * Implemented ValidatorGroups query in schema and resolvers
 * Stored total number of elected validators
